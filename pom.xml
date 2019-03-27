@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>25.0.0</version>
+		<relativePath />
+	</parent>
+
+	<groupId>net.trndy</groupId>
+	<artifactId>mastodon-pasteur</artifactId>
+	<version>1.0.0-beta-1-SNAPSHOT</version>
+
+	<name>Mastodon pasteur</name>
+	<description>Mastodon plugins developed in the context of Pasteur users projects.</description>
+	<url>https://github.com/tinevez/mastodon-pasteur</url>
+	<inceptionYear>2019</inceptionYear>
+	<organization>
+		<name>TrNdy</name>
+		<url>http://trndy.org</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>not licensed yet</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<dependencies>
+
+		<!-- Mastodon deps -->
+
+		<dependency>
+			<groupId>net.trackmate</groupId>
+			<artifactId>trackmate</artifactId>
+			<version>1.0.0-beta-13</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mastodon</groupId>
+			<artifactId>mastodon-collection</artifactId>
+			<version>1.0.0-beta-17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mastodon</groupId>
+			<artifactId>mastodon-graph</artifactId>
+			<version>1.0.0-beta-16</version>
+		</dependency>
+		<dependency>
+			<groupId>net.trndy</groupId>
+			<artifactId>mastodon-tracking</artifactId>
+			<version>1.0.0-beta-5</version>
+		</dependency>
+
+		<!-- Other deps -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>scm:git:git:github.com/TrNdy/mastodon-pasteur</connection>
+		<developerConnection>scm:git:git@github.com:TrNdy/mastodon-pasteur</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/TrNdy/mastodon-pasteur</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/TrNdy/mastodon-pasteur/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.org/TrNdy/mastodon-pasteur</url>
+	</ciManagement>
+
+	<properties>
+		<package-name>org.trndy</package-name>
+		<!-- <enforcer.skip>true</enforcer.skip> -->
+		<license.licenseName>not licensed yet</license.licenseName>
+		<license.projectName>mastodon-pasteur</license.projectName>
+		<license.organizationName>Mastodon authors</license.organizationName>
+		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
+
+		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
+		<releaseProfiles>deploy-to-imagej</releaseProfiles>
+	</properties>
+
+	<developers>
+		<developer>
+			<id>tinevez</id>
+			<name>Jean-Yves Tinevez</name>
+			<email>jean-yves.tinevez@pasteur.fr</email>
+			<url>https://research.pasteur.fr/en/member/jean-yves-tinevez/</url>
+			<organization>Institut Pasteur</organization>
+			<organizationUrl>http://www.pasteur.fr/</organizationUrl>
+			<roles>
+				<role>lead</role>
+				<role>developer</role>
+			</roles>
+		</developer>
+		<developer>
+			<id>tpietzsch</id>
+			<name>Tobias Pietzsch</name>
+			<email>pietzsch@mpi-cbg.de</email>
+			<url>http://imagej.net/User:Pietzsch</url>
+			<organization>MPI-CBG</organization>
+			<organizationUrl>http://www.mpi-cbg.de/</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+		</developer>
+	</developers>
+
+	<contributors>
+		<contributor>
+			<name>grrrr</name>
+		</contributor>
+	</contributors>
+
+	<repositories>
+		<repository>
+			<id>imagej.public</id>
+			<url>http://maven.imagej.net/content/groups/public</url>
+		</repository>
+	</repositories>
+</project>
