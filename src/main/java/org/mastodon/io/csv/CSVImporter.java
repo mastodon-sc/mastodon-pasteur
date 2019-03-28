@@ -146,10 +146,11 @@ public class CSVImporter implements Algorithm
 
 			final ModelGraph graph = model.getGraph();
 
-			final DetectionQualityFeature qualityFeature = new DetectionQualityFeature( graph.vertices().getRefPool() );
+			final DetectionQualityFeature qualityFeature = DetectionQualityFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 			Integer qualitycol = null;
 			if ( null != qualityColumn && !qualityColumn.isEmpty() )
 				qualitycol = headerMap.get( qualityColumn );
+
 
 			Integer idcol = null;
 			if ( null != idColumn && !idColumn.isEmpty() )
@@ -341,6 +342,7 @@ public class CSVImporter implements Algorithm
 			if (csvFilePath == null) {
 				errorMessage.append(" - Missing CSV file path.\n");
 				valid = false;
+
 			}
 			if (Double.isNaN(radius)) {
 				errorMessage.append(" - Missing spot radius.\n");
