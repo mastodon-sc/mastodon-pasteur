@@ -5,8 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -419,8 +423,11 @@ public class CSVImporter implements Algorithm
 	 * MAIN METHOD
 	 */
 
-	public static void main( final String[] args ) throws IOException, SpimDataException
+	public static void main( final String[] args ) throws IOException, SpimDataException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
 	{
+		Locale.setDefault( Locale.ROOT );
+		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+
 		final WindowManager wm = new WindowManager( new Context() );
 
 		final String bdvFile = "samples/190123_crop_channel_1.xml";
