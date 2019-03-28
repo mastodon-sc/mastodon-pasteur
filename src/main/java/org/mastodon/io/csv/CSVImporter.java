@@ -11,7 +11,11 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.mastodon.RefPool;
 import org.mastodon.detection.mamut.DetectionQualityFeature;
+import org.mastodon.feature.Dimension;
+import org.mastodon.feature.FeatureModel;
+import org.mastodon.feature.IntScalarFeature;
 import org.mastodon.project.MamutProject;
 import org.mastodon.revised.mamut.MainWindow;
 import org.mastodon.revised.mamut.WindowManager;
@@ -151,7 +155,7 @@ public class CSVImporter implements Algorithm
 			if ( null != qualityColumn && !qualityColumn.isEmpty() )
 				qualitycol = headerMap.get( qualityColumn );
 
-
+			final OriginalIdFeature originalIdFeature = OriginalIdFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 			Integer idcol = null;
 			if ( null != idColumn && !idColumn.isEmpty() )
 				idcol = headerMap.get( idColumn );
@@ -180,6 +184,7 @@ public class CSVImporter implements Algorithm
 						{
 							final int id = Integer.parseInt( record.get( idcol ) );
 							spot.setLabel( "" + id );
+							originalIdFeature.set( spot, id );
 						}
 						double q = 1.;
 						if ( null != qualitycol )
@@ -229,6 +234,31 @@ public class CSVImporter implements Algorithm
 	public String getErrorMessage()
 	{
 		return errorMessage;
+	}
+
+	private static class OriginalIdFeature extends IntScalarFeature< Spot >
+	{
+
+		public static final String KEY = "Original id";
+
+		private static final String HELP_STRING = "Store the id specified in the file that was imported.";
+
+		public OriginalIdFeature( final RefPool< Spot > pool )
+		{
+			super( KEY, HELP_STRING, Dimension.NONE, Dimension.NONE_UNITS, pool );
+		}
+
+		public static final OriginalIdFeature getOrRegister( final FeatureModel featureModel, final RefPool< Spot > pool )
+		{
+			final OriginalIdFeature feature = new OriginalIdFeature( pool );
+			final OriginalIdFeature retrieved = ( OriginalIdFeature ) featureModel.getFeature( feature.getSpec() );
+			if ( null == retrieved )
+			{
+				featureModel.declareFeature( feature );
+				return feature;
+			}
+			return retrieved;
+		}
 	}
 
 	public static class Builder
