@@ -34,6 +34,8 @@ import net.imglib2.algorithm.Algorithm;
 public class CSVImporter implements Algorithm
 {
 
+	public static final String PLUGIN_VERSION = "1.0.0-SNAPSHOT";
+
 	private final String filePath;
 
 	private String errorMessage;
@@ -65,7 +67,6 @@ public class CSVImporter implements Algorithm
 	private final CSVFormat csvFormat = CSVFormat.EXCEL
 			.withHeader()
 			.withCommentMarker( '#' );
-
 
 	private CSVImporter(
 			final Model model,
@@ -159,15 +160,21 @@ public class CSVImporter implements Algorithm
 
 			final ModelGraph graph = model.getGraph();
 
-			final DetectionQualityFeature qualityFeature = DetectionQualityFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 			Integer qualitycol = null;
 			if ( null != qualityColumnName && !qualityColumnName.isEmpty() )
 				qualitycol = headerMap.get( qualityColumnName );
 
-			final OriginalIdFeature originalIdFeature = OriginalIdFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
+			final DetectionQualityFeature qualityFeature = null == qualitycol
+					? null
+					: DetectionQualityFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
+
 			Integer idcol = null;
 			if ( null != idColumnName && !idColumnName.isEmpty() )
 				idcol = headerMap.get( idColumnName );
+
+			final OriginalIdFeature originalIdFeature = null == idcol
+					? null
+					: OriginalIdFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 
 			Integer labelcol = null;
 			if ( null != labelColumnName && !labelColumnName.isEmpty() )
@@ -197,10 +204,10 @@ public class CSVImporter implements Algorithm
 						{
 							final int id = Integer.parseInt( record.get( idcol ) );
 							originalIdFeature.set( spot, id );
-							if (null == labelcol)
+							if ( null == labelcol )
 								spot.setLabel( "" + id );
 						}
-						if (null != labelcol)
+						if ( null != labelcol )
 						{
 							spot.setLabel( record.get( labelcol ) );
 						}
@@ -219,13 +226,11 @@ public class CSVImporter implements Algorithm
 					}
 
 				}
-
-				if ( null != qualitycol )
-					model.getFeatureModel().declareFeature( qualityFeature );
 			}
 			finally
 			{
 				lock.unlock();
+				graph.releaseRef( vref );
 			}
 		}
 		catch ( final FileNotFoundException e )
@@ -388,42 +393,48 @@ public class CSVImporter implements Algorithm
 
 		public CSVImporter get()
 		{
-			final StringBuilder errorMessage = new StringBuilder("Invalid CSV importer definition:\n");
+			final StringBuilder errorMessage = new StringBuilder( "Invalid CSV importer definition:\n" );
 			boolean valid = true;
 
-			if (model == null) {
-				errorMessage.append(" - Missing model.\n");
+			if ( model == null )
+			{
+				errorMessage.append( " - Missing model.\n" );
 				valid = false;
 			}
-			if (csvFilePath == null) {
-				errorMessage.append(" - Missing CSV file path.\n");
+			if ( csvFilePath == null )
+			{
+				errorMessage.append( " - Missing CSV file path.\n" );
 				valid = false;
 
 			}
-			if (Double.isNaN(radius)) {
-				errorMessage.append(" - Missing spot radius.\n");
+			if ( Double.isNaN( radius ) )
+			{
+				errorMessage.append( " - Missing spot radius.\n" );
 				valid = false;
 			}
-			if (xColumnName == null) {
-				errorMessage.append(" - Missing X column name.\n");
+			if ( xColumnName == null )
+			{
+				errorMessage.append( " - Missing X column name.\n" );
 				valid = false;
 			}
-			if (yColumnName == null) {
-				errorMessage.append(" - Missing Y column name.\n");
+			if ( yColumnName == null )
+			{
+				errorMessage.append( " - Missing Y column name.\n" );
 				valid = false;
 			}
-			if (zColumnName == null) {
-				errorMessage.append(" - Missing Z column name.\n");
+			if ( zColumnName == null )
+			{
+				errorMessage.append( " - Missing Z column name.\n" );
 				valid = false;
 			}
-			if (frameColumnName == null) {
-				errorMessage.append(" - Missing frame column name.\n");
+			if ( frameColumnName == null )
+			{
+				errorMessage.append( " - Missing frame column name.\n" );
 				valid = false;
 			}
 
-			if (!valid) {
-				throw new IllegalArgumentException(errorMessage.toString());
-			}
+			if ( !valid )
+				throw new IllegalArgumentException( errorMessage.toString() );
 
 			return new CSVImporter(
 					model,
