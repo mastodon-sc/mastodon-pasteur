@@ -46,9 +46,9 @@ public class CSVImporter implements Algorithm
 
 	private final String frameColumnName;
 
-	private final String qualityColumn;
+	private final String qualityColumnName;
 
-	private final String idColumn;
+	private final String idColumnName;
 
 	private final String labelColumnName;
 
@@ -89,8 +89,8 @@ public class CSVImporter implements Algorithm
 		this.yColumnName = yColumnName;
 		this.zColumnName = zColumnName;
 		this.frameColumnName = frameColumnName;
-		this.qualityColumn = qualityColumName;
-		this.idColumn = idColumnName;
+		this.qualityColumnName = qualityColumName;
+		this.idColumnName = idColumnName;
 		this.labelColumnName = labelColumnName;
 		this.xOrigin = xOrigin;
 		this.yOrigin = yOrigin;
@@ -161,13 +161,13 @@ public class CSVImporter implements Algorithm
 
 			final DetectionQualityFeature qualityFeature = DetectionQualityFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 			Integer qualitycol = null;
-			if ( null != qualityColumn && !qualityColumn.isEmpty() )
-				qualitycol = headerMap.get( qualityColumn );
+			if ( null != qualityColumnName && !qualityColumnName.isEmpty() )
+				qualitycol = headerMap.get( qualityColumnName );
 
 			final OriginalIdFeature originalIdFeature = OriginalIdFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 			Integer idcol = null;
-			if ( null != idColumn && !idColumn.isEmpty() )
-				idcol = headerMap.get( idColumn );
+			if ( null != idColumnName && !idColumnName.isEmpty() )
+				idcol = headerMap.get( idColumnName );
 
 			Integer labelcol = null;
 			if ( null != labelColumnName && !labelColumnName.isEmpty() )
