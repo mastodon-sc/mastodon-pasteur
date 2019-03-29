@@ -50,6 +50,8 @@ public class CSVImporter implements Algorithm
 
 	private final String idColumn;
 
+	private final String labelColumnName;
+
 	private final double radius;
 
 	private final double xOrigin;
@@ -64,6 +66,7 @@ public class CSVImporter implements Algorithm
 			.withHeader()
 			.withCommentMarker( '#' );
 
+
 	private CSVImporter(
 			final Model model,
 			final String filePath,
@@ -74,6 +77,7 @@ public class CSVImporter implements Algorithm
 			final String frameColumnName,
 			final String qualityColumName,
 			final String idColumnName,
+			final String labelColumnName,
 			final double xOrigin,
 			final double yOrigin,
 			final double zOrigin )
@@ -87,6 +91,7 @@ public class CSVImporter implements Algorithm
 		this.frameColumnName = frameColumnName;
 		this.qualityColumn = qualityColumName;
 		this.idColumn = idColumnName;
+		this.labelColumnName = labelColumnName;
 		this.xOrigin = xOrigin;
 		this.yOrigin = yOrigin;
 		this.zOrigin = zOrigin;
@@ -164,6 +169,10 @@ public class CSVImporter implements Algorithm
 			if ( null != idColumn && !idColumn.isEmpty() )
 				idcol = headerMap.get( idColumn );
 
+			Integer labelcol = null;
+			if ( null != labelColumnName && !labelColumnName.isEmpty() )
+				labelcol = headerMap.get( labelColumnName );
+
 			/*
 			 * Iterate over records.
 			 */
@@ -187,8 +196,13 @@ public class CSVImporter implements Algorithm
 						if ( null != idcol )
 						{
 							final int id = Integer.parseInt( record.get( idcol ) );
-							spot.setLabel( "" + id );
 							originalIdFeature.set( spot, id );
+							if (null == labelcol)
+								spot.setLabel( "" + id );
+						}
+						if (null != labelcol)
+						{
+							spot.setLabel( record.get( labelcol ) );
 						}
 						double q = 1.;
 						if ( null != qualitycol )
@@ -286,6 +300,8 @@ public class CSVImporter implements Algorithm
 
 		private String idColumnName;
 
+		private String labelColumnName;
+
 		private double xOrigin = 0.;
 
 		private double yOrigin = 0.;
@@ -343,6 +359,12 @@ public class CSVImporter implements Algorithm
 		public Builder idColumnName( final String idColumnName )
 		{
 			this.idColumnName = idColumnName;
+			return this;
+		}
+
+		public Builder labelColumnName( final String labelColumnName )
+		{
+			this.labelColumnName = labelColumnName;
 			return this;
 		}
 
@@ -413,6 +435,7 @@ public class CSVImporter implements Algorithm
 					frameColumnName,
 					qualityColumnName,
 					idColumnName,
+					labelColumnName,
 					xOrigin,
 					yOrigin,
 					zOrigin );
