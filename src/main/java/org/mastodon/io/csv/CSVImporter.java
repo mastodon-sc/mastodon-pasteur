@@ -1,34 +1,35 @@
 package org.mastodon.io.csv;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Reader;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
-
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.mastodon.RefPool;
+import org.mastodon.collection.RefCollection;
 import org.mastodon.detection.mamut.DetectionQualityFeature;
 import org.mastodon.feature.Dimension;
+import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureModel;
+import org.mastodon.feature.FeatureProjectionSpec;
+import org.mastodon.feature.FeatureSpec;
 import org.mastodon.feature.IntScalarFeature;
-import org.mastodon.project.MamutProject;
-import org.mastodon.revised.mamut.MainWindow;
-import org.mastodon.revised.mamut.WindowManager;
+import org.mastodon.feature.IntScalarFeatureSerializer;
+import org.mastodon.feature.Multiplicity;
+import org.mastodon.feature.io.FeatureSerializer;
+import org.mastodon.io.FileIdToObjectMap;
+import org.mastodon.properties.IntPropertyMap;
 import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.model.mamut.ModelGraph;
 import org.mastodon.revised.model.mamut.Spot;
-import org.scijava.Context;
+import org.scijava.plugin.Plugin;
 
-import mpicbg.spim.data.SpimDataException;
 import net.imglib2.algorithm.Algorithm;
 
 public class CSVImporter implements Algorithm
@@ -266,22 +267,70 @@ public class CSVImporter implements Algorithm
 
 		private static final String HELP_STRING = "Store the id specified in the file that was imported.";
 
-		public OriginalIdFeature( final RefPool< Spot > pool )
+		public static final Spec SPEC = new Spec();
+
+		@Plugin(type = FeatureSpec.class)
+		public static class Spec extends FeatureSpec< OriginalIdFeature, Spot >
 		{
-			super( KEY, HELP_STRING, Dimension.NONE, Dimension.NONE_UNITS, pool );
+			public Spec()
+			{
+				super(
+						KEY,
+						HELP_STRING,
+						OriginalIdFeature.class,
+						Spot.class,
+						Multiplicity.SINGLE,
+						new FeatureProjectionSpec( KEY, Dimension.NONE) );
+			}
+		}
+
+		private OriginalIdFeature( final RefPool< Spot > pool )
+		{
+			super( KEY, Dimension.NONE, Dimension.NONE_UNITS, pool );
+		}
+
+		private OriginalIdFeature( final IntPropertyMap< Spot > map )
+		{
+			super(  KEY, Dimension.NONE, Dimension.NONE_UNITS, map );
+		}
+
+
+		@Override
+		public FeatureSpec< ? extends Feature< Spot >, Spot > getSpec()
+		{
+			return SPEC;
 		}
 
 		public static final OriginalIdFeature getOrRegister( final FeatureModel featureModel, final RefPool< Spot > pool )
 		{
-			final OriginalIdFeature feature = new OriginalIdFeature( pool );
-			final OriginalIdFeature retrieved = ( OriginalIdFeature ) featureModel.getFeature( feature.getSpec() );
+			final OriginalIdFeature retrieved = ( OriginalIdFeature ) featureModel.getFeature( SPEC );
 			if ( null == retrieved )
 			{
+				final OriginalIdFeature feature = new OriginalIdFeature( pool );
 				featureModel.declareFeature( feature );
 				return feature;
 			}
 			return retrieved;
 		}
+
+		@Plugin( type = FeatureSerializer.class )
+		public static final class OriginalIdFeatureSerializer extends IntScalarFeatureSerializer< OriginalIdFeature, Spot >
+		{
+
+			@Override
+			public FeatureSpec< OriginalIdFeature, Spot > getFeatureSpec()
+			{
+				return SPEC;
+			}
+
+			@Override
+			public OriginalIdFeature deserialize( final FileIdToObjectMap< Spot > idmap, final RefCollection< Spot > pool, final ObjectInputStream ois ) throws IOException, ClassNotFoundException
+			{
+				final DeserializedStruct struct = read( idmap, pool, ois );
+				return new OriginalIdFeature( struct.map );
+			}
+		}
+
 	}
 
 	public static class Builder
@@ -451,46 +500,5 @@ public class CSVImporter implements Algorithm
 					yOrigin,
 					zOrigin );
 		}
-	}
-
-	/*
-	 * MAIN METHOD
-	 */
-
-	public static void main( final String[] args ) throws IOException, SpimDataException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
-	{
-		Locale.setDefault( Locale.ROOT );
-		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-
-		final WindowManager wm = new WindowManager( new Context() );
-
-		final String bdvFile = "samples/190123_crop_channel_1.xml";
-		final MamutProject project = new MamutProject( null, new File( bdvFile ) );
-		wm.getProjectManager().open( project );
-		new MainWindow( wm ).setVisible( true );
-
-		final Model model = wm.getAppModel().getModel();
-		final String csvFilePath = "samples/forTrackMate.csv";
-		final CSVImporter importer = CSVImporter.create()
-				.model( model )
-				.csvFilePath( csvFilePath )
-				.radius( 2. )
-				.xColumnName( "x" )
-				.yColumnName( "y" )
-				.zColumnName( "z" )
-				.frameColumnName( "t" )
-				.idColumnName( "index" )
-				.get();
-
-		System.out.println( "Starting import" );
-		final long start = System.currentTimeMillis();
-		if ( !importer.checkInput() || !importer.process() )
-		{
-			System.out.println( importer.getErrorMessage() );
-			return;
-		}
-		System.out.println( String.format( "Finished import of %d spots in %.1f s.",
-				model.getGraph().vertices().size(),
-				( System.currentTimeMillis() - start ) / 1000. ) );
 	}
 }
