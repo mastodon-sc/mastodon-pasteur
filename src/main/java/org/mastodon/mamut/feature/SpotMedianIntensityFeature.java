@@ -27,7 +27,8 @@ public class SpotMedianIntensityFeature implements Feature< Spot >
 
 	private static final String KEY = "Spot median intensity";
 
-	private static final String HELP_STRING = "Computes the median intensity inside a spot, in a volume given by the minimal radius of the spot ellipsoid.";
+	private static final String HELP_STRING = "Computes the median intensity inside a spot, "
+			+ "for the pixels inside the largest box that fits into the spot ellipsoid.";
 
 	private static final FeatureProjectionSpec PROJECTION_SPEC = new FeatureProjectionSpec( "Median", Dimension.INTENSITY );
 

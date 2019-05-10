@@ -62,9 +62,9 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 	{
 		if ( null == output )
 		{
-			//  Try to get it from the FeatureModel, if we deserialized a model.
+			// Try to get it from the FeatureModel, if we deserialized a model.
 			final Feature< ? > feature = model.getFeatureModel().getFeature( SpotMedianIntensityFeature.SPEC );
-			if (null != feature )
+			if ( null != feature )
 			{
 				output = ( SpotMedianIntensityFeature ) feature;
 				return;
@@ -116,8 +116,6 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 		final double[] pos = new double[ 3 ];
 		// Spot center holder in image coords.
 		final RealPoint center = RealPoint.wrap( pos );
-		// Spot center position holder in integer image coords.
-		final long[] p = new long[ 3 ];
 		// ROI min & max holders;
 		final long[] roiMin = new long[ 3 ];
 		final long[] roiMax = new long[ 3 ];
@@ -161,18 +159,16 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 
 					// Spot location in pixel units.
 					transform.applyInverse( center, spot );
-					for ( int d = 0; d < pos.length; d++ )
-						p[ d ] = Math.round( pos[ d ] );
 
 					// Compute ROI.
 					final double minRadius = minRadius( spot, cov );
 					for ( int d = 0; d < 3; d++ )
 					{
-						roiMin[ d ] = ( long ) Math.max( rai.min( d ), p[ d ] - minRadius / calibration[ d ] + 1 );
-						roiMax[ d ] = ( long ) Math.min( rai.max( d ), p[ d ] + minRadius / calibration[ d ] - 1 );
+						roiMin[ d ] = Math.max( rai.min( d ), Math.round( pos[ d ] - minRadius / calibration[ d ] / Math.sqrt( 3 ) ) );
+						roiMax[ d ] = Math.min( rai.max( d ), Math.round( pos[ d ] + minRadius / calibration[ d ] / Math.sqrt( 3 ) ) );
 					}
 
-					// Iterate over pixels.
+					// Iterate over pixels inside the sphere.
 					array.clear();
 					for ( final RealType< ? > pixel : Views.interval( rai, roiMin, roiMax ) )
 						array.addElement( pixel.getRealDouble() );
