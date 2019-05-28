@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.IntFunction;
 
@@ -71,9 +72,12 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 			}
 
 			// Create a new one.
-			output = new SpotMedianIntensityFeature(
-					bdvData.getSources().size(),
-					model.getGraph().vertices().getRefPool() );
+			final int nSources = bdvData.getSources().size();
+			final List<DoublePropertyMap< Spot >> medians = new ArrayList<>( nSources );
+			for ( int i = 0; i < nSources; i++ )
+				medians.add( new DoublePropertyMap<>( model.getGraph().vertices().getRefPool(), Double.NaN ) );
+
+			output = new SpotMedianIntensityFeature( medians );
 		}
 	}
 
