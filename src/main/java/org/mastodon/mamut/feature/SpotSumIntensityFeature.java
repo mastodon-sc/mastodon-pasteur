@@ -28,7 +28,7 @@ public class SpotSumIntensityFeature implements Feature< Spot >
 	private static final String HELP_STRING = "Computes the total intensity inside a spot, "
 			+ "for the pixels inside the spot ellipsoid.";
 
-	private static final FeatureProjectionSpec PROJECTION_SPEC = new FeatureProjectionSpec( "Median", Dimension.INTENSITY );
+	private static final FeatureProjectionSpec PROJECTION_SPEC = new FeatureProjectionSpec( "Sum", Dimension.INTENSITY );
 
 	public static final Spec SPEC = new Spec();
 
