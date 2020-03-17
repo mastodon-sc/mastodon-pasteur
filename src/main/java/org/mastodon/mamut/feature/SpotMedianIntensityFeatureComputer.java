@@ -13,13 +13,10 @@ import org.apache.commons.math3.util.ResizableDoubleArray;
 import org.mastodon.RefPool;
 import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.feature.DefaultFeatureComputerService.FeatureComputationStatus;
-import org.mastodon.feature.update.GraphUpdate;
-import org.mastodon.feature.update.GraphUpdate.UpdateLocality;
-import org.mastodon.feature.update.GraphUpdateStack;
+import org.mastodon.feature.update.Update;
 import org.mastodon.properties.DoublePropertyMap;
 import org.mastodon.revised.bdv.SharedBigDataViewerData;
 import org.mastodon.revised.bdv.overlay.util.JamaEigenvalueDecomposition;
-import org.mastodon.revised.model.mamut.Link;
 import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.model.mamut.Spot;
 import org.scijava.Cancelable;
@@ -47,7 +44,7 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 	private Model model;
 
 	@Parameter
-	private GraphUpdateStack< Spot, Link > update;
+	private SpotUpdateStack update;
 
 	@Parameter
 	private FeatureComputationStatus status;
@@ -79,9 +76,9 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 
 		// Spots to process, per time-point.
 		final IntFunction< Iterable< Spot > > index;
-		final GraphUpdate< Spot, Link > changes = update.changesFor( SpotMedianIntensityFeature.SPEC );
+		final Update< Spot > changes = update.changesFor( SpotMedianIntensityFeature.SPEC );
 
-		if (null == changes)
+		if ( null == changes )
 		{
 			// Redo all.
 			index = ( timepoint ) -> model.getSpatioTemporalIndex().getSpatialIndex( timepoint );
@@ -110,8 +107,8 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 		// Spot center position holder in integer image coords.
 		final long[] p = new long[ 3 ];
 		// ROI min & max holders;
-		final long[] roiMin = new long[3];
-		final long[] roiMax = new long[3];
+		final long[] roiMin = new long[ 3 ];
+		final long[] roiMax = new long[ 3 ];
 		// Storage for intensity values.
 		final ResizableDoubleArray array = new ResizableDoubleArray();
 		// Median computer.
@@ -120,10 +117,9 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 		final int numTimepoints = bdvData.getNumTimepoints();
 		int nSourcesToCompute = 0;
 		for ( final boolean process : processSource )
-			if (process)
+			if ( process )
 				nSourcesToCompute++;
 		final int todo = numTimepoints * nSourcesToCompute;
-
 
 		final ArrayList< SourceAndConverter< ? > > sources = bdvData.getSources();
 		final int nSources = sources.size();
@@ -160,8 +156,8 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 					final double minRadius = minRadius( spot, cov );
 					for ( int d = 0; d < 3; d++ )
 					{
-						roiMin[d] = ( long ) Math.max( rai.min( d ), p[ d ] - minRadius / calibration[ d ] + 1 );
-						roiMax[d] = ( long ) Math.min( rai.max( d ), p[ d ] + minRadius / calibration[ d ] - 1 );
+						roiMin[ d ] = ( long ) Math.max( rai.min( d ), p[ d ] - minRadius / calibration[ d ] + 1 );
+						roiMax[ d ] = ( long ) Math.min( rai.max( d ), p[ d ] + minRadius / calibration[ d ] - 1 );
 					}
 
 					// Iterate over pixels.
@@ -191,16 +187,15 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 		return radius;
 	}
 
-
 	private static final class MyIndex implements IntFunction< Iterable< Spot > >
 	{
 
 		private final Map< Integer, Collection< Spot > > index;
 
-		public MyIndex( final GraphUpdate< Spot, Link > update, final RefPool< Spot > pool )
+		public MyIndex( final Update< Spot > update, final RefPool< Spot > pool )
 		{
 			this.index = new HashMap<>();
-			for ( final Spot spot : update.vertices( UpdateLocality.SELF ) )
+			for ( final Spot spot : update.get() )
 			{
 				final int timepoint = spot.getTimepoint();
 				index
