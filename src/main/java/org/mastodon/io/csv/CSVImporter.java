@@ -18,8 +18,12 @@ import org.apache.commons.csv.CSVRecord;
 import org.mastodon.RefPool;
 import org.mastodon.detection.mamut.DetectionQualityFeature;
 import org.mastodon.feature.Dimension;
+import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureModel;
+import org.mastodon.feature.FeatureProjectionSpec;
+import org.mastodon.feature.FeatureSpec;
 import org.mastodon.feature.IntScalarFeature;
+import org.mastodon.feature.Multiplicity;
 import org.mastodon.project.MamutProject;
 import org.mastodon.revised.mamut.MainWindow;
 import org.mastodon.revised.mamut.WindowManager;
@@ -27,6 +31,7 @@ import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.model.mamut.ModelGraph;
 import org.mastodon.revised.model.mamut.Spot;
 import org.scijava.Context;
+import org.scijava.plugin.Plugin;
 
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.algorithm.Algorithm;
@@ -261,6 +266,23 @@ public class CSVImporter implements Algorithm
 
 	private static class OriginalIdFeature extends IntScalarFeature< Spot >
 	{
+		
+		@Plugin(type = FeatureSpec.class)
+		public static class Spec extends FeatureSpec< OriginalIdFeature, Spot >
+		{
+			public Spec()
+			{
+				super(
+						KEY,
+						HELP_STRING,
+						OriginalIdFeature.class,
+						Spot.class,
+						Multiplicity.SINGLE,
+						new FeatureProjectionSpec( KEY, Dimension.NONE ) );
+			}
+		}
+		
+		public static final Spec SPEC = new Spec();
 
 		public static final String KEY = "Original id";
 
@@ -268,7 +290,7 @@ public class CSVImporter implements Algorithm
 
 		public OriginalIdFeature( final RefPool< Spot > pool )
 		{
-			super( KEY, HELP_STRING, Dimension.NONE, Dimension.NONE_UNITS, pool );
+			super( KEY, Dimension.NONE, Dimension.NONE_UNITS, pool );
 		}
 
 		public static final OriginalIdFeature getOrRegister( final FeatureModel featureModel, final RefPool< Spot > pool )
@@ -281,6 +303,11 @@ public class CSVImporter implements Algorithm
 				return feature;
 			}
 			return retrieved;
+		}
+
+		@Override
+		public FeatureSpec<? extends Feature<Spot>, Spot> getSpec() {
+			return SPEC;
 		}
 	}
 
