@@ -32,6 +32,7 @@ import org.mastodon.revised.model.mamut.ModelGraph;
 import org.mastodon.revised.model.mamut.Spot;
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
+import org.scijava.util.VersionUtils;
 
 import mpicbg.spim.data.SpimDataException;
 import net.imglib2.algorithm.Algorithm;
@@ -39,7 +40,7 @@ import net.imglib2.algorithm.Algorithm;
 public class CSVImporter implements Algorithm
 {
 
-	public static final String PLUGIN_VERSION = "1.0.0-SNAPSHOT";
+	public static final String PLUGIN_VERSION = VersionUtils.getVersion( CSVImporter.class );
 
 	private final String filePath;
 
