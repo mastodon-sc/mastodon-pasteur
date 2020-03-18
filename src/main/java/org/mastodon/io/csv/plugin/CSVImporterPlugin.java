@@ -3,43 +3,32 @@ package org.mastodon.io.csv.plugin;
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.swing.JDialog;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.WindowConstants;
 
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
 import org.mastodon.io.csv.ui.CSVImporterUIController;
 import org.mastodon.plugin.MastodonPlugin;
 import org.mastodon.plugin.MastodonPluginAppModel;
-import org.mastodon.project.MamutProject;
 import org.mastodon.revised.mamut.KeyConfigContexts;
-import org.mastodon.revised.mamut.MainWindow;
 import org.mastodon.revised.mamut.MamutMenuBuilder;
-import org.mastodon.revised.mamut.WindowManager;
 import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.revised.ui.keymap.CommandDescriptions;
-import org.scijava.Context;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
-
-import mpicbg.spim.data.SpimDataException;
 
 @Plugin( type = CSVImporterPlugin.class )
 public class CSVImporterPlugin implements MastodonPlugin
 {
 
-	public static final String[] MENU_PATH = new String[] { "Plugins", "CSV Importer" };
+	public static final String[] MENU_PATH = new String[] { "Plugins" };
 
 	public static final String SHOW_CSV_IMPORTER_DIALOG_ACTION = "show csv importer dialog";
 
@@ -49,7 +38,7 @@ public class CSVImporterPlugin implements MastodonPlugin
 
 	static
 	{
-		menuTexts.put( SHOW_CSV_IMPORTER_DIALOG_ACTION, "Show CSV importer dialog" );
+		menuTexts.put( SHOW_CSV_IMPORTER_DIALOG_ACTION, "CSV Importer" );
 	}
 
 	private final ToggleCSVImporterDialogAction toggleImporterDialog = new ToggleCSVImporterDialogAction();
@@ -143,35 +132,5 @@ public class CSVImporterPlugin implements MastodonPlugin
 		{
 			return controller;
 		}
-	}
-
-	/*
-	 * MAIN METHOD.
-	 */
-
-	public static void main( final String[] args ) throws IOException, SpimDataException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
-	{
-		Locale.setDefault( Locale.ROOT );
-		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-
-		final WindowManager wm = new WindowManager( new Context() );
-
-		final String bdvFile = "samples/190123_crop_channel_1.xml";
-		final MamutProject project = new MamutProject( null, new File( bdvFile ) );
-		wm.getProjectManager().open( project );
-		new MainWindow( wm ).setVisible( true );
-
-		final String csvFilePath = "samples/forTrackMate.csv";
-
-		final ToggleCSVImporterDialogAction action = ( ToggleCSVImporterDialogAction ) wm.getAppModel()
-				.getPlugins()
-				.getPluginActions()
-				.getActionMap()
-				.get( SHOW_CSV_IMPORTER_DIALOG_ACTION );
-
-		final CSVImporterUIController controller = action.getController();
-		controller.setCSVFile( new File( csvFilePath ) );
-
-		action.actionPerformed( null );
 	}
 }
