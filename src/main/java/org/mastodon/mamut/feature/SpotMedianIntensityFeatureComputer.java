@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.IntFunction;
 
-import org.apache.commons.math3.stat.descriptive.rank.Median;
-import org.apache.commons.math3.util.ResizableDoubleArray;
 import org.mastodon.RefPool;
 import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.feature.DefaultFeatureComputerService.FeatureComputationStatus;
@@ -23,6 +21,7 @@ import org.scijava.Cancelable;
 import org.scijava.ItemIO;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
+import org.scijava.util.DoubleArray;
 
 import bdv.util.Affine3DHelpers;
 import bdv.viewer.Source;
@@ -110,9 +109,7 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 		final long[] roiMin = new long[ 3 ];
 		final long[] roiMax = new long[ 3 ];
 		// Storage for intensity values.
-		final ResizableDoubleArray array = new ResizableDoubleArray();
-		// Median computer.
-		final Median median = new Median();
+		final DoubleArray array = new DoubleArray();
 
 		final int numTimepoints = bdvData.getNumTimepoints();
 		int nSourcesToCompute = 0;
@@ -163,10 +160,13 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 					// Iterate over pixels.
 					array.clear();
 					for ( final RealType< ? > pixel : Views.interval( rai, roiMin, roiMax ) )
-						array.addElement( pixel.getRealDouble() );
+						array.addValue( pixel.getRealDouble() );
 
 					// Store median.
-					output.medians.get( iSource ).set( spot, median.evaluate( array.getElements() ) );
+					final double[] arr = array.getArray();
+					Arrays.sort( arr, 0, array.size() );
+					final double median = arr[ array.size() / 2 ];
+					output.medians.get( iSource ).set( spot, median );
 				}
 			}
 		}
