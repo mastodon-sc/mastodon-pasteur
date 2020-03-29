@@ -60,13 +60,12 @@ public class CSVImporter implements Algorithm
 
 	private final Model model;
 
-	private final CSVFormat csvFormat = CSVFormat.EXCEL
-			.withHeader()
-			.withCommentMarker( '#' );
+	private char separator;
 
 	private CSVImporter(
 			final Model model,
 			final String filePath,
+			final char separator,
 			final double radius,
 			final String xColumnName,
 			final String yColumnName,
@@ -81,6 +80,7 @@ public class CSVImporter implements Algorithm
 	{
 		this.model = model;
 		this.filePath = filePath;
+		this.separator = separator;
 		this.radius = radius;
 		this.xColumnName = xColumnName;
 		this.yColumnName = yColumnName;
@@ -102,6 +102,30 @@ public class CSVImporter implements Algorithm
 	@Override
 	public boolean checkInput()
 	{
+		final CSVFormat csvFormat = CSVFormat.EXCEL
+				.withHeader()
+				.withCommentMarker( '#' );
+		try (Reader in = new FileReader( filePath );
+				CSVParser records = csvFormat.parse( in );)
+		{
+			final Map< String, Integer > headerMap = records.getHeaderMap();
+			if ( null == headerMap )
+			{
+				errorMessage = "File " + filePath + " does not have a header.\n";
+				return false;
+			}
+
+		}
+		catch ( final FileNotFoundException e )
+		{
+			errorMessage = "Could not find file " + filePath + "\n" + e.getMessage();
+			return false;
+		}
+		catch ( final IOException e )
+		{
+			errorMessage = "Error reading file " + filePath + "\n" + e.getMessage();
+			return false;
+		}
 		return true;
 	}
 
@@ -111,6 +135,23 @@ public class CSVImporter implements Algorithm
 		/*
 		 * Open and parse file.
 		 */
+
+		if ( separator == '\0' )
+		{
+			try
+			{
+				separator = AutoDetectCSVSeparator.autoDetect( filePath );
+			}
+			catch ( final IOException e1 )
+			{
+				separator = ',';
+			}
+		}
+
+		final CSVFormat csvFormat = CSVFormat.EXCEL
+				.withHeader()
+				.withCommentMarker( '#' )
+				.withDelimiter( separator );
 
 		try (Reader in = new FileReader( filePath );
 				CSVParser records = csvFormat.parse( in );)
@@ -257,8 +298,8 @@ public class CSVImporter implements Algorithm
 
 	private static class OriginalIdFeature extends IntScalarFeature< Spot >
 	{
-		
-		@Plugin(type = FeatureSpec.class)
+
+		@Plugin( type = FeatureSpec.class )
 		public static class Spec extends FeatureSpec< OriginalIdFeature, Spot >
 		{
 			public Spec()
@@ -272,7 +313,7 @@ public class CSVImporter implements Algorithm
 						new FeatureProjectionSpec( KEY, Dimension.NONE ) );
 			}
 		}
-		
+
 		public static final Spec SPEC = new Spec();
 
 		public static final String KEY = "Original id";
@@ -297,7 +338,8 @@ public class CSVImporter implements Algorithm
 		}
 
 		@Override
-		public FeatureSpec<? extends Feature<Spot>, Spot> getSpec() {
+		public FeatureSpec< ? extends Feature< Spot >, Spot > getSpec()
+		{
 			return SPEC;
 		}
 	}
@@ -330,6 +372,8 @@ public class CSVImporter implements Algorithm
 		private double yOrigin = 0.;
 
 		private double zOrigin = 0.;
+
+		private char separator = '\0';
 
 		public Builder model( final Model model )
 		{
@@ -409,6 +453,22 @@ public class CSVImporter implements Algorithm
 			return this;
 		}
 
+		/**
+		 * Specifies the separator character to use to read the CSV file. If it
+		 * is left unset, or set to the character '\0', then the separator is
+		 * automatically determined by inspecting the first few lines of the CSV
+		 * file.
+		 * 
+		 * @param separator
+		 *            the separator to use.
+		 * @return this builder.
+		 */
+		public Builder separator( final char separator )
+		{
+			this.separator = separator;
+			return this;
+		}
+
 		public CSVImporter get()
 		{
 			final StringBuilder errorMessage = new StringBuilder( "Invalid CSV importer definition:\n" );
@@ -457,6 +517,7 @@ public class CSVImporter implements Algorithm
 			return new CSVImporter(
 					model,
 					csvFilePath,
+					separator,
 					radius,
 					xColumnName,
 					yColumnName,
