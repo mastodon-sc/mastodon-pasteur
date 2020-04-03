@@ -37,12 +37,12 @@
 		<dependency>
 			<groupId>org.mastodon</groupId>
 			<artifactId>mastodon</artifactId>
-			<version>1.0.0-beta-14</version>
+			<version>1.0.0-beta-15</version>
 		</dependency>
 		<dependency>
 			<groupId>org.mastodon</groupId>
 			<artifactId>mastodon-tracking</artifactId>
-			<version>1.0.0-beta-6-SNAPSHOT</version>
+			<version>1.0.0-beta-6</version>
 		</dependency>
 
 		<!-- Other deps -->
@@ -89,6 +89,8 @@
 		<license.projectName>mastodon-pasteur</license.projectName>
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
+		<bigdataviewer-core.version>9.0.1</bigdataviewer-core.version>
+		<ui-behaviour.version>2.0.1</ui-behaviour.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
@@ -129,7 +131,7 @@
 	<repositories>
 		<repository>
 			<id>scijava.public</id>
-			<url>http://maven.scijava.org/content/groups/public</url>
+			<url>https://maven.scijava.org/content/groups/public</url>
 		</repository>
 	</repositories>
 </project>
