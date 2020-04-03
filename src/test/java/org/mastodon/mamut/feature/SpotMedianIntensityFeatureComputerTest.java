@@ -14,11 +14,14 @@ import org.mastodon.feature.FeatureSpec;
 import org.mastodon.io.csv.CSVImporter;
 import org.mastodon.io.csv.CSVImporterTest;
 import org.mastodon.project.MamutProject;
-import org.mastodon.revised.mamut.WindowManager;
+import org.mastodon.revised.bdv.SharedBigDataViewerData;
 import org.mastodon.revised.model.mamut.Model;
 import org.mastodon.revised.model.mamut.Spot;
 import org.scijava.Context;
 
+import bdv.spimdata.SpimDataMinimal;
+import bdv.spimdata.XmlIoSpimDataMinimal;
+import bdv.viewer.ViewerOptions;
 import mpicbg.spim.data.SpimDataException;
 
 public class SpotMedianIntensityFeatureComputerTest
@@ -37,11 +40,16 @@ public class SpotMedianIntensityFeatureComputerTest
 		final URL urlCSV = CSVImporterTest.class.getResource( "TestMedianCSVImport.csv" );
 		final String csvFilePath = urlCSV.getPath();
 
-		final WindowManager wm = new WindowManager( new Context() );
-		final MamutProject project = new MamutProject( null, new File( bdvFilePath ) );
-		wm.getProjectManager().open( project );
+		final SpimDataMinimal spimData = new XmlIoSpimDataMinimal().load( bdvFilePath );
+		final SharedBigDataViewerData sharedBdvData = new SharedBigDataViewerData(
+				bdvFilePath,
+				spimData,
+				ViewerOptions.options(),
+				() -> {} );
 
-		final Model model = wm.getAppModel().getModel();
+		final MamutProject project = new MamutProject( null, new File( bdvFilePath ) );
+		final Model model = new Model( project.getSpaceUnits(), project.getTimeUnits() );
+
 		final CSVImporter importer = CSVImporter.create()
 				.model( model )
 				.csvFilePath( csvFilePath )
@@ -59,11 +67,10 @@ public class SpotMedianIntensityFeatureComputerTest
 		/*
 		 * Compute median value.
 		 */
-
-		final Context context = wm.getContext();
+		final Context context = new Context( MamutFeatureComputerService.class );
 		final MamutFeatureComputerService featureComputerService = context.getService( MamutFeatureComputerService.class );
 		featureComputerService.setModel( model );
-		featureComputerService.setSharedBdvData( wm.getAppModel().getSharedBdvData() );
+		featureComputerService.setSharedBdvData( sharedBdvData );
 		System.out.println( "Computing spot intensity..." );
 		final Map< FeatureSpec< ?, ? >, Feature< ? > > features = featureComputerService.compute(
 				SpotMedianIntensityFeature.SPEC );

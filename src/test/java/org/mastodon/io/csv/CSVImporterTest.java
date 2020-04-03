@@ -3,16 +3,12 @@ package org.mastodon.io.csv;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
 import org.junit.Test;
 import org.mastodon.detection.mamut.DetectionQualityFeature;
-import org.mastodon.project.MamutProject;
-import org.mastodon.revised.mamut.WindowManager;
 import org.mastodon.revised.model.mamut.Model;
-import org.scijava.Context;
 
 import mpicbg.spim.data.SpimDataException;
 
@@ -22,17 +18,11 @@ public class CSVImporterTest
 	@Test
 	public void test() throws IOException, SpimDataException
 	{
-		final URL urlFile = CSVImporterTest.class.getResource( "TestMedianCSVImport.xml" );
-		final String bdvFilePath = urlFile.getPath();
-
 		final URL urlCSV = CSVImporterTest.class.getResource( "TestMedianCSVImport.csv" );
 		final String csvFilePath = urlCSV.getPath();
 
-		final WindowManager wm = new WindowManager( new Context() );
-		final MamutProject project = new MamutProject( null, new File( bdvFilePath ) );
-		wm.getProjectManager().open( project );
+		final Model model = new Model();
 
-		final Model model = wm.getAppModel().getModel();
 		final CSVImporter importer = CSVImporter.create()
 				.model( model )
 				.csvFilePath( csvFilePath )
@@ -63,5 +53,4 @@ public class CSVImporterTest
 			assertEquals( "Imported incorrect value for quality.", expectedQ[ id ], quality.value( s ), 1e-3 );
 		} );
 	}
-
 }
