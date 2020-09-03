@@ -11,12 +11,12 @@ import java.util.Map;
 import org.junit.Test;
 import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureSpec;
-import org.mastodon.io.csv.CSVImporter;
-import org.mastodon.io.csv.CSVImporterTest;
-import org.mastodon.project.MamutProject;
-import org.mastodon.revised.bdv.SharedBigDataViewerData;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.Spot;
+import org.mastodon.mamut.io.csv.CSVImporter;
+import org.mastodon.mamut.io.csv.CSVImporterTest;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.project.MamutProject;
+import org.mastodon.views.bdv.SharedBigDataViewerData;
 import org.scijava.Context;
 
 import bdv.spimdata.SpimDataMinimal;

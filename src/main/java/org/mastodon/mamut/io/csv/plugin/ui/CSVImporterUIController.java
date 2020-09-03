@@ -1,4 +1,4 @@
-package org.mastodon.io.csv.ui;
+package org.mastodon.mamut.io.csv.plugin.ui;
 
 import java.awt.FileDialog;
 import java.io.File;
@@ -15,8 +15,8 @@ import javax.swing.JFrame;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
-import org.mastodon.io.csv.CSVImporter;
-import org.mastodon.revised.model.mamut.Model;
+import org.mastodon.mamut.io.csv.CSVImporter;
+import org.mastodon.mamut.model.Model;
 import org.scijava.log.Logger;
 import org.scijava.log.StderrLogService;
 

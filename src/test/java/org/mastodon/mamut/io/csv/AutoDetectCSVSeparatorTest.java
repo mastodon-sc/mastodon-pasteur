@@ -1,4 +1,4 @@
-package org.mastodon.io.csv;
+package org.mastodon.mamut.io.csv;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

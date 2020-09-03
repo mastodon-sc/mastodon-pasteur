@@ -1,4 +1,4 @@
-package org.mastodon.io.csv;
+package org.mastodon.mamut.io.csv;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -11,7 +11,6 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.mastodon.RefPool;
-import org.mastodon.detection.mamut.DetectionQualityFeature;
 import org.mastodon.feature.Dimension;
 import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureModel;
@@ -19,9 +18,10 @@ import org.mastodon.feature.FeatureProjectionSpec;
 import org.mastodon.feature.FeatureSpec;
 import org.mastodon.feature.IntScalarFeature;
 import org.mastodon.feature.Multiplicity;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.ModelGraph;
-import org.mastodon.revised.model.mamut.Spot;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.ModelGraph;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.tracking.mamut.detection.DetectionQualityFeature;
 import org.scijava.plugin.Plugin;
 import org.scijava.util.VersionUtils;
 

@@ -1,4 +1,4 @@
-package org.mastodon.io.csv.ui;
+package org.mastodon.mamut.io.csv.plugin.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import org.mastodon.io.csv.CSVImporter;
+import org.mastodon.mamut.io.csv.CSVImporter;
 
 public class CSVImporterPanel extends JPanel
 {

@@ -1,4 +1,4 @@
-package org.mastodon.io.csv;
+package org.mastodon.mamut.io.csv;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

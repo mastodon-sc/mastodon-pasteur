@@ -1,4 +1,4 @@
-package org.mastodon.io.csv;
+package org.mastodon.mamut.io.csv;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -7,8 +7,8 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.junit.Test;
-import org.mastodon.detection.mamut.DetectionQualityFeature;
-import org.mastodon.revised.model.mamut.Model;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.tracking.mamut.detection.DetectionQualityFeature;
 
 import mpicbg.spim.data.SpimDataException;
 

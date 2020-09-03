@@ -12,11 +12,11 @@ import org.mastodon.RefPool;
 import org.mastodon.collection.ref.RefArrayList;
 import org.mastodon.feature.DefaultFeatureComputerService.FeatureComputationStatus;
 import org.mastodon.feature.update.Update;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.Spot;
 import org.mastodon.properties.DoublePropertyMap;
-import org.mastodon.revised.bdv.SharedBigDataViewerData;
-import org.mastodon.revised.bdv.overlay.util.JamaEigenvalueDecomposition;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.Spot;
+import org.mastodon.views.bdv.SharedBigDataViewerData;
+import org.mastodon.views.bdv.overlay.util.JamaEigenvalueDecomposition;
 import org.scijava.Cancelable;
 import org.scijava.ItemIO;
 import org.scijava.plugin.Parameter;
@@ -69,7 +69,6 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 	{
 		cancelReason = null;
 
-		// TODO Take into account that some sources might not be computed.
 		this.processSource = new boolean[ bdvData.getSources().size() ];
 		Arrays.fill( processSource, true );
 
