@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.junit.Test;
+import org.mastodon.mamut.io.csv.CSVImporter;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.tracking.mamut.detection.DetectionQualityFeature;
 
