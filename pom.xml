@@ -11,7 +11,7 @@
 	<artifactId>mastodon-pasteur</artifactId>
 	<version>1.0.0-beta-2-SNAPSHOT</version>
 
-	<name>Mastodon pasteur</name>
+	<name>Mastodon Pasteur Plugins</name>
 	<description>Mastodon plugins developed in the context of Pasteur users projects.</description>
 	<url>https://github.com/tinevez/mastodon-pasteur</url>
 	<inceptionYear>2019</inceptionYear>
