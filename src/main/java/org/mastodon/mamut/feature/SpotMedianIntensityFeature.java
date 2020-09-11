@@ -82,4 +82,10 @@ public class SpotMedianIntensityFeature implements Feature< Spot >
 	{
 		return SPEC;
 	}
+
+	@Override
+	public void remove( final Spot spot )
+	{
+		medians.forEach( map -> map.remove( spot ) );
+	}
 }
