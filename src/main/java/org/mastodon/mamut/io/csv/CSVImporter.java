@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
@@ -157,7 +158,14 @@ public class CSVImporter implements Algorithm
 				CSVParser records = csvFormat.parse( in );)
 		{
 
-			final Map< String, Integer > headerMap = records.getHeaderMap();
+			final Map< String, Integer > uncleanHeaderMap = records.getHeaderMap();
+			final Map< String, Integer > headerMap = new HashMap<>( uncleanHeaderMap.size() );
+			for ( final String uncleanKey : uncleanHeaderMap.keySet() )
+			{
+				// Remove control and invisible chars.
+				final String cleanKey = uncleanKey.trim().replaceAll( "\\p{C}", "" );
+				headerMap.put( cleanKey, uncleanHeaderMap.get( uncleanKey ) );
+			}
 
 			/*
 			 * Parse mandatory headers.
@@ -458,7 +466,7 @@ public class CSVImporter implements Algorithm
 		 * is left unset, or set to the character '\0', then the separator is
 		 * automatically determined by inspecting the first few lines of the CSV
 		 * file.
-		 * 
+		 *
 		 * @param separator
 		 *            the separator to use.
 		 * @return this builder.
