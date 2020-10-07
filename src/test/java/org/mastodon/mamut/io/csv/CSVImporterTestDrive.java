@@ -1,4 +1,4 @@
-package org.mastodon.io.csv;
+package org.mastodon.mamut.io.csv;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,10 +7,11 @@ import java.util.Locale;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import org.mastodon.project.MamutProject;
-import org.mastodon.revised.mamut.MainWindow;
-import org.mastodon.revised.mamut.WindowManager;
-import org.mastodon.revised.model.mamut.Model;
+import org.mastodon.mamut.MainWindow;
+import org.mastodon.mamut.WindowManager;
+import org.mastodon.mamut.io.csv.CSVImporter;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.project.MamutProject;
 import org.scijava.Context;
 
 import mpicbg.spim.data.SpimDataException;

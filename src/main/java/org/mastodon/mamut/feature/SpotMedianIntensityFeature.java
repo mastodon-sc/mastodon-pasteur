@@ -18,8 +18,8 @@ import org.mastodon.feature.FeatureProjectionSpec;
 import org.mastodon.feature.FeatureProjections;
 import org.mastodon.feature.FeatureSpec;
 import org.mastodon.feature.Multiplicity;
+import org.mastodon.mamut.model.Spot;
 import org.mastodon.properties.DoublePropertyMap;
-import org.mastodon.revised.model.mamut.Spot;
 import org.scijava.plugin.Plugin;
 
 public class SpotMedianIntensityFeature implements Feature< Spot >
@@ -81,5 +81,11 @@ public class SpotMedianIntensityFeature implements Feature< Spot >
 	public Spec getSpec()
 	{
 		return SPEC;
+	}
+
+	@Override
+	public void remove( final Spot spot )
+	{
+		medians.forEach( map -> map.remove( spot ) );
 	}
 }

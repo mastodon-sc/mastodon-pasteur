@@ -1,4 +1,4 @@
-package org.mastodon.io.csv.plugin;
+package org.mastodon.mamut.io.csv.plugin;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
@@ -12,20 +12,20 @@ import javax.swing.JDialog;
 import javax.swing.WindowConstants;
 
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
-import org.mastodon.io.csv.ui.CSVImporterUIController;
-import org.mastodon.plugin.MastodonPlugin;
-import org.mastodon.plugin.MastodonPluginAppModel;
-import org.mastodon.revised.mamut.KeyConfigContexts;
-import org.mastodon.revised.mamut.MamutMenuBuilder;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.ui.keymap.CommandDescriptionProvider;
-import org.mastodon.revised.ui.keymap.CommandDescriptions;
+import org.mastodon.mamut.MamutMenuBuilder;
+import org.mastodon.mamut.io.csv.plugin.ui.CSVImporterUIController;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.plugin.MamutPlugin;
+import org.mastodon.mamut.plugin.MamutPluginAppModel;
+import org.mastodon.ui.keymap.CommandDescriptionProvider;
+import org.mastodon.ui.keymap.CommandDescriptions;
+import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 
 @Plugin( type = CSVImporterPlugin.class )
-public class CSVImporterPlugin implements MastodonPlugin
+public class CSVImporterPlugin implements MamutPlugin
 {
 
 	public static final String[] MENU_PATH = new String[] { "Plugins" };
@@ -62,7 +62,7 @@ public class CSVImporterPlugin implements MastodonPlugin
 	}
 
 	@Override
-	public void setAppModel( final MastodonPluginAppModel appModel )
+	public void setAppPluginModel( final MamutPluginAppModel appModel )
 	{
 		if ( null == appModel.getAppModel().getModel() )
 			return;

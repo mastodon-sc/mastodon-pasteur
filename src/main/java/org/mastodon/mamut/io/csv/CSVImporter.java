@@ -1,9 +1,11 @@
-package org.mastodon.io.csv;
+package org.mastodon.mamut.io.csv;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
@@ -11,17 +13,22 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.mastodon.RefPool;
-import org.mastodon.detection.mamut.DetectionQualityFeature;
+import org.mastodon.collection.RefCollection;
 import org.mastodon.feature.Dimension;
 import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureModel;
 import org.mastodon.feature.FeatureProjectionSpec;
 import org.mastodon.feature.FeatureSpec;
 import org.mastodon.feature.IntScalarFeature;
+import org.mastodon.feature.IntScalarFeatureSerializer;
 import org.mastodon.feature.Multiplicity;
-import org.mastodon.revised.model.mamut.Model;
-import org.mastodon.revised.model.mamut.ModelGraph;
-import org.mastodon.revised.model.mamut.Spot;
+import org.mastodon.feature.io.FeatureSerializer;
+import org.mastodon.io.FileIdToObjectMap;
+import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.model.ModelGraph;
+import org.mastodon.mamut.model.Spot;
+import org.mastodon.properties.IntPropertyMap;
+import org.mastodon.tracking.mamut.detection.DetectionQualityFeature;
 import org.scijava.plugin.Plugin;
 import org.scijava.util.VersionUtils;
 
@@ -157,7 +164,14 @@ public class CSVImporter implements Algorithm
 				CSVParser records = csvFormat.parse( in );)
 		{
 
-			final Map< String, Integer > headerMap = records.getHeaderMap();
+			final Map< String, Integer > uncleanHeaderMap = records.getHeaderMap();
+			final Map< String, Integer > headerMap = new HashMap<>( uncleanHeaderMap.size() );
+			for ( final String uncleanKey : uncleanHeaderMap.keySet() )
+			{
+				// Remove control and invisible chars.
+				final String cleanKey = uncleanKey.trim().replaceAll( "\\p{C}", "" );
+				headerMap.put( cleanKey, uncleanHeaderMap.get( uncleanKey ) );
+			}
 
 			/*
 			 * Parse mandatory headers.
@@ -296,7 +310,7 @@ public class CSVImporter implements Algorithm
 		return errorMessage;
 	}
 
-	private static class OriginalIdFeature extends IntScalarFeature< Spot >
+	public static class OriginalIdFeature extends IntScalarFeature< Spot >
 	{
 
 		@Plugin( type = FeatureSpec.class )
@@ -320,9 +334,14 @@ public class CSVImporter implements Algorithm
 
 		private static final String HELP_STRING = "Store the id specified in the file that was imported.";
 
-		public OriginalIdFeature( final RefPool< Spot > pool )
+		private OriginalIdFeature( final RefPool< Spot > pool )
 		{
 			super( KEY, Dimension.NONE, Dimension.NONE_UNITS, pool );
+		}
+
+		private OriginalIdFeature( final IntPropertyMap< Spot > map )
+		{
+			super( KEY, Dimension.NONE, Dimension.NONE_UNITS, map );
 		}
 
 		public static final OriginalIdFeature getOrRegister( final FeatureModel featureModel, final RefPool< Spot > pool )
@@ -341,6 +360,24 @@ public class CSVImporter implements Algorithm
 		public FeatureSpec< ? extends Feature< Spot >, Spot > getSpec()
 		{
 			return SPEC;
+		}
+	}
+
+	@Plugin( type = FeatureSerializer.class )
+	public static class OriginalIdFeatureSerializer extends IntScalarFeatureSerializer< OriginalIdFeature, Spot >
+	{
+
+		@Override
+		public OriginalIdFeature deserialize( final FileIdToObjectMap< Spot > idmap, final RefCollection< Spot > pool, final ObjectInputStream ois ) throws IOException, ClassNotFoundException
+		{
+			final DeserializedStruct struct = read( idmap, pool, ois );
+			return new OriginalIdFeature( struct.map );
+		}
+
+		@Override
+		public FeatureSpec< OriginalIdFeature, Spot > getFeatureSpec()
+		{
+			return OriginalIdFeature.SPEC;
 		}
 	}
 
@@ -458,7 +495,7 @@ public class CSVImporter implements Algorithm
 		 * is left unset, or set to the character '\0', then the separator is
 		 * automatically determined by inspecting the first few lines of the CSV
 		 * file.
-		 * 
+		 *
 		 * @param separator
 		 *            the separator to use.
 		 * @return this builder.
