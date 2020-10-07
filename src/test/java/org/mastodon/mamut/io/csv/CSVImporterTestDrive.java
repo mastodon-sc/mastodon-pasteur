@@ -9,7 +9,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
-import org.mastodon.mamut.io.csv.CSVImporter;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.project.MamutProject;
 import org.scijava.Context;

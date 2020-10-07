@@ -11,8 +11,6 @@ import java.util.Map;
 import org.junit.Test;
 import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureSpec;
-import org.mastodon.mamut.feature.MamutFeatureComputerService;
-import org.mastodon.mamut.feature.SpotMedianIntensityFeature;
 import org.mastodon.mamut.io.csv.CSVImporter;
 import org.mastodon.mamut.io.csv.CSVImporterTest;
 import org.mastodon.mamut.model.Model;
