@@ -5,9 +5,10 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>29.2.1</version>
+		<version>30.0.0</version>
 	</parent>
 	
+	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-pasteur</artifactId>
 	<version>1.0.0-beta-2-SNAPSHOT</version>
 
@@ -47,6 +48,11 @@
 			<artifactId>commons-csv</artifactId>
 			<version>1.2</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>sc.fiji</groupId>
+			<artifactId>bigdataviewer-core</artifactId>
+		</dependency>
 
 		<!-- Test dependencies -->
 		<dependency>
@@ -85,9 +91,10 @@
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
 		
-		<mastodon.version>1.0.0-beta-17-SNAPSHOT</mastodon.version>
-		<mastodon-tracking.version>1.0.0-beta-7-SNAPSHOT</mastodon-tracking.version>
-
+		<mastodon.version>1.0.0-beta-18-SNAPSHOT</mastodon.version>
+		<mastodon-tracking.version>1.0.0-beta-8-SNAPSHOT</mastodon-tracking.version>
+		<bigdataviewer-core.version>10.2.0</bigdataviewer-core.version>
+		
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>deploy-to-scijava</releaseProfiles>
 	</properties>
