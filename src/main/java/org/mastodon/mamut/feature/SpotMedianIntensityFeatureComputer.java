@@ -135,8 +135,8 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 					final double minRadius = minRadius( spot, cov );
 					for ( int d = 0; d < 3; d++ )
 					{
-						roiMin[ d ] = ( long ) Math.max( rai.min( d ), p[ d ] - minRadius / calibration[ d ] + 1 );
-						roiMax[ d ] = ( long ) Math.min( rai.max( d ), p[ d ] + minRadius / calibration[ d ] - 1 );
+						roiMin[ d ] = ( long ) Math.max( rai.min( d ), p[ d ] - minRadius / calibration[ d ] - 0.5 );
+						roiMax[ d ] = ( long ) Math.min( rai.max( d ), p[ d ] + minRadius / calibration[ d ] + 0.5 );
 					}
 
 					// Iterate over pixels.
@@ -145,10 +145,13 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 						array.addValue( pixel.getRealDouble() );
 
 					// Store median.
-					final double[] arr = array.getArray();
-					Arrays.sort( arr, 0, array.size() );
-					final double median = arr[ array.size() / 2 ];
-					output.medians.get( iSource ).set( spot, median );
+					if ( !array.isEmpty() )
+					{
+						final double[] arr = array.getArray();
+						Arrays.sort( arr, 0, array.size() );
+						final double median = arr[ array.size() / 2 ];
+						output.medians.get( iSource ).set( spot, median );
+					}
 				}
 			}
 		}
