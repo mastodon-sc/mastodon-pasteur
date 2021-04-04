@@ -2,6 +2,7 @@ package org.mastodon.mamut.io.csv.plugin;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
 import javax.swing.JDialog;
 import javax.swing.WindowConstants;
 
+import org.mastodon.app.MastodonIcons;
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
 import org.mastodon.mamut.MamutMenuBuilder;
 import org.mastodon.mamut.io.csv.plugin.ui.CSVImporterUIController;
@@ -105,7 +107,7 @@ public class CSVImporterPlugin implements MamutPlugin
 
 		private CSVImporterUIController controller;
 
-		public ToggleCSVImporterDialogAction(  )
+		public ToggleCSVImporterDialogAction()
 		{
 			super( SHOW_CSV_IMPORTER_DIALOG_ACTION );
 		}
@@ -114,6 +116,10 @@ public class CSVImporterPlugin implements MamutPlugin
 		{
 			controller = new CSVImporterUIController( model );
 			csvImporterDialog = new JDialog( ( Frame ) null, "CSV Importer" );
+			csvImporterDialog.setIconImages( Arrays.asList( new Image[] {
+					MastodonIcons.LOAD_ICON_LARGE.getImage(),
+					MastodonIcons.LOAD_ICON_MEDIUM.getImage(),
+					MastodonIcons.LOAD_ICON_SMALL.getImage() } ) );
 			csvImporterDialog.getContentPane().add( controller.getView(), BorderLayout.CENTER );
 			csvImporterDialog.setDefaultCloseOperation( WindowConstants.HIDE_ON_CLOSE );
 			csvImporterDialog.setLocationRelativeTo( null );
