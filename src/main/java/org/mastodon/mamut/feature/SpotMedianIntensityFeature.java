@@ -2,14 +2,12 @@ package org.mastodon.mamut.feature;
 
 import static org.mastodon.feature.FeatureProjectionKey.key;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.mastodon.RefPool;
 import org.mastodon.feature.Dimension;
 import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureProjection;
@@ -52,16 +50,14 @@ public class SpotMedianIntensityFeature implements Feature< Spot >
 
 	private final Map< FeatureProjectionKey, FeatureProjection< Spot > > projectionMap;
 
-	SpotMedianIntensityFeature( final int nSources, final RefPool< Spot > pool )
+	SpotMedianIntensityFeature( final List< DoublePropertyMap< Spot > > medians )
 	{
-		this.medians = new ArrayList<>( nSources );
-		this.projectionMap = new LinkedHashMap<>( nSources );
-		for ( int iSource = 0; iSource < nSources; iSource++ )
+		this.medians = medians;
+		this.projectionMap = new LinkedHashMap<>( medians.size() );
+		for ( int iSource = 0; iSource < medians.size(); iSource++ )
 		{
-			final DoublePropertyMap< Spot > m = new DoublePropertyMap<>( pool, Double.NaN );
-			medians.add( m );
 			final FeatureProjectionKey mkey = key( PROJECTION_SPEC, iSource );
-			projectionMap.put( mkey, FeatureProjections.project( mkey, m, Dimension.COUNTS_UNITS ) );
+			projectionMap.put( mkey, FeatureProjections.project( mkey, medians.get( iSource ), Dimension.COUNTS_UNITS ) );
 		}
 	}
 

@@ -2,9 +2,11 @@ package org.mastodon.mamut.feature;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.mastodon.feature.DefaultFeatureComputerService.FeatureComputationStatus;
+import org.mastodon.feature.Feature;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.properties.DoublePropertyMap;
@@ -51,9 +53,23 @@ public class SpotMedianIntensityFeatureComputer implements MamutFeatureComputer,
 	public void createOutput()
 	{
 		if ( null == output )
-			output = new SpotMedianIntensityFeature(
-					bdvData.getSources().size(),
-					model.getGraph().vertices().getRefPool() );
+		{
+			// Try to get it from the FeatureModel, if we deserialized a model.
+			final Feature< ? > feature = model.getFeatureModel().getFeature( SpotMedianIntensityFeature.SPEC );
+			if ( null != feature )
+			{
+				output = ( SpotMedianIntensityFeature ) feature;
+				return;
+			}
+
+			// Create a new one.
+			final int nSources = bdvData.getSources().size();
+			final List< DoublePropertyMap< Spot > > medians = new ArrayList<>( nSources );
+			for ( int i = 0; i < nSources; i++ )
+				medians.add( new DoublePropertyMap<>( model.getGraph().vertices().getRefPool(), Double.NaN ) );
+
+			output = new SpotMedianIntensityFeature( medians );
+		}
 	}
 
 	@Override
