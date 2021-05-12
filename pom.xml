@@ -91,8 +91,8 @@
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
 		
-		<mastodon.version>1.0.0-beta-18</mastodon.version>
-		<mastodon-tracking.version>1.0.0-beta-8</mastodon-tracking.version>
+		<mastodon.version>1.0.0-beta-19</mastodon.version>
+		<mastodon-tracking.version>1.0.0-beta-9</mastodon-tracking.version>
 		<bigdataviewer-core.version>10.2.0</bigdataviewer-core.version>
 		
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
