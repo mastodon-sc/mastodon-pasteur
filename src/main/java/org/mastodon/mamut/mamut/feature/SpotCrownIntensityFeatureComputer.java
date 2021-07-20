@@ -111,7 +111,7 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 		}
 
 		final int numTimepoints = bdvData.getNumTimepoints();
-		final int numDimensions = bdvData.is2D()? 2:3;
+		final int numDimensions = bdvData.is2D() ? 2 : 3;
 		final int nSourcesToCompute = bdvData.getSources().size();
 		final int todo = numTimepoints * nSourcesToCompute;
 
@@ -160,46 +160,46 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 						sum += array[ i ];
 
 					// Spot position
-					double[] pos = new double[numDimensions];
-					spot.delegate().localize(pos);
-					
+					final double[] pos = new double[ numDimensions ];
+					spot.delegate().localize( pos );
+
 					// Covariance matrix
-					double[][] cov = new double[numDimensions][numDimensions];
-					spot.getCovariance(cov);
-					
+					final double[][] cov = new double[ numDimensions ][ numDimensions ];
+					spot.getCovariance( cov );
+
 					// Covariance matrix scaled by delta
-					double[][] covScaled = new double[numDimensions][numDimensions];
+					final double[][] covScaled = new double[ numDimensions ][ numDimensions ];
 					final double delta = 1.5;
-					for (int i = 0; i < numDimensions; i++)
-						for (int j = 0; j < numDimensions; j++)
-							covScaled[i][j] = cov[i][j]*delta*delta;
-					
+					for ( int i = 0; i < numDimensions; i++ )
+						for ( int j = 0; j < numDimensions; j++ )
+							covScaled[ i ][ j ] = cov[ i ][ j ] * delta * delta;
+
 					// New scaled spot
 					final Model modelScaled = new Model( "pixel", "frame" );
 					final Spot spotScaled = modelScaled.getGraph().addVertex().init( timepoint, pos, covScaled );
-					
+
 					// Get pixel intensities of scaled spot
 					ellipsoidIter.reset( spotScaled );
 					store.clear();
 					ellipsoidIter.forEach( p -> store.addValue( p.getRealDouble() ) );
-					
+
 					final int sizeScaled = store.size();
 
 					if ( sizeScaled < 1 )
 						continue;
-					
+
 					// Compute sum
 					final double[] arrayScaled = store.getArray();
 					double sumScaled = 0.;
 					for ( int i = 0; i < sizeScaled; i++ )
 						sumScaled += arrayScaled[ i ];
-					
-					if ((sizeScaled - size)==0)
+
+					if ( ( sizeScaled - size ) == 0 )
 						continue;
-					
+
 					// Compute crown mean intensities
-					final double mean = Math.abs((sumScaled - sum) / (sizeScaled - size));
-					
+					final double mean = Math.abs( ( sumScaled - sum ) / ( sizeScaled - size ) );
+
 					output.crownmeans.get( iSource ).set( spot, mean );
 				}
 			}
