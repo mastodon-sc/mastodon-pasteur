@@ -110,6 +110,9 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 				map.beforeClearPool();
 		}
 
+		// Dummy model to create and store scaled spots.
+		final Model modelScaled = new Model( model.getSpaceUnits(), model.getTimeUnits() );
+
 		final int numTimepoints = bdvData.getNumTimepoints();
 		final int numDimensions = bdvData.is2D() ? 2 : 3;
 		final int nSourcesToCompute = bdvData.getSources().size();
@@ -175,7 +178,6 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 							covScaled[ i ][ j ] = cov[ i ][ j ] * delta * delta;
 
 					// New scaled spot
-					final Model modelScaled = new Model( "pixel", "frame" );
 					final Spot spotScaled = modelScaled.getGraph().addVertex().init( timepoint, pos, covScaled );
 
 					// Get pixel intensities of scaled spot
