@@ -13,16 +13,11 @@ import org.mastodon.mamut.model.Spot;
 import org.mastodon.views.bdv.SharedBigDataViewerData;
 import org.scijava.Context;
 
-import bdv.util.RandomAccessibleIntervalSource;
-import bdv.viewer.Source;
-import ij.ImageJ;
-import ij.ImagePlus;
 import net.imagej.ImgPlus;
 import net.imagej.axis.Axes;
 import net.imagej.axis.AxisType;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.img.display.imagej.ImageJFunctions;
 import net.imglib2.type.numeric.integer.UnsignedShortType;
 
 public class RunningSpotCrownIntensityFeatureComputerExample
@@ -32,81 +27,35 @@ public class RunningSpotCrownIntensityFeatureComputerExample
 	{
 		// Create the context of this test with only 1 service.
 		final Context context = new Context( MamutFeatureComputerService.class );
-		
-		/*
-		 * Create test image.
-		 * The image consists of 3D ellipsoids of the same center but at different widths.
-		 */
 
 		// Create empty test image.
 		final Img< UnsignedShortType > img = ArrayImgs.unsignedShorts( 60, 60, 30 );
-		
-		// Create an empty mamut model.
-		final Model model = new Model( "pixel", "frame" );
-		
-		// Wrap it in a BDV source (this is the way we get images in Mastodon).
-		final Source< UnsignedShortType > source = new RandomAccessibleIntervalSource<>( img, img.firstElement(), "Blank" );
 
-		// Create an ellipsoid in this model.
-		final int timepoint = 0;
-		final double[] center = new double[] { 30., 30., 15. };
-		final double[][] covariance = new double[ 3 ][ 3 ];
-		covariance[ 0 ][ 0 ] = covariance[ 1 ][ 1 ] = 400.;
-		covariance[ 2 ][ 2 ] = 225.;
-		covariance[ 0 ][ 1 ] = covariance[ 1 ][ 0 ] = 40.;
-		covariance[ 1 ][ 2 ] = covariance[ 2 ][ 1 ] = 40.;
-		final Spot spot = model.getGraph().addVertex().init( timepoint, center, covariance );
-
-		// Create the ellipsoid iterable over the source.
-		final EllipsoidIterable< UnsignedShortType > iterable = new EllipsoidIterable<>( source );
-
-		// Iterate inside this ellipsoid and set value to 1000.
-		iterable.reset( spot );
-		for ( final UnsignedShortType p : iterable )
-			p.set( 1500 );
-
-		// Shrink the spot by 1.5 (to the square for covariance).
-		for ( int i = 0; i < covariance.length; i++ )
-			for ( int j = 0; j < covariance[ i ].length; j++ )
-				covariance[ i ][ j ] /= ( 1.5 * 1.5 );
-		spot.setCovariance( covariance );
-
-		// Iterate inside the shrunk ellipsoid and set value to 1000.
-		iterable.reset( spot );
-		for ( final UnsignedShortType p : iterable )
-			p.set( 1000 );
-		
-		// Shrink again the spot by 1.5 (to the square for covariance).
-		for ( int i = 0; i < covariance.length; i++ )
-			for ( int j = 0; j < covariance[ i ].length; j++ )
-				covariance[ i ][ j ] /= ( 1.5 * 1.5 );
-		spot.setCovariance( covariance );
-
-		// Iterate inside the shrunk ellipsoid and set value to 500.
-		iterable.reset( spot );
-		for ( final UnsignedShortType p : iterable )
+		// Fill it with a value.
+		for ( final UnsignedShortType p : img )
 			p.set( 500 );
-		
+
 		// Wrap the Img into a ImgPlus.
 		final String name = "Test crown intensity";;
 		final AxisType[] axisTypes = new AxisType[] { Axes.X, Axes.Y, Axes.Z };
 		final double[] cal = new double[] { 1., 1., 1. };
 		final ImgPlus< UnsignedShortType > imgPlus = new ImgPlus<>( img, name, axisTypes, cal );
-		
-		// Show the resulting image in ImageJ.
-		ImageJ.main( args );
-		final ImagePlus imp = ImageJFunctions.wrap( imgPlus, name );
-		imp.setDimensions( 1, ( int ) img.dimension( 2 ), 1 );
-		imp.setSlice( ( int ) ( img.dimension( 2 ) / 2 ) );
-		imp.resetDisplayRange();
-		imp.show();
-		
-		/*
-		 * Create service to compute the crown intensity feature.
-		 */
 
 		// Wrap it into a shared BDV data (used by Mastodon).
 		final SharedBigDataViewerData bdvData = FeatureTestUtils.wrapAsSharedBdvData( imgPlus );
+
+		// Create an empty mamut model.
+		final Model model = new Model( "pixel", "frame" );
+
+		// Create an ellipsoid in this model.
+		final int timepoint = 0;
+		final double[] center = new double[] { 30., 30., 15. };
+		final double[][] covariance = new double[ 3 ][ 3 ];
+		covariance[ 0 ][ 0 ] = covariance[ 1 ][ 1 ] = 200.;
+		covariance[ 2 ][ 2 ] = 100.;
+		covariance[ 0 ][ 1 ] = covariance[ 1 ][ 0 ] = 40.;
+		covariance[ 1 ][ 2 ] = covariance[ 2 ][ 1 ] = 40.;
+		final Spot spot = model.getGraph().addVertex().init( timepoint, center, covariance );
 
 		// Create the feature computer service.
 		final MamutFeatureComputerService service = context.getService( MamutFeatureComputerService.class );
@@ -115,12 +64,6 @@ public class RunningSpotCrownIntensityFeatureComputerExample
 		service.setModel( model );
 		service.setSharedBdvData( bdvData );
 
-		/*
-		 * Test 1
-		 * The spot should localize at the smallest ellipsoid.
-		 * The output must = 1000.
-		 */
-		
 		// Perform feature computation for only one feature.
 		compute( service, model, SpotCrownIntensityFeature.SPEC );
 
@@ -129,49 +72,6 @@ public class RunningSpotCrownIntensityFeatureComputerExample
 		final SpotCrownIntensityFeature feature = ( SpotCrownIntensityFeature ) featureModel.getFeature( SpotCrownIntensityFeature.SPEC );
 		System.out.println( "Spot crown intensity value for spot " + spot + ": " + feature.getMean( spot, 0 ) );
 
-		
-		/*
-		 * Test 2
-		 * Expand the ellipsoid by 1.5, it should localize now at the middle ellipsoid.
-		 * The output must = 1500
-		 */
-		
-		// Shrink again the spot by 1.5 (to the square for covariance).
-		for ( int i = 0; i < covariance.length; i++ )
-			for ( int j = 0; j < covariance[ i ].length; j++ )
-				covariance[ i ][ j ] *= ( 1.5 * 1.5 );
-		spot.setCovariance( covariance );
-		
-		
-		// Perform feature computation for only one feature.
-		compute( service, model, SpotCrownIntensityFeature.SPEC );
-
-		// Get results.
-		final FeatureModel featureModel2 = model.getFeatureModel();
-		final SpotCrownIntensityFeature feature2 = ( SpotCrownIntensityFeature ) featureModel2.getFeature( SpotCrownIntensityFeature.SPEC );
-		System.out.println( "Spot crown intensity value for spot " + spot + ": " + feature2.getMean( spot, 0 ) );
-		
-		/*
-		 * Test 3
-		 * Expand again the ellipsoid by 1.5, it should localize now at the largest ellipsoid.
-		 * The output must = 0
-		 */
-		
-		// Shrink again the spot by 1.5 (to the square for covariance).
-		for ( int i = 0; i < covariance.length; i++ )
-			for ( int j = 0; j < covariance[ i ].length; j++ )
-				covariance[ i ][ j ] *= ( 1.5 * 1.5 );
-		spot.setCovariance( covariance );
-		
-		
-		// Perform feature computation for only one feature.
-		compute( service, model, SpotCrownIntensityFeature.SPEC );
-
-		// Get results.
-		final FeatureModel featureModel3 = model.getFeatureModel();
-		final SpotCrownIntensityFeature feature3 = ( SpotCrownIntensityFeature ) featureModel3.getFeature( SpotCrownIntensityFeature.SPEC );
-		System.out.println( "Spot crown intensity value for spot " + spot + ": " + feature3.getMean( spot, 0 ) );
-		
 		// Finish
 		context.close();
 	}
