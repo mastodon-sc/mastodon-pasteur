@@ -164,7 +164,7 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 
 					// Spot position
 					final double[] pos = new double[ numDimensions ];
-					spot.delegate().localize( pos );
+					spot.localize( pos );
 
 					// Covariance matrix
 					final double[][] cov = new double[ numDimensions ][ numDimensions ];
