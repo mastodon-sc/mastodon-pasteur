@@ -7,7 +7,7 @@ import java.util.Map;
 import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureModel;
 import org.mastodon.feature.FeatureSpec;
-import org.mastodon.mamut.mamut.feature.SpotCrownIntensityFeature;
+import org.mastodon.mamut.feature.SpotCrownIntensityFeature;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.views.bdv.SharedBigDataViewerData;

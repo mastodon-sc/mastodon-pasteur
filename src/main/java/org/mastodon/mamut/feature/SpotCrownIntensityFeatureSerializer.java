@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.mastodon.mamut.mamut.feature;
+package org.mastodon.mamut.feature;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -39,7 +39,7 @@ import org.mastodon.feature.io.FeatureSerializer;
 import org.mastodon.io.FileIdToObjectMap;
 import org.mastodon.io.ObjectToFileIdMap;
 import org.mastodon.io.properties.DoublePropertyMapSerializer;
-import org.mastodon.mamut.mamut.feature.SpotCrownIntensityFeature.Spec;
+import org.mastodon.mamut.feature.SpotCrownIntensityFeature.Spec;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.properties.DoublePropertyMap;
 import org.scijava.plugin.Plugin;

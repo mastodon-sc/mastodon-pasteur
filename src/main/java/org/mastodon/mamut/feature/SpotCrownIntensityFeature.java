@@ -26,7 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package org.mastodon.mamut.mamut.feature;
+package org.mastodon.mamut.feature;
 
 import static org.mastodon.feature.FeatureProjectionKey.key;
 
