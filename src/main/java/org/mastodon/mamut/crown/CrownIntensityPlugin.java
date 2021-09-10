@@ -15,7 +15,9 @@ import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
 import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
+import org.scijava.Context;
 import org.scijava.plugin.Plugin;
+import org.scijava.prefs.PrefService;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
@@ -27,14 +29,19 @@ public class CrownIntensityPlugin implements MamutPlugin
 	public static final String[] MENU_PATH = new String[] { "Plugins", "Crown intensity" };
 
 	public static final String NEW_CROWN_VIEW_ACTION = "new crown view";
+
 	public static final String SET_CROWN_SCALE_ACTION = "set crown scale";
 
 	private static final String[] ACTION_1_KEYS = new String[] { "not mapped" };
+
 	private static final String[] ACTION_2_KEYS = new String[] { "not mapped" };
+
+	private static final double DEFAULT_SCALE = 0.5;
 
 	private static Map< String, String > menuTexts = new HashMap<>();
 
 	private final RunnableAction newCrownViewAction = new RunnableAction( NEW_CROWN_VIEW_ACTION, this::createCrownViewer );
+
 	private final ToggleCrownScaleDialogAction crownScaleDialogAction = new ToggleCrownScaleDialogAction();
 
 	private MamutPluginAppModel appModel;
@@ -46,7 +53,7 @@ public class CrownIntensityPlugin implements MamutPlugin
 	 * issue. A proper way to do it would probably be to have some way of having
 	 * some kind of model storage from the app.
 	 */
-	private static double scale = 0.5;
+	private static double scale = DEFAULT_SCALE;
 
 	static
 	{
@@ -98,13 +105,16 @@ public class CrownIntensityPlugin implements MamutPlugin
 	public void setAppPluginModel( final MamutPluginAppModel appModel )
 	{
 		this.appModel = appModel;
+		final Context context = appModel.getWindowManager().getContext();
+		final PrefService prefService = context.getService( PrefService.class );
+		scale = prefService.getDouble( CrownIntensityPlugin.class, "crownscale", DEFAULT_SCALE );
 	}
 
 	private void createCrownViewer()
 	{
 		if ( null == appModel.getAppModel().getModel() )
 			return;
-		
+
 		new MamutCrownViewBdv( appModel.getAppModel() );
 	}
 
@@ -117,7 +127,7 @@ public class CrownIntensityPlugin implements MamutPlugin
 	{
 		return scale;
 	}
-	
+
 	private class ToggleCrownScaleDialogAction extends AbstractNamedAction
 	{
 
@@ -135,7 +145,12 @@ public class CrownIntensityPlugin implements MamutPlugin
 		{
 			if ( null == crownScaleDialog )
 			{
-				final DoubleConsumer scaleSetter = s -> setScale( s );
+				final DoubleConsumer scaleSetter = s -> {
+					setScale( s );
+					final Context context = appModel.getWindowManager().getContext();
+					final PrefService prefService = context.getService( PrefService.class );
+					prefService.put( CrownIntensityPlugin.class, "crownscale", s );
+				};
 				final DoubleSupplier scaleGetter = () -> getScale();
 				crownScaleDialog = new CrownScaleDialog( scaleSetter, scaleGetter );
 			}
