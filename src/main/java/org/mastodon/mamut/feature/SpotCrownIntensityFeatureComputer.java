@@ -72,6 +72,8 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 
 	private String cancelReason;
 
+	private double previousScale = -1.;
+
 	@Override
 	public void createOutput()
 	{
@@ -100,7 +102,13 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 	public void run()
 	{
 		cancelReason = null;
-		final boolean recomputeAll = forceComputeAll.get();
+		boolean recomputeAll = forceComputeAll.get();
+
+		// Force recompute if we changed the scale.
+		final double scale = 1. + CrownIntensityPlugin.getScale();
+		if ( scale != previousScale )
+			recomputeAll = true;
+		previousScale = scale;
 
 		if ( recomputeAll )
 		{
@@ -171,7 +179,6 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 
 					// Covariance matrix scaled by delta
 					final double[][] covScaled = new double[ numDimensions ][ numDimensions ];
-					final double scale = 1. + CrownIntensityPlugin.getScale(); // Warning static access.
 					for ( int i = 0; i < numDimensions; i++ )
 						for ( int j = 0; j < numDimensions; j++ )
 							covScaled[ i ][ j ] = cov[ i ][ j ] * scale * scale;
