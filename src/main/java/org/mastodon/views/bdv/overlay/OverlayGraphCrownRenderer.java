@@ -37,7 +37,7 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 
 import org.mastodon.kdtree.ClipConvexPolytope;
-import org.mastodon.mamut.crown.CrownViewPlugin;
+import org.mastodon.mamut.crown.CrownIntensityPlugin;
 import org.mastodon.mamut.crown.ScreenScaledVertexMath;
 import org.mastodon.model.FocusModel;
 import org.mastodon.model.HighlightModel;
@@ -109,7 +109,7 @@ public class OverlayGraphCrownRenderer< V extends OverlayVertex< V, E >, E exten
 		final double timepointDistanceFade = 0.5;
 
 		final ScreenVertexMath screenVertexMath = new ScreenVertexMath();
-		final double scale = 1. + CrownViewPlugin.getScale(); // Warning: static access.
+		final double scale = 1. + CrownIntensityPlugin.getScale(); // Warning: static access.
 		final ScreenScaledVertexMath screenCrownVertexMath = new ScreenScaledVertexMath( scale  );
 		final boolean useGradient = settings.getUseGradient();
 		final boolean drawArrowHeads = settings.getDrawArrowHeads();

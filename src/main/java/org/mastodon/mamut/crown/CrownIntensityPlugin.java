@@ -20,8 +20,8 @@ import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 import org.scijava.ui.behaviour.util.RunnableAction;
 
-@Plugin( type = CrownViewPlugin.class )
-public class CrownViewPlugin implements MamutPlugin
+@Plugin( type = CrownIntensityPlugin.class )
+public class CrownIntensityPlugin implements MamutPlugin
 {
 
 	public static final String[] MENU_PATH = new String[] { "Plugins", "Crown intensity" };
@@ -110,7 +110,7 @@ public class CrownViewPlugin implements MamutPlugin
 
 	public static void setScale( final double scale )
 	{
-		CrownViewPlugin.scale = scale;
+		CrownIntensityPlugin.scale = scale;
 	}
 
 	public static double getScale()

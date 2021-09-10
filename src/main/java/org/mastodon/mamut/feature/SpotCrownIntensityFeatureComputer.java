@@ -35,8 +35,7 @@ import java.util.function.IntFunction;
 
 import org.mastodon.feature.DefaultFeatureComputerService.FeatureComputationStatus;
 import org.mastodon.feature.Feature;
-import org.mastodon.mamut.feature.EllipsoidIterable;
-import org.mastodon.mamut.feature.MamutFeatureComputer;
+import org.mastodon.mamut.crown.CrownIntensityPlugin;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.properties.DoublePropertyMap;
@@ -172,10 +171,10 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 
 					// Covariance matrix scaled by delta
 					final double[][] covScaled = new double[ numDimensions ][ numDimensions ];
-					final double delta = 1.5;
+					final double scale = 1. + CrownIntensityPlugin.getScale(); // Warning static access.
 					for ( int i = 0; i < numDimensions; i++ )
 						for ( int j = 0; j < numDimensions; j++ )
-							covScaled[ i ][ j ] = cov[ i ][ j ] * delta * delta;
+							covScaled[ i ][ j ] = cov[ i ][ j ] * scale * scale;
 
 					// New scaled spot
 					final Spot spotScaled = modelScaled.getGraph().addVertex().init( timepoint, pos, covScaled );
