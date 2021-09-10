@@ -22,6 +22,7 @@ public class MamutCrownViewBdv extends MamutViewBdv
 		super( appModel );
 	}
 
+
 	@Override
 	protected OverlayGraphRenderer< OverlayVertexWrapper< Spot, Link >, OverlayEdgeWrapper< Spot, Link > > createRenderer(
 			final OverlayGraphWrapper< Spot, Link > viewGraph,
@@ -37,5 +38,4 @@ public class MamutCrownViewBdv extends MamutViewBdv
 				selectionModel,
 				coloring );
 	}
-
 }
