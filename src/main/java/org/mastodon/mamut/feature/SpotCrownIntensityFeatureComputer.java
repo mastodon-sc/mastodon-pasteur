@@ -135,6 +135,11 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 			// Calculation are made on resolution level 0 by default.
 			final EllipsoidIterable< RealType< ? > > ellipsoidIter = new EllipsoidIterable<>( source );
 			final DoubleArray store = new DoubleArray();
+			// Temp holder for covarance matrix, reused each time.
+			final double[][] cov = new double[ numDimensions ][ numDimensions ];
+			final double[][] covScaled = new double[ numDimensions ][ numDimensions ];
+			// Temp holder for Spot position.
+			final double[] pos = new double[ numDimensions ];
 
 			for ( int timepoint = 0; timepoint < numTimepoints; timepoint++ )
 			{
@@ -169,16 +174,13 @@ public class SpotCrownIntensityFeatureComputer implements MamutFeatureComputer, 
 					for ( int i = 0; i < size; i++ )
 						sum += array[ i ];
 
-					// Spot position
-					final double[] pos = new double[ numDimensions ];
+					// Get position.
 					spot.localize( pos );
 
-					// Covariance matrix
-					final double[][] cov = new double[ numDimensions ][ numDimensions ];
+					// Get covariance matrix
 					spot.getCovariance( cov );
 
 					// Covariance matrix scaled by delta
-					final double[][] covScaled = new double[ numDimensions ][ numDimensions ];
 					for ( int i = 0; i < numDimensions; i++ )
 						for ( int j = 0; j < numDimensions; j++ )
 							covScaled[ i ][ j ] = cov[ i ][ j ] * scale * scale;

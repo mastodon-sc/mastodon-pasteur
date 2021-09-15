@@ -232,9 +232,9 @@ public class OverlayGraphCrownRenderer< V extends OverlayVertex< V, E >, E exten
 							graphics.setStroke( highlightedVertexStroke );
 						else if ( isFocused )
 							graphics.setStroke( focusedVertexStroke );
-						drawEllipse( graphics, ellipse, torig );
+						drawEllipse( graphics, ellipse, torig, false );
 						graphics.setStroke( crownVertexStroke );
-						drawEllipse( graphics, crown, torig );
+						drawEllipse( graphics, crown, torig, false );
 						graphics.setStroke( defaultVertexStroke );
 					}
 				}
