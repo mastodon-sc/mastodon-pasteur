@@ -38,21 +38,24 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.mastodon.mamut.MainWindow;
 import org.mastodon.mamut.WindowManager;
 import org.mastodon.mamut.project.MamutProjectIO;
-import org.scijava.Context;
 
 import mpicbg.spim.data.SpimDataException;
+import net.imagej.ImageJ;
 
 public class TestDrivePasteurPlugins
 {
 
 	public static void main( final String[] args ) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException, IOException, SpimDataException
 	{
+		final ImageJ ij = new ImageJ();
+		ij.launch( args );
+
 		Locale.setDefault( Locale.ROOT );
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 
-		final WindowManager wm = new WindowManager( new Context() );
-//		final File targetFile = new File("samples/mamutproject-singlespot.mastodon");
-		final File targetFile = new File("samples/mamutproject.mastodon");
+		final WindowManager wm = new WindowManager( ij.context() );
+//		final File targetFile = new File( "samples/drosophila_crop.mastodon" );
+		final File targetFile = new File( "samples/mamutproject.mastodon" );
 		wm.getProjectManager().open( new MamutProjectIO().load( targetFile.getAbsolutePath() ) );
 		new MainWindow( wm ).setVisible( true );
 	}
