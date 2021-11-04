@@ -72,6 +72,7 @@ import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.numeric.ARGBType;
+import net.imglib2.type.numeric.RealType;
 import net.imglib2.view.Views;
 
 public class SpotTrackImageUIController
@@ -196,6 +197,7 @@ public class SpotTrackImageUIController
 		return extract( sources, model, path, setupID, sizeFactor, is3d, logger );
 	}
 
+	@SuppressWarnings( { "rawtypes", "unchecked" } )
 	public static ImgPlus< ? > extract(
 			final List< SourceAndConverter< ? > > sources,
 			final Model model,
@@ -243,10 +245,10 @@ public class SpotTrackImageUIController
 				: 1;
 
 		// Iterate over set to grab imglib image
-		final List< RandomAccessibleInterval< ? > > timepoints = new ArrayList<>( path.size() );
+		final List< RandomAccessibleInterval< RealType > > timepoints = new ArrayList<>( path.size() );
 		for ( final Spot spot : path )
 		{
-			final List< Img< ? > > channels = new ArrayList<>( sources.size() );
+			final List< Img< RealType > > channels = new ArrayList<>( sources.size() );
 
 			// Main transform and source.
 			final int frame = spot.getTimepoint();
@@ -266,7 +268,7 @@ public class SpotTrackImageUIController
 							mainTransform,
 							source,
 							frame );
-					channels.add( collect );
+					channels.add( ( Img< RealType > ) collect );
 				}
 				else
 				{
@@ -276,13 +278,13 @@ public class SpotTrackImageUIController
 							mainTransform,
 							source,
 							frame );
-					channels.add( collect );
+					channels.add( ( Img< RealType > ) collect );
 				}
 			}
 
 			if ( isMultiC )
 			{
-				final RandomAccessibleInterval< ? > multiChannel = Views.stack( channels );
+				final RandomAccessibleInterval< RealType > multiChannel = Views.stack( channels );
 				timepoints.add( multiChannel );
 			}
 			else
@@ -290,8 +292,7 @@ public class SpotTrackImageUIController
 				timepoints.add( channels.get( 0 ) );
 			}
 		}
-		@SuppressWarnings( "rawtypes" )
-		final RandomAccessibleInterval stack = Views.stack( timepoints );
+		final RandomAccessibleInterval< RealType > stack = Views.stack( timepoints );
 
 		// Add calibration and dimensionality.
 		int nDims = 3;
@@ -333,7 +334,6 @@ public class SpotTrackImageUIController
 			units[ id++ ] = "source";
 		units[ id++ ] = timeUnits;
 
-		@SuppressWarnings( { "rawtypes", "unchecked" } )
 		final ImgPlus< ? > imgplus = new ImgPlus( ImgView.wrap( stack ), name, axesType, cal, units );
 		return imgplus;
 	}
