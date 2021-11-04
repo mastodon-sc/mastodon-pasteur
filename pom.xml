@@ -41,7 +41,7 @@
 			<artifactId>mastodon-tracking</artifactId>
 			<version>${mastodon-tracking.version}</version>
 		</dependency>
-
+		
 		<!-- Other deps -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -60,6 +60,17 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imagej</groupId>
+			<artifactId>imagej-legacy</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 
 	<mailingLists>
