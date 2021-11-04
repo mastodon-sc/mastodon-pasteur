@@ -8,26 +8,17 @@ import net.imglib2.Cursor;
 import net.imglib2.FinalInterval;
 import net.imglib2.Interval;
 import net.imglib2.Point;
-import net.imglib2.RandomAccess;
-import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.RealPoint;
 import net.imglib2.RealRandomAccess;
 import net.imglib2.RealRandomAccessible;
-import net.imglib2.converter.TypeIdentity;
-import net.imglib2.display.projector.IterableIntervalProjector2D;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgFactory;
-import net.imglib2.img.array.ArrayImgFactory;
 import net.imglib2.position.transform.Round;
 import net.imglib2.realtransform.AffineTransform3D;
 import net.imglib2.type.NativeType;
 import net.imglib2.type.Type;
-import net.imglib2.type.numeric.RealType;
 import net.imglib2.util.Intervals;
 import net.imglib2.util.Util;
-import net.imglib2.view.ExtendedRandomAccessibleInterval;
-import net.imglib2.view.IntervalView;
-import net.imglib2.view.Views;
 
 public class SpotTrackImageUtils
 {
@@ -101,91 +92,6 @@ public class SpotTrackImageUtils
 		return new FinalInterval( min, max );
 	}
 
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
-	public static final Img< ? > getImgPatch( final Spot spot, final int width, final int height, final int depth, final Source source )
-	{
-		final int frame = spot.getTimepoint();
-		//Here be generics massacre...
-		final Type type = ( Type ) source.getType();
-		final RealType rtype = ( RealType ) type.createVariable();
-		rtype.setZero();
-		final NativeType ntype = ( NativeType ) rtype;
-		final long[] size = new long[] { width, height, depth };
-		final RandomAccessibleInterval img = source.getSource( frame, 0 );
-
-		// Crop
-		final Interval cropInterval = getIntervalAround( spot, width, height, depth, source );
-				//Intervals.createMinMax( x - xm, y - ym, z - zm, x + xp, y + yp, z + zp );
-
-		if ( isEmpty( cropInterval ) )
-		{
-			final Img ret = new ArrayImgFactory( ntype ).create( size );
-			return ret;
-		}
-
-		final ExtendedRandomAccessibleInterval extendZero = Views.extendZero( img );
-		final IntervalView crop = Views.zeroMin( Views.interval( extendZero, cropInterval ) );
-		final Img target = Util.getArrayOrCellImgFactory( crop, ntype ).create( size );
-
-		final RandomAccess randomAccess = crop.randomAccess();
-		final Cursor cursor = target.localizingCursor();
-		while ( cursor.hasNext() )
-		{
-			cursor.fwd();
-			randomAccess.setPosition( cursor );
-			( ( Type ) cursor.get() ).set( ( Type ) randomAccess.get() );
-		}
-		return target;
-	}
-
-	@SuppressWarnings( { "rawtypes", "unchecked" } )
-	public static final Img< ? > getImgPatch( final Spot spot, final int width, final int height, final Source source )
-	{
-		final int frame = spot.getTimepoint();
-
-		// Here be generics massacre...
-		final Type type = ( Type ) source.getType();
-		final RealType rtype = ( RealType ) type.createVariable();
-		rtype.setZero();
-		final NativeType ntype = ( NativeType ) rtype;
-		final RandomAccessibleInterval img = source.getSource( frame, 0 );
-
-		// Interval around spot.
-		final Interval cropInterval3D = getIntervalAround( spot, width, height, 0, source );
-		final long z = cropInterval3D.min( 2 );
-
-		// Keep only the 2D interval.
-		final FinalInterval cropInterval = Intervals.hyperSlice( cropInterval3D, 2 );
-
-		// Extract central slice
-		final IntervalView slice = Views.hyperSlice( img, 2, z );
-
-		// Crop
-		final long[] size = new long[] { width, height };
-		if ( isEmpty( cropInterval ) )
-		{
-			final Img ret = new ArrayImgFactory( ntype ).create( size );
-			return ret;
-		}
-
-		final ExtendedRandomAccessibleInterval extendZero = Views.extendZero( slice );
-		final IntervalView crop = Views.zeroMin( Views.interval( extendZero, cropInterval ) );
-		final Img target = Util.getArrayOrCellImgFactory( crop, ntype ).create( size );
-		new IterableIntervalProjector2D( 0, 1, crop, target, new TypeIdentity() ).map();
-		return target;
-	}
-
-	private static final boolean isEmpty( final Interval interval )
-	{
-		final int n = interval.numDimensions();
-		for ( int d = 0; d < n; ++d )
-			if ( interval.min( d ) > interval.max( d ) )
-				return true;
-		return false;
-	}
-
 	private SpotTrackImageUtils()
 	{}
-
-
 }
