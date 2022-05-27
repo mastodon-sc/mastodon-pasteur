@@ -58,7 +58,7 @@ import org.scijava.ui.behaviour.util.Actions;
 public class CSVImporterPlugin implements MamutPlugin
 {
 
-	public static final String[] MENU_PATH = new String[] { "Plugins" };
+	public static final String[] MENU_PATH = new String[] { "Plugins", "Imports" };
 
 	public static final String SHOW_CSV_IMPORTER_DIALOG_ACTION = "show csv importer dialog";
 
