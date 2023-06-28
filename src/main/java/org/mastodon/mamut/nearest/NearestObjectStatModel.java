@@ -158,23 +158,23 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 			return Util.distance( neighbor, center );
 		}
 
-		public double summarize( final TDoubleArrayList arr, final int start, final int end )
+		public double summarize( final TDoubleArrayList arr )
 		{
 			switch ( nearestObjectStat )
 			{
 			case MEAN:
-				return sum( arr, start, end ) / size( start, end );
+				return arr.sum() / arr.size();
 			case MEDIAN:
 				arr.sort();
-				return arr.getQuick( ( end - start ) / 2 );
+				return arr.getQuick( arr.size() / 2 );
 			case STD:
-				return Math.sqrt( variance( arr, start, end ) );
-			case MAX:
-				return max( arr, start, end );
+				return Math.sqrt( variance( arr ) );
 			case MIN:
-				return min( arr, start, end );
+				return arr.min();
+			case MAX:
+				return arr.max();
 			case SUM:
-				return sum( arr, start, end );
+				return arr.sum();
 			default:
 				throw new IllegalAddException( "This summarizing operation is unknown: " + nearestObjectStat );
 			}
@@ -205,46 +205,15 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		}
 	}
 
-	private static final double sum( final TDoubleArrayList arr, final int start, final int end )
+	private static final double variance( final TDoubleArrayList arr )
 	{
-		double sum = 0.;
-		for ( int i = start; i <= end; i++ )
-			sum += arr.getQuick( i );
-		return sum;
-	}
+		final int size = arr.size();
+		if ( size < 2 )
+			return Double.NaN;
 
-	private static final double max( final TDoubleArrayList arr, final int start, final int end )
-	{
-		double max = Double.NEGATIVE_INFINITY;
-		for ( int i = start; i <= end; i++ )
-		{
-			final double v = arr.getQuick( i );
-			if ( v > max )
-				max = v;
-		}
-		return max;
-	}
-
-	private static final double min( final TDoubleArrayList arr, final int start, final int end )
-	{
-		double min = Double.POSITIVE_INFINITY;
-		for ( int i = start; i <= end; i++ )
-		{
-			final double v = arr.getQuick( i );
-			if ( v < min )
-				min = v;
-		}
-		return min;
-	}
-
-	private static final double variance( final TDoubleArrayList arr, final int start, final int end )
-	{
-		final double sum = sum( arr, start, end );
-		final int size = size( start, end );
-
-		final double mean = sum / size;
+		final double mean = arr.sum() / size;
 		double sum2 = 0.;
-		for ( int i = start; i <= end; i++ )
+		for ( int i = 0; i < size; i++ )
 		{
 			final double dx = arr.getQuick( i ) - mean;
 			sum2 += dx * dx;

@@ -1,11 +1,5 @@
 package org.mastodon.mamut.nearest;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import javax.swing.JLabel;
@@ -63,29 +57,17 @@ public class NearestObjectStatController
 				view.btnCancel.setVisible( true );
 				view.btnCancel.setEnabled( true );
 
+				// Prepare feature to hold results.
+				final NearestObjectStatFeature feature = NearestObjectStatFeature.createFeature( statModel, model );
+
 				final ReadLock lock = model.getGraph().getLock().readLock();
 				lock.lock();
 				try
 				{
-
-					final ExecutorService runners = Executors.newCachedThreadPool();
-					final List< Future< ? > > futures = new ArrayList<>( maxTimepoint - minTimepoint + 1 );
 					for ( int t = minTimepoint; t <= maxTimepoint; t++ )
-					{
-						final Future< ? > future = runners.submit( process( t ) );
-						futures.add( future );
-					}
+						process( t, feature ).run();
 
-					try
-					{
-						for ( final Future< ? > future : futures )
-							future.get();
-					}
-					catch ( InterruptedException | ExecutionException e )
-					{
-						e.printStackTrace();
-					}
-
+					model.getFeatureModel().declareFeature( feature );
 				}
 				finally
 				{
@@ -95,11 +77,10 @@ public class NearestObjectStatController
 					enabler.reenable();
 				}
 			};
-
 		}.start();
 	}
 
-	protected Runnable process( final int t )
+	protected Runnable process( final int t, final NearestObjectStatFeature feature )
 	{
 		return new Runnable()
 		{
@@ -139,11 +120,9 @@ public class NearestObjectStatController
 						for ( int i = start; i <= item.n(); i++ )
 							arr.add( item.eval( list.get( i ), spot, model.getFeatureModel() ) );
 
-						final double val = item.summarize( arr, start, item.n() );
-
-						// TODO store in feature.
+						final double val = item.summarize( arr );
+						feature.set( spot, item, val );
 					}
-
 				}
 			}
 		};
