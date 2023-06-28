@@ -52,9 +52,11 @@ public class NearestObjectStatListPanel extends JPanel
 
 	private void refresh( final NearestObjectStatModel model )
 	{
+		System.out.println( model ); // DEBUG
 		mainPanel.removeAll();
 		for ( final NearestObjectStatItem item : model )
 		{
+			System.out.println( item ); // DEBUG
 			final JPanel panel = new JPanel();
 			panel.setLayout( new BoxLayout( panel, BoxLayout.LINE_AXIS ) );
 			panel.add( new JLabel( item.toString() ) );
@@ -67,6 +69,7 @@ public class NearestObjectStatListPanel extends JPanel
 			mainPanel.add( panel );
 		}
 		mainPanel.revalidate();
+		repaint();
 	}
 
 	private static class RoundedBorder extends AbstractBorder

@@ -28,21 +28,9 @@
  */
 package org.mastodon.mamut.nearest.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
-
 import org.mastodon.mamut.nearest.NearestObjectStatModel;
-import org.scijava.listeners.Listeners;
 
-import bdv.ui.settings.ModificationListener;
 import bdv.ui.settings.SelectAndEditProfileSettingsPage;
-import bdv.ui.settings.SettingsPanel;
 import bdv.ui.settings.style.StyleProfile;
 import bdv.ui.settings.style.StyleProfileManager;
 
@@ -53,84 +41,15 @@ public class NearestObjectStatModelConfigPage extends SelectAndEditProfileSettin
 	 *
 	 * @param treePath
 	 *            path of this page in the settings tree.
-	 * @param nearestObjectStatModelManager
+	 * @param controller
 	 *            the render settings manager.
+	 * @param nearestObjectStatModelManager
 	 */
-	public NearestObjectStatModelConfigPage( final String treePath, final NearestObjectStatModelManager nearestObjectStatModelManager )
+	public NearestObjectStatModelConfigPage( final String treePath, final NearestObjectStatController controller, final NearestObjectStatModelManager nearestObjectStatModelManager )
 	{
 		super(
 				treePath,
-				new StyleProfileManager<>( nearestObjectStatModelManager, new NearestObjectStatModelManager( false ) ),
-				new NearestObjectStatModelProfileEditPanel( nearestObjectStatModelManager.getSelectedStyle() ) );
-	}
-
-	static class NearestObjectStatModelProfileEditPanel implements SelectAndEditProfileSettingsPage.ProfileEditPanel< StyleProfile< NearestObjectStatModel > >
-	{
-		private final Listeners.SynchronizedList< ModificationListener > modificationListeners;
-
-		private final NearestObjectStatModel editedStyle;
-
-		private final JPanel styleEditorPanel;
-
-		public NearestObjectStatModelProfileEditPanel( final NearestObjectStatModel initialStyle )
-		{
-			editedStyle = initialStyle.copy( "Edited" );
-			styleEditorPanel = new JPanel();
-			styleEditorPanel.setLayout( new BorderLayout() );
-			styleEditorPanel.add( new NearestObjectStatMainPanel( editedStyle, editedStyle.get( 0 ) ), BorderLayout.CENTER );
-			modificationListeners = new Listeners.SynchronizedList<>();
-		}
-
-		@Override
-		public void loadProfile( final StyleProfile< NearestObjectStatModel > profile )
-		{
-			editedStyle.set( profile.getStyle() );
-		}
-
-		@Override
-		public void storeProfile( final StyleProfile< NearestObjectStatModel > profile )
-		{
-			editedStyle.setName( profile.getStyle().getName() );
-			profile.getStyle().set( editedStyle );
-		}
-
-		@Override
-		public Listeners< ModificationListener > modificationListeners()
-		{
-			return modificationListeners;
-		}
-
-		@Override
-		public JPanel getJPanel()
-		{
-			return styleEditorPanel;
-		}
-	}
-
-	public static void main( final String[] args )
-	{
-		final NearestObjectStatModelManager styleManager = new NearestObjectStatModelManager();
-
-		final SettingsPanel settings = new SettingsPanel();
-		settings.addPage( new NearestObjectStatModelConfigPage( "Plugins > Stats on nearest neighbors", styleManager ) );
-
-		final JDialog dialog = new JDialog( ( Frame ) null, "Settings" );
-		dialog.getContentPane().add( settings, BorderLayout.CENTER );
-
-		settings.onOk( () -> dialog.setVisible( false ) );
-		settings.onCancel( () -> dialog.setVisible( false ) );
-
-		dialog.setDefaultCloseOperation( WindowConstants.DO_NOTHING_ON_CLOSE );
-		dialog.addWindowListener( new WindowAdapter()
-		{
-			@Override
-			public void windowClosing( final WindowEvent e )
-			{
-				settings.cancel();
-			}
-		} );
-
-		dialog.pack();
-		dialog.setVisible( true );
+				new StyleProfileManager<>( new NearestObjectStatModelManager(), new NearestObjectStatModelManager( false ) ),
+				controller.getProfileEditor() );
 	}
 }

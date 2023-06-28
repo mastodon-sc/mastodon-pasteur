@@ -28,7 +28,9 @@ public class NearestObjectStatMainPanel extends JPanel
 
 	final JButton btnCancel;
 
-	public NearestObjectStatMainPanel( final NearestObjectStatModel model, final NearestObjectStatItem currentItem )
+	private final NearestObjectStatPanel nearestObjectStatPanel;
+
+	public NearestObjectStatMainPanel( final NearestObjectStatModel model )
 	{
 		setLayout( new BorderLayout( 5, 5 ) );
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
@@ -60,7 +62,7 @@ public class NearestObjectStatMainPanel extends JPanel
 		splitPane.setLeftComponent( panelTop );
 		panelTop.setLayout( new BoxLayout( panelTop, BoxLayout.Y_AXIS ) );
 
-		final NearestObjectStatPanel nearestObjectStatPanel = new NearestObjectStatPanel( currentItem );
+		this.nearestObjectStatPanel = new NearestObjectStatPanel();
 		panelTop.add( nearestObjectStatPanel );
 		panelTop.add( Box.createVerticalGlue() );
 		this.btnAdd = new JButton( MastodonIcons.ADD_ICON );
@@ -68,6 +70,7 @@ public class NearestObjectStatMainPanel extends JPanel
 		pnlButton.setLayout( new BoxLayout( pnlButton, BoxLayout.LINE_AXIS ) );
 		pnlButton.add( Box.createHorizontalGlue() );
 		pnlButton.add( new JLabel( "Add to list" ) );
+		pnlButton.add( Box.createHorizontalStrut( 5 ) );
 		pnlButton.add( btnAdd );
 		panelTop.add( pnlButton );
 
@@ -82,5 +85,10 @@ public class NearestObjectStatMainPanel extends JPanel
 		panelBottom.add( Box.createVerticalStrut( 5 ) );
 		final NearestObjectStatListPanel listPanel = new NearestObjectStatListPanel( model );
 		panelBottom.add( listPanel );
+	}
+
+	public NearestObjectStatItem getCurrentItem()
+	{
+		return nearestObjectStatPanel.get();
 	}
 }

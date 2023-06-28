@@ -13,7 +13,6 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import org.mastodon.mamut.nearest.NearestObjectStatModel;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStat;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
 
@@ -28,7 +27,7 @@ public class NearestObjectStatPanel extends JPanel
 
 	private final JCheckBox chckbxInclude;
 
-	public NearestObjectStatPanel( final NearestObjectStatItem item )
+	public NearestObjectStatPanel(  )
 	{
 		final GridBagLayout gridBagLayout = new GridBagLayout();
 		gridBagLayout.columnWidths = new int[] { 106, 120, 0 };
@@ -86,6 +85,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( chckbxInclude, gbcChckbxInclude );
 
 		// Defaults
+		final NearestObjectStatItem item = new NearestObjectStatItem( 6, NearestObjectStat.MEAN, false );
 		spinnerModel.setValue( Integer.valueOf( item.n ) );
 		cmbboxStat.setSelectedItem( item.statStat );
 		chckbxInclude.setSelected( item.includeItem );

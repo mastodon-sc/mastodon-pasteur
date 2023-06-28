@@ -105,6 +105,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 	public void add( final NearestObjectStatItem item )
 	{
+		System.out.println( "Adding " + item + " to " + items ); // DEBUG
 		if ( items.size() < MAX_N_ITEMS && !items.contains( item ) )
 		{
 			items.add( item );

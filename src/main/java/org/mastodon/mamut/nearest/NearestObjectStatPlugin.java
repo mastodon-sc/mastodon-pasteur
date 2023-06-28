@@ -9,7 +9,7 @@ import java.util.Map;
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
 import org.mastodon.mamut.MamutMenuBuilder;
 import org.mastodon.mamut.PreferencesDialog;
-import org.mastodon.mamut.nearest.ui.NearestObjectStatModelConfigPage;
+import org.mastodon.mamut.nearest.ui.NearestObjectStatController;
 import org.mastodon.mamut.nearest.ui.NearestObjectStatModelManager;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
@@ -19,6 +19,10 @@ import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.plugin.Plugin;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
+
+import bdv.ui.settings.SelectAndEditProfileSettingsPage;
+import bdv.ui.settings.style.StyleProfile;
+import bdv.ui.settings.style.StyleProfileManager;
 
 @Plugin( type = NearestObjectStatPlugin.class )
 public class NearestObjectStatPlugin implements MamutPlugin
@@ -41,7 +45,7 @@ public class NearestObjectStatPlugin implements MamutPlugin
 
 	private MamutPluginAppModel appModel;
 
-	private NearestObjectStatModelConfigPage page;
+	private SelectAndEditProfileSettingsPage< StyleProfile< NearestObjectStatModel > > page;
 
 	@Override
 	public Map< String, String > getMenuTexts()
@@ -70,9 +74,15 @@ public class NearestObjectStatPlugin implements MamutPlugin
 		if ( null == appModel || null == appModel.getAppModel() )
 			return;
 
-		this.page = new NearestObjectStatModelConfigPage( "Stats on nearest-neighbors",
-				new NearestObjectStatModelManager() );
+		final NearestObjectStatController controller = new NearestObjectStatController(
+				appModel.getAppModel().getModel(),
+				appModel.getAppModel().getMinTimepoint(),
+				appModel.getAppModel().getMaxTimepoint() );
 
+		this.page = new SelectAndEditProfileSettingsPage<>(
+				"Stats on nearest-neighbors",
+				new StyleProfileManager<>( new NearestObjectStatModelManager(), new NearestObjectStatModelManager( false ) ),
+				controller.getProfileEditor() );
 		appModel.getWindowManager().getPreferencesDialog().addPage( page );
 	}
 
