@@ -10,6 +10,7 @@ import org.mastodon.kdtree.IncrementalNearestNeighborSearch;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
+import org.mastodon.mamut.nearest.ui.NearestObjectStatMainPanel;
 import org.mastodon.spatial.SpatialIndex;
 import org.mastodon.ui.util.EverythingDisablerAndReenabler;
 

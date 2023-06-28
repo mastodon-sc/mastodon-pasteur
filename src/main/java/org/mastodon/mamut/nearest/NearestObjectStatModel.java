@@ -1,8 +1,10 @@
 package org.mastodon.mamut.nearest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 import org.jdom2.IllegalAddException;
 import org.mastodon.feature.FeatureModel;
@@ -10,19 +12,82 @@ import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
 import org.scijava.listeners.Listeners;
 
+import bdv.ui.settings.style.Style;
 import gnu.trove.list.array.TDoubleArrayList;
 import net.imglib2.util.Util;
 
-public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
+public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >, Style< NearestObjectStatModel >
 {
 
 	private static final int MAX_N_ITEMS = 20;
 
+	public static final Collection< NearestObjectStatModel > defaults;
+	static
+	{
+		final NearestObjectStatModel d = new NearestObjectStatModel( "default" );
+		d.add( new NearestObjectStatItem( 6, NearestObjectStat.MEAN, false ) );
+		defaults = new ArrayList<>( 1 );
+		defaults.add( d );
+	}
+
 	private final List< NearestObjectStatItem > items = new ArrayList<>();
+
+	private String name;
 
 	public interface StatModelListener
 	{
 		public void statModelChanged();
+	}
+
+	public NearestObjectStatModel( final String name )
+	{
+		this.name = name;
+	}
+
+	@Override
+	public NearestObjectStatModel copy( final String name )
+	{
+		final NearestObjectStatModel nosm = new NearestObjectStatModel( "copy" );
+		nosm.set( this );
+		if ( name != null )
+			nosm.setName( name );
+		return nosm;
+
+	}
+
+	public void set( final NearestObjectStatModel o )
+	{
+		name = o.name;
+		items.clear();
+		for ( final NearestObjectStatItem item : o.items )
+			items.add( item );
+	}
+
+	public synchronized void setItems( final List< NearestObjectStatItem > o )
+	{
+		if ( !this.items.equals( o ) )
+		{
+			this.items.clear();
+			for ( final NearestObjectStatItem item : o )
+				this.items.add( item );
+			notifyListeners();
+		}
+	}
+
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+
+	@Override
+	public synchronized void setName( final String name )
+	{
+		if ( !Objects.equals( this.name, name ) )
+		{
+			this.name = name;
+			notifyListeners();
+		}
 	}
 
 	private final Listeners.List< StatModelListener > updateListeners = new Listeners.List<>();
@@ -78,60 +143,28 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 	public static class NearestObjectStatItem
 	{
 
-		private int n = 6;
+		public final int n;
 
-		private boolean includeItem = false;
+		public final boolean includeItem;
 
-		private NearestObjectStat nearestObjectStat = NearestObjectStat.MEAN;
+		public final NearestObjectStat statStat;
 
-		public int n()
-		{
-			return n;
-		}
-
-		public void setN( final int n )
+		public NearestObjectStatItem( final int n, final NearestObjectStat stat, final boolean includeItem )
 		{
 			this.n = n;
-		}
-
-		public boolean includeItem()
-		{
-			return includeItem;
-		}
-
-		public void setIncludeItem( final boolean includeItem )
-		{
+			this.statStat = stat;
 			this.includeItem = includeItem;
-		}
-
-		public NearestObjectStat nearestObjectStat()
-		{
-			return nearestObjectStat;
-		}
-
-		public void setNearestObjectStat( final NearestObjectStat nearestObjectStat )
-		{
-			this.nearestObjectStat = nearestObjectStat;
 		}
 
 		public static NearestObjectStatItem defaultValue()
 		{
-			return new NearestObjectStatItem();
-		}
-
-		public NearestObjectStatItem copy()
-		{
-			final NearestObjectStatItem copy = new NearestObjectStatItem();
-			copy.setIncludeItem( includeItem );
-			copy.setN( n );
-			copy.setNearestObjectStat( nearestObjectStat );
-			return copy;
+			return new NearestObjectStatItem( 6, NearestObjectStat.MEAN, false );
 		}
 
 		@Override
 		public String toString()
 		{
-			return nearestObjectStat.toString() + " of " + n + " NN" +
+			return statStat.toString() + " of " + n + " NN" +
 					( includeItem ? " including central item" : "" );
 		}
 
@@ -146,7 +179,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 				return false;
 			if ( o.n != n )
 				return false;
-			if ( o.nearestObjectStat != nearestObjectStat )
+			if ( o.statStat != statStat )
 				return false;
 
 			return true;
@@ -160,7 +193,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 		public double summarize( final TDoubleArrayList arr )
 		{
-			switch ( nearestObjectStat )
+			switch ( statStat )
 			{
 			case MEAN:
 				return arr.sum() / arr.size();
@@ -176,7 +209,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 			case SUM:
 				return arr.sum();
 			default:
-				throw new IllegalAddException( "This summarizing operation is unknown: " + nearestObjectStat );
+				throw new IllegalAddException( "This summarizing operation is unknown: " + statStat );
 			}
 		}
 	}
@@ -220,10 +253,5 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		}
 		final double variance = sum2 / ( size - 1 );
 		return variance;
-	}
-
-	private static final int size( final int start, final int end )
-	{
-		return end - start + 1;
 	}
 }

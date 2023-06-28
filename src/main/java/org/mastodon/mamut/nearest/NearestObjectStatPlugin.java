@@ -1,23 +1,16 @@
 package org.mastodon.mamut.nearest;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JDialog;
-import javax.swing.WindowConstants;
-
-import org.mastodon.app.MastodonIcons;
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
-import org.mastodon.mamut.MamutAppModel;
 import org.mastodon.mamut.MamutMenuBuilder;
-import org.mastodon.mamut.model.Model;
+import org.mastodon.mamut.PreferencesDialog;
+import org.mastodon.mamut.nearest.ui.NearestObjectStatModelConfigPage;
+import org.mastodon.mamut.nearest.ui.NearestObjectStatModelManager;
 import org.mastodon.mamut.plugin.MamutPlugin;
 import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.ui.keymap.CommandDescriptionProvider;
@@ -33,7 +26,7 @@ public class NearestObjectStatPlugin implements MamutPlugin
 
 	public static final String[] MENU_PATH = new String[] { "Plugins" };
 
-	public static final String SHOW_NEAREST_NEIGHBORS_STATS_DIALOG_ACTION = "compute nearest neighbors stats dialog";
+	public static final String SHOW_NEAREST_NEIGHBORS_STATS_DIALOG_ACTION = "generate statistics on nearest neighbors";
 
 	private static final String[] ACTION_1_KEYS = new String[] { "not mapped" };
 
@@ -41,10 +34,14 @@ public class NearestObjectStatPlugin implements MamutPlugin
 
 	static
 	{
-		menuTexts.put( SHOW_NEAREST_NEIGHBORS_STATS_DIALOG_ACTION, "Stats on nearest neighbors" );
+		menuTexts.put( SHOW_NEAREST_NEIGHBORS_STATS_DIALOG_ACTION, "Generate statistics on nearest neighbors" );
 	}
 
-	private final ToggleDialogAction toggleDialog = new ToggleDialogAction();
+	private final ShowDialogAction toggleDialog = new ShowDialogAction();
+
+	private MamutPluginAppModel appModel;
+
+	private NearestObjectStatModelConfigPage page;
 
 	@Override
 	public Map< String, String > getMenuTexts()
@@ -68,10 +65,15 @@ public class NearestObjectStatPlugin implements MamutPlugin
 	@Override
 	public void setAppPluginModel( final MamutPluginAppModel appModel )
 	{
+		this.appModel = appModel;
+
 		if ( null == appModel || null == appModel.getAppModel() )
 			return;
 
-		toggleDialog.setAppModel( appModel );
+		this.page = new NearestObjectStatModelConfigPage( "Stats on nearest-neighbors",
+				new NearestObjectStatModelManager() );
+
+		appModel.getWindowManager().getPreferencesDialog().addPage( page );
 	}
 
 	/**
@@ -93,47 +95,28 @@ public class NearestObjectStatPlugin implements MamutPlugin
 		}
 	}
 
-	public static class ToggleDialogAction extends AbstractNamedAction
+	private class ShowDialogAction extends AbstractNamedAction
 	{
 
 		private static final long serialVersionUID = 1L;
 
-		private JDialog dialog;
-
-		private NearestObjectStatController controller;
-
-		public ToggleDialogAction()
+		public ShowDialogAction()
 		{
 			super( SHOW_NEAREST_NEIGHBORS_STATS_DIALOG_ACTION );
-		}
-
-		public void setAppModel( final MamutPluginAppModel pluginModel )
-		{
-			final MamutAppModel appModel = pluginModel.getAppModel();
-//			final Context context = pluginModel.getWindowManager().getContext();
-//
-//			final SharedBigDataViewerData bdvData = appModel.getSharedBdvData();
-			final Model model = appModel.getModel();
-//			final SelectionModel< Spot, Link > selectionModel = appModel.getSelectionModel();
-
-			controller = new NearestObjectStatController( model, appModel.getMinTimepoint(), appModel.getMaxTimepoint() );
-			dialog = new JDialog( ( Frame ) null, "Nearest neighbors" );
-			dialog.setSize( 600, 300 );
-			dialog.setIconImages( Arrays.asList( new Image[] {
-					MastodonIcons.MASTODON_ICON_LARGE.getImage(),
-					MastodonIcons.MASTODON_ICON_MEDIUM.getImage(),
-					MastodonIcons.MASTODON_ICON_SMALL.getImage() } ) );
-			dialog.getContentPane().add( controller.getView(), BorderLayout.CENTER );
-			dialog.setDefaultCloseOperation( WindowConstants.HIDE_ON_CLOSE );
-			dialog.setLocationRelativeTo( null );
 		}
 
 		@Override
 		public void actionPerformed( final ActionEvent e )
 		{
+			if ( appModel == null )
+				return;
+
+			final PreferencesDialog dialog = appModel.getWindowManager().getPreferencesDialog();
 			if ( null == dialog )
 				return;
-			dialog.setVisible( !dialog.isVisible() );
+
+			dialog.showPage( page.getTreePath() );
+			dialog.setVisible( true );
 		}
 	}
 }

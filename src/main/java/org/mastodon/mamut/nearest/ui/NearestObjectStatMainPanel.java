@@ -1,7 +1,6 @@
-package org.mastodon.mamut.nearest;
+package org.mastodon.mamut.nearest.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -10,10 +9,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import org.mastodon.app.MastodonIcons;
+import org.mastodon.mamut.nearest.NearestObjectStatModel;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
 
 public class NearestObjectStatMainPanel extends JPanel
@@ -34,12 +33,6 @@ public class NearestObjectStatMainPanel extends JPanel
 		setLayout( new BorderLayout( 5, 5 ) );
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 
-		final JLabel lblTitle = new JLabel( "Generate statistics on N nearest neighbors" );
-		lblTitle.setFont( lblTitle.getFont().deriveFont( lblTitle.getFont().getSize() + 2f ) );
-		lblTitle.setHorizontalAlignment( SwingConstants.LEFT );
-		lblTitle.setVerticalAlignment( SwingConstants.TOP );
-		add( lblTitle, BorderLayout.NORTH );
-
 		final JPanel panelRun = new JPanel();
 		add( panelRun, BorderLayout.SOUTH );
 		panelRun.setLayout( new BoxLayout( panelRun, BoxLayout.X_AXIS ) );
@@ -54,40 +47,40 @@ public class NearestObjectStatMainPanel extends JPanel
 		btnCancel.setVisible( false );
 		panelRun.add( btnCancel );
 
-		final JSplitPane splitPane = new JSplitPane();
+		final JSplitPane splitPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT );
 		splitPane.setBorder( null );
 		splitPane.setResizeWeight( 0.2 );
 		add( splitPane, BorderLayout.CENTER );
 
 		/*
-		 * LEFT
+		 * TOP
 		 */
 
-		final JPanel panelLeft = new JPanel();
-		splitPane.setLeftComponent( panelLeft );
-		panelLeft.setLayout( new BoxLayout( panelLeft, BoxLayout.Y_AXIS ) );
+		final JPanel panelTop = new JPanel();
+		splitPane.setLeftComponent( panelTop );
+		panelTop.setLayout( new BoxLayout( panelTop, BoxLayout.Y_AXIS ) );
 
 		final NearestObjectStatPanel nearestObjectStatPanel = new NearestObjectStatPanel( currentItem );
-		panelLeft.add( nearestObjectStatPanel );
-		panelLeft.add( Box.createVerticalGlue() );
+		panelTop.add( nearestObjectStatPanel );
+		panelTop.add( Box.createVerticalGlue() );
 		this.btnAdd = new JButton( MastodonIcons.ADD_ICON );
 		final JPanel pnlButton = new JPanel();
 		pnlButton.setLayout( new BoxLayout( pnlButton, BoxLayout.LINE_AXIS ) );
 		pnlButton.add( Box.createHorizontalGlue() );
+		pnlButton.add( new JLabel( "Add to list" ) );
 		pnlButton.add( btnAdd );
-		panelLeft.add( pnlButton );
+		panelTop.add( pnlButton );
 
 		/*
 		 * RIGHT
 		 */
 
-		final JPanel panelRight = new JPanel();
-		splitPane.setRightComponent( panelRight );
-		panelRight.setLayout( new BoxLayout( panelRight, BoxLayout.Y_AXIS ) );
-		panelRight.add( new JLabel( "To compute:" ) );
-		panelRight.add( Box.createVerticalStrut( 5 ) );
+		final JPanel panelBottom = new JPanel();
+		splitPane.setRightComponent( panelBottom );
+		panelBottom.setLayout( new BoxLayout( panelBottom, BoxLayout.Y_AXIS ) );
+		panelBottom.add( new JLabel( "Stat list" ) );
+		panelBottom.add( Box.createVerticalStrut( 5 ) );
 		final NearestObjectStatListPanel listPanel = new NearestObjectStatListPanel( model );
-		panelRight.add( listPanel );
-		panelRight.setMinimumSize( new Dimension( 200, 400 ) );
+		panelBottom.add( listPanel );
 	}
 }
