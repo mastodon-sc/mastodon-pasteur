@@ -6,7 +6,9 @@ import javax.swing.JLabel;
 
 import org.mastodon.collection.RefCollections;
 import org.mastodon.collection.RefList;
+import org.mastodon.feature.ui.AvailableFeatureProjections;
 import org.mastodon.kdtree.IncrementalNearestNeighborSearch;
+import org.mastodon.mamut.feature.MamutFeatureProjectionsManager;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.nearest.NearestObjectStatFeature;
@@ -36,17 +38,25 @@ public class NearestObjectStatController
 
 	private final NearestObjectStatMainPanel view;
 
-	public NearestObjectStatController( final NearestObjectStatModel initialStyle, final Model model, final int minTimepoint, final int maxTimepoint )
+	public NearestObjectStatController(
+			final NearestObjectStatModel initialStyle,
+			final Model model,
+			final int minTimepoint,
+			final int maxTimepoint,
+			final MamutFeatureProjectionsManager featureProjectionsManager )
 	{
 		this.model = model;
 		this.minTimepoint = minTimepoint;
 		this.maxTimepoint = maxTimepoint;
 
-		this.profileEditor = new NearestObjectStatModelProfileEditPanel( initialStyle );
+		this.profileEditor = new NearestObjectStatModelProfileEditPanel( initialStyle, featureProjectionsManager.getAvailableFeatureProjections() );
 		this.selectedStyle = profileEditor.editedStyle;
 		this.view = profileEditor.getJPanel();
 		view.btnAdd.addActionListener( e -> add( view.getCurrentItem() ) );
 		view.btnCompute.addActionListener( e -> compute() );
+		featureProjectionsManager.listeners().add( () -> profileEditor.getJPanel()
+				.setAvailableFeatureProjections( featureProjectionsManager.getAvailableFeatureProjections() ) );
+
 	}
 
 	private void add( final NearestObjectStatItem item )
@@ -138,7 +148,7 @@ public class NearestObjectStatController
 		};
 	}
 
-	public SelectAndEditProfileSettingsPage.ProfileEditPanel< StyleProfile< NearestObjectStatModel > > getProfileEditor()
+	public NearestObjectStatModelProfileEditPanel getProfileEditor()
 	{
 		return profileEditor;
 	}
@@ -153,10 +163,10 @@ public class NearestObjectStatController
 
 		private boolean trackModifications = true;
 
-		public NearestObjectStatModelProfileEditPanel( final NearestObjectStatModel initialStyle )
+		public NearestObjectStatModelProfileEditPanel( final NearestObjectStatModel initialStyle, final AvailableFeatureProjections afp )
 		{
 			this.editedStyle = initialStyle.copy( "Edited" );
-			styleEditorPanel = new NearestObjectStatMainPanel( editedStyle );
+			styleEditorPanel = new NearestObjectStatMainPanel( editedStyle, afp );
 			modificationListeners = new Listeners.SynchronizedList<>();
 			editedStyle.statModelListeners().add( this );
 		}

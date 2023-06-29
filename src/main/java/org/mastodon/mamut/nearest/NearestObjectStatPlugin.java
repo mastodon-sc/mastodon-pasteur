@@ -73,13 +73,14 @@ public class NearestObjectStatPlugin implements MamutPlugin
 
 		if ( null == appModel || null == appModel.getAppModel() )
 			return;
-
+		
 		final NearestObjectStatModelManager manager = new NearestObjectStatModelManager();
 		final NearestObjectStatController controller = new NearestObjectStatController(
 				manager.getSelectedStyle(),
 				appModel.getAppModel().getModel(),
 				appModel.getAppModel().getMinTimepoint(),
-				appModel.getAppModel().getMaxTimepoint() );
+				appModel.getAppModel().getMaxTimepoint(),
+				appModel.getAppModel().getFeatureProjectionsManager() );
 
 		this.page = new SelectAndEditProfileSettingsPage<>(
 				"Stats on nearest-neighbors",

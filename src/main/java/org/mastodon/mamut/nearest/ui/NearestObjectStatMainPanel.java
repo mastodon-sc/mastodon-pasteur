@@ -12,6 +12,7 @@ import javax.swing.JSplitPane;
 import javax.swing.border.EmptyBorder;
 
 import org.mastodon.app.MastodonIcons;
+import org.mastodon.feature.ui.AvailableFeatureProjections;
 import org.mastodon.mamut.nearest.NearestObjectStatModel;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
 
@@ -30,7 +31,7 @@ public class NearestObjectStatMainPanel extends JPanel
 
 	private final NearestObjectStatPanel nearestObjectStatPanel;
 
-	public NearestObjectStatMainPanel( final NearestObjectStatModel model )
+	public NearestObjectStatMainPanel( final NearestObjectStatModel model, final AvailableFeatureProjections afp )
 	{
 		setLayout( new BorderLayout( 5, 5 ) );
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
@@ -62,7 +63,7 @@ public class NearestObjectStatMainPanel extends JPanel
 		splitPane.setLeftComponent( panelTop );
 		panelTop.setLayout( new BoxLayout( panelTop, BoxLayout.Y_AXIS ) );
 
-		this.nearestObjectStatPanel = new NearestObjectStatPanel();
+		this.nearestObjectStatPanel = new NearestObjectStatPanel( afp );
 		panelTop.add( nearestObjectStatPanel );
 		panelTop.add( Box.createVerticalGlue() );
 		this.btnAdd = new JButton( MastodonIcons.ADD_ICON );
@@ -90,5 +91,10 @@ public class NearestObjectStatMainPanel extends JPanel
 	public NearestObjectStatItem getCurrentItem()
 	{
 		return nearestObjectStatPanel.get();
+	}
+
+	public void setAvailableFeatureProjections( final AvailableFeatureProjections afp )
+	{
+		nearestObjectStatPanel.setAvailableFeatureProjections( afp );
 	}
 }

@@ -9,8 +9,11 @@ import java.util.Objects;
 
 import org.jdom2.IllegalAddException;
 import org.mastodon.feature.FeatureModel;
+import org.mastodon.mamut.feature.SpotIntensityFeature;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
+import org.mastodon.ui.coloring.feature.FeatureProjectionId;
+import org.mastodon.ui.coloring.feature.TargetType;
 import org.scijava.listeners.Listeners;
 
 import bdv.ui.settings.style.Style;
@@ -26,9 +29,17 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 	static
 	{
 		final NearestObjectStatModel d1 = new NearestObjectStatModel( "default" );
-		d1.add( new NearestObjectStatItem( 6, NearestObjectStat.MEAN, false ) );
-		final NearestObjectStatModel d2 = new NearestObjectStatModel( "duce" );
-		d2.add( new NearestObjectStatItem( 12, NearestObjectStat.MAX, true ) );
+		d1.add( new NearestObjectStatItem() );
+		final NearestObjectStatModel d2 = new NearestObjectStatModel( "Mean of neighbor intensities" );
+		d2.add( new NearestObjectStatItem( 6,
+				Value.FEATURE,
+				new FeatureProjectionId(
+						SpotIntensityFeature.KEY,
+						SpotIntensityFeature.MEAN_PROJECTION_SPEC.getKey(),
+						TargetType.VERTEX,
+						0 ),
+				Stat.MEAN,
+				false ) );
 		defaults = new ArrayList<>( 2 );
 		defaults.add( d1 );
 		defaults.add( d2 );
@@ -154,32 +165,72 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 		public final int n;
 
+		public final Value value;
+
+		public final FeatureProjectionId featureID;
+
+		public final Stat stat;
+
 		public final boolean include;
 
-		public final NearestObjectStat statStat;
 
 		public NearestObjectStatItem()
 		{
-			this( 6, NearestObjectStat.MEAN, false );
+			this(
+					6,
+					Value.DISTANCE,
+					new FeatureProjectionId(
+							SpotIntensityFeature.KEY,
+							SpotIntensityFeature.MEAN_PROJECTION_SPEC.getKey(),
+							TargetType.VERTEX,
+							0 ),
+					Stat.MEAN,
+					false );
 		}
 
-		public NearestObjectStatItem( final int n, final NearestObjectStat stat, final boolean include )
+		public NearestObjectStatItem( final int n, final Value value, final FeatureProjectionId featureID, final Stat stat, final boolean include )
 		{
 			this.n = n;
-			this.statStat = stat;
+			this.value = value;
+			this.featureID = featureID;
+			this.stat = stat;
 			this.include = include;
 		}
 
 		public static NearestObjectStatItem defaultValue()
 		{
-			return new NearestObjectStatItem( 6, NearestObjectStat.MEAN, false );
+			return new NearestObjectStatItem();
 		}
 
 		@Override
 		public String toString()
 		{
-			return statStat.toString() + " of " + n + " NN" +
-					( include ? " including central item" : "" );
+			final String featureKey = featureID.getFeatureKey();
+			final String projectionKey = featureID.getProjectionKey();
+			final String featureStr = featureKey.equals( projectionKey )
+					? featureKey.toLowerCase()
+					: featureKey.toLowerCase() + " - " + projectionKey.toLowerCase();
+			final String suffixStr;
+			switch ( featureID.getMultiplicity() )
+			{
+			case SINGLE:
+				suffixStr = "";
+				break;
+			case ON_SOURCES:
+				suffixStr = " ch" + ( featureID.getI0() + 1 );
+				break;
+			case ON_SOURCE_PAIRS:
+				suffixStr = " ch" + ( featureID.getI0() + 1 ) + "/ch" + ( featureID.getI1() + 1 );
+				break;
+			default:
+				throw new IllegalAddException( "Unknown multiplicity: " + featureID.getMultiplicity() );
+
+			}
+			final String statStr = stat.toString();
+			final String valueStr = value == Value.DISTANCE
+					? ( " distance to " ) : ( " of " + featureStr + suffixStr + " over " );
+			return statStr + valueStr + n + " NN" +
+					( include ? " with center" : "" );
 		}
 
 		@Override
@@ -189,11 +240,15 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 				return false;
 
 			final NearestObjectStatItem o = ( NearestObjectStatItem ) obj;
-			if ( o.include != include )
-				return false;
 			if ( o.n != n )
 				return false;
-			if ( o.statStat != statStat )
+			if ( o.value != value )
+				return false;
+			if ( !o.featureID.equals( featureID ) )
+				return false;
+			if ( o.stat != stat )
+				return false;
+			if ( o.include != include )
 				return false;
 
 			return true;
@@ -207,7 +262,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 		public double summarize( final TDoubleArrayList arr )
 		{
-			switch ( statStat )
+			switch ( stat )
 			{
 			case MEAN:
 				return arr.sum() / arr.size();
@@ -223,12 +278,31 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 			case SUM:
 				return arr.sum();
 			default:
-				throw new IllegalAddException( "This summarizing operation is unknown: " + statStat );
+				throw new IllegalAddException( "This summarizing operation is unknown: " + stat );
 			}
 		}
 	}
 
-	public enum NearestObjectStat
+	public enum Value
+	{
+		DISTANCE( "Distance" ),
+		FEATURE( "Feature" );
+
+		private final String name;
+
+		Value( final String name )
+		{
+			this.name = name;
+		}
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+	}
+
+	public enum Stat
 	{
 
 		MEAN( "Mean" ),
@@ -240,7 +314,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 		private final String name;
 
-		NearestObjectStat( final String name )
+		Stat( final String name )
 		{
 			this.name = name;
 		}
