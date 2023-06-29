@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.mastodon.io.IOUtils;
 import org.mastodon.mamut.nearest.NearestObjectStatModel;
-import org.mastodon.views.bdv.overlay.RenderSettings;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
@@ -86,7 +85,7 @@ public class NearestObjectStatModelManager extends AbstractStyleManager< Nearest
 				{
 					defaultStyleName = ( String ) obj;
 				}
-				else if ( obj instanceof RenderSettings )
+				else if ( obj instanceof NearestObjectStatModel )
 				{
 					final NearestObjectStatModel ts = ( NearestObjectStatModel ) obj;
 					if ( null != ts )

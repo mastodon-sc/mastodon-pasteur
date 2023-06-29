@@ -24,6 +24,7 @@ import javax.swing.border.LineBorder;
 import org.mastodon.app.MastodonIcons;
 import org.mastodon.mamut.nearest.NearestObjectStatModel;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
+import org.mastodon.ui.util.WrapLayout;
 
 public class NearestObjectStatListPanel extends JPanel
 {
@@ -37,12 +38,13 @@ public class NearestObjectStatListPanel extends JPanel
 		super( new BorderLayout() );
 		model.statModelListeners().add( () -> refresh( model ) );
 		this.mainPanel = new JPanel();
-		mainPanel.setLayout( new FlowLayout( FlowLayout.LEFT, 10, 10 ) );
+		mainPanel.setLayout( new WrapLayout( FlowLayout.LEFT, 10, 10 ) );
 
 		final JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setBorder( new LineBorder( getBackground().darker() ) );
 		scrollPane.setOpaque( false );
 		scrollPane.getViewport().setOpaque( false );
+		scrollPane.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_NEVER );
 		scrollPane.setVerticalScrollBarPolicy( ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED );
 		scrollPane.setViewportView( mainPanel );
 
@@ -52,11 +54,9 @@ public class NearestObjectStatListPanel extends JPanel
 
 	private void refresh( final NearestObjectStatModel model )
 	{
-		System.out.println( model ); // DEBUG
 		mainPanel.removeAll();
 		for ( final NearestObjectStatItem item : model )
 		{
-			System.out.println( item ); // DEBUG
 			final JPanel panel = new JPanel();
 			panel.setLayout( new BoxLayout( panel, BoxLayout.LINE_AXIS ) );
 			panel.add( new JLabel( item.toString() ) );

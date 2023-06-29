@@ -88,7 +88,7 @@ public class NearestObjectStatPanel extends JPanel
 		final NearestObjectStatItem item = new NearestObjectStatItem( 6, NearestObjectStat.MEAN, false );
 		spinnerModel.setValue( Integer.valueOf( item.n ) );
 		cmbboxStat.setSelectedItem( item.statStat );
-		chckbxInclude.setSelected( item.includeItem );
+		chckbxInclude.setSelected( item.include );
 	}
 
 	public NearestObjectStatItem get()

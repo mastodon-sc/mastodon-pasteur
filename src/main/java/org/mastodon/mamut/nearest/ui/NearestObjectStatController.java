@@ -1,10 +1,8 @@
 package org.mastodon.mamut.nearest.ui;
 
-import java.awt.BorderLayout;
 import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import org.mastodon.collection.RefCollections;
 import org.mastodon.collection.RefList;
@@ -26,9 +24,6 @@ import gnu.trove.list.array.TDoubleArrayList;
 public class NearestObjectStatController
 {
 
-	private final NearestObjectStatMainPanel view;
-
-
 	private final Model model;
 
 	private final int minTimepoint;
@@ -37,26 +32,26 @@ public class NearestObjectStatController
 
 	private final NearestObjectStatModelProfileEditPanel profileEditor;
 
-	private final NearestObjectStatModel editedStyle;
+	private final NearestObjectStatModel selectedStyle;
 
-	public NearestObjectStatController( final Model model, final int minTimepoint, final int maxTimepoint )
+	private final NearestObjectStatMainPanel view;
+
+	public NearestObjectStatController( final NearestObjectStatModel initialStyle, final Model model, final int minTimepoint, final int maxTimepoint )
 	{
 		this.model = model;
-		this.editedStyle = new NearestObjectStatModel( "Edited" );
 		this.minTimepoint = minTimepoint;
 		this.maxTimepoint = maxTimepoint;
-		this.view = new NearestObjectStatMainPanel( editedStyle );
 
+		this.profileEditor = new NearestObjectStatModelProfileEditPanel( initialStyle );
+		this.selectedStyle = profileEditor.editedStyle;
+		this.view = profileEditor.getJPanel();
 		view.btnAdd.addActionListener( e -> add( view.getCurrentItem() ) );
 		view.btnCompute.addActionListener( e -> compute() );
-
-		this.profileEditor = new NearestObjectStatModelProfileEditPanel( editedStyle );
 	}
 
 	private void add( final NearestObjectStatItem item )
 	{
-		System.out.println( "Add " + item ); // DEBUG
-		editedStyle.add( item );
+		selectedStyle.add( item );
 	}
 
 	private void compute()
@@ -73,7 +68,7 @@ public class NearestObjectStatController
 				view.btnCancel.setEnabled( true );
 
 				// Prepare feature to hold results.
-				final NearestObjectStatFeature feature = NearestObjectStatFeature.createFeature( editedStyle, model );
+				final NearestObjectStatFeature feature = NearestObjectStatFeature.createFeature( selectedStyle, model );
 
 				final ReadLock lock = model.getGraph().getLock().readLock();
 				lock.lock();
@@ -105,7 +100,7 @@ public class NearestObjectStatController
 			{
 				// Max number of neighbors we need to collect.
 				int maxN = -1;
-				for ( final NearestObjectStatItem item : editedStyle )
+				for ( final NearestObjectStatItem item : selectedStyle )
 				{
 					final int n = item.n;
 					if ( n > maxN )
@@ -126,10 +121,10 @@ public class NearestObjectStatController
 					for ( int i = 0; i <= maxN; i++ )
 						list.add( search.next() );
 
-					for ( final NearestObjectStatItem item : editedStyle )
+					for ( final NearestObjectStatItem item : selectedStyle )
 					{
 						// The first one is always the spot itself.
-						final int start = item.includeItem ? 0 : 1;
+						final int start = item.include ? 0 : 1;
 
 						arr.resetQuick();
 						for ( int i = start; i <= item.n; i++ )
@@ -143,43 +138,43 @@ public class NearestObjectStatController
 		};
 	}
 
-	public NearestObjectStatMainPanel getView()
-	{
-		return view;
-	}
-
 	public SelectAndEditProfileSettingsPage.ProfileEditPanel< StyleProfile< NearestObjectStatModel > > getProfileEditor()
 	{
 		return profileEditor;
 	}
 
-	private static class NearestObjectStatModelProfileEditPanel implements SelectAndEditProfileSettingsPage.ProfileEditPanel< StyleProfile< NearestObjectStatModel > >
+	private static class NearestObjectStatModelProfileEditPanel implements NearestObjectStatModel.StatModelListener, SelectAndEditProfileSettingsPage.ProfileEditPanel< StyleProfile< NearestObjectStatModel > >
 	{
 		private final Listeners.SynchronizedList< ModificationListener > modificationListeners;
 
 		private final NearestObjectStatModel editedStyle;
 
-		private final JPanel styleEditorPanel;
+		private final NearestObjectStatMainPanel styleEditorPanel;
 
-		public NearestObjectStatModelProfileEditPanel( final NearestObjectStatModel editedStyle )
+		private boolean trackModifications = true;
+
+		public NearestObjectStatModelProfileEditPanel( final NearestObjectStatModel initialStyle )
 		{
-			this.editedStyle = editedStyle;
-			styleEditorPanel = new JPanel();
-			styleEditorPanel.setLayout( new BorderLayout() );
-			styleEditorPanel.add( new NearestObjectStatMainPanel( editedStyle ), BorderLayout.CENTER );
+			this.editedStyle = initialStyle.copy( "Edited" );
+			styleEditorPanel = new NearestObjectStatMainPanel( editedStyle );
 			modificationListeners = new Listeners.SynchronizedList<>();
+			editedStyle.statModelListeners().add( this );
 		}
 
 		@Override
 		public void loadProfile( final StyleProfile< NearestObjectStatModel > profile )
 		{
+			trackModifications = false;
 			editedStyle.set( profile.getStyle() );
+			trackModifications = true;
 		}
 
 		@Override
 		public void storeProfile( final StyleProfile< NearestObjectStatModel > profile )
 		{
+			trackModifications = false;
 			editedStyle.setName( profile.getStyle().getName() );
+			trackModifications = true;
 			profile.getStyle().set( editedStyle );
 		}
 
@@ -190,10 +185,16 @@ public class NearestObjectStatController
 		}
 
 		@Override
-		public JPanel getJPanel()
+		public NearestObjectStatMainPanel getJPanel()
 		{
 			return styleEditorPanel;
 		}
-	}
 
+		@Override
+		public void statModelChanged()
+		{
+			if ( trackModifications )
+				modificationListeners.list.forEach( ModificationListener::setModified );
+		}
+	}
 }

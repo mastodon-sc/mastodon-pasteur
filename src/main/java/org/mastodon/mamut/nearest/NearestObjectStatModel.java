@@ -2,6 +2,7 @@ package org.mastodon.mamut.nearest;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -24,20 +25,23 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 	public static final Collection< NearestObjectStatModel > defaults;
 	static
 	{
-		final NearestObjectStatModel d = new NearestObjectStatModel( "default" );
-		d.add( new NearestObjectStatItem( 6, NearestObjectStat.MEAN, false ) );
-		defaults = new ArrayList<>( 1 );
-		defaults.add( d );
+		final NearestObjectStatModel d1 = new NearestObjectStatModel( "default" );
+		d1.add( new NearestObjectStatItem( 6, NearestObjectStat.MEAN, false ) );
+		final NearestObjectStatModel d2 = new NearestObjectStatModel( "duce" );
+		d2.add( new NearestObjectStatItem( 12, NearestObjectStat.MAX, true ) );
+		defaults = new ArrayList<>( 2 );
+		defaults.add( d1 );
+		defaults.add( d2 );
 	}
 
 	private final List< NearestObjectStatItem > items = new ArrayList<>();
 
+	private final Listeners.List< StatModelListener > updateListeners = new Listeners.List<>();
+
 	private String name;
 
-	public interface StatModelListener
-	{
-		public void statModelChanged();
-	}
+	public NearestObjectStatModel()
+	{}
 
 	public NearestObjectStatModel( final String name )
 	{
@@ -61,6 +65,8 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		items.clear();
 		for ( final NearestObjectStatItem item : o.items )
 			items.add( item );
+
+		notifyListeners();
 	}
 
 	public synchronized void setItems( final List< NearestObjectStatItem > o )
@@ -72,6 +78,11 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 				this.items.add( item );
 			notifyListeners();
 		}
+	}
+
+	public List< NearestObjectStatItem > getItems()
+	{
+		return Collections.unmodifiableList( items );
 	}
 
 	@Override
@@ -90,22 +101,19 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		}
 	}
 
-	private final Listeners.List< StatModelListener > updateListeners = new Listeners.List<>();
-
 	private void notifyListeners()
 	{
 		for ( final StatModelListener l : updateListeners.list )
 			l.statModelChanged();
 	}
 
-	public org.scijava.listeners.Listeners.List< StatModelListener > statModelListeners()
+	public Listeners.List< StatModelListener > statModelListeners()
 	{
 		return updateListeners;
 	}
 
 	public void add( final NearestObjectStatItem item )
 	{
-		System.out.println( "Adding " + item + " to " + items ); // DEBUG
 		if ( items.size() < MAX_N_ITEMS && !items.contains( item ) )
 		{
 			items.add( item );
@@ -146,15 +154,20 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 		public final int n;
 
-		public final boolean includeItem;
+		public final boolean include;
 
 		public final NearestObjectStat statStat;
 
-		public NearestObjectStatItem( final int n, final NearestObjectStat stat, final boolean includeItem )
+		public NearestObjectStatItem()
+		{
+			this( 6, NearestObjectStat.MEAN, false );
+		}
+
+		public NearestObjectStatItem( final int n, final NearestObjectStat stat, final boolean include )
 		{
 			this.n = n;
 			this.statStat = stat;
-			this.includeItem = includeItem;
+			this.include = include;
 		}
 
 		public static NearestObjectStatItem defaultValue()
@@ -166,7 +179,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		public String toString()
 		{
 			return statStat.toString() + " of " + n + " NN" +
-					( includeItem ? " including central item" : "" );
+					( include ? " including central item" : "" );
 		}
 
 		@Override
@@ -176,7 +189,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 				return false;
 
 			final NearestObjectStatItem o = ( NearestObjectStatItem ) obj;
-			if ( o.includeItem != includeItem )
+			if ( o.include != include )
 				return false;
 			if ( o.n != n )
 				return false;
@@ -255,4 +268,10 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		final double variance = sum2 / ( size - 1 );
 		return variance;
 	}
+
+	public interface StatModelListener
+	{
+		public void statModelChanged();
+	}
+
 }
