@@ -61,7 +61,18 @@ public class NearestObjectStatController
 
 	private void add( final NearestObjectStatItem item )
 	{
+		if ( selectedStyle.size() >= NearestObjectStatModel.MAX_N_ITEMS)
+		{
+			view.lblLog.setText( "Cannot have more than " + NearestObjectStatModel.MAX_N_ITEMS + " stat items." );
+			return;
+		}
+		if ( selectedStyle.contains( item ) )
+		{
+			view.lblLog.setText( "Current configuration already has this stat item." );
+			return;
+		}
 		selectedStyle.add( item );
+		view.lblLog.setText( "Stat item added." );
 	}
 
 	private void compute()

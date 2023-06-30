@@ -54,6 +54,13 @@ public class NearestObjectStatListPanel extends JPanel
 
 	private void refresh( final NearestObjectStatModel model )
 	{
+		final Color bg = getBackground();
+		final double FACTOR = 0.9;
+		final Color bg2 = new Color( Math.max( ( int ) ( bg.getRed() * FACTOR ), 0 ),
+				Math.max( ( int ) ( bg.getGreen() * FACTOR ), 0 ),
+				Math.max( ( int ) ( bg.getBlue() * FACTOR ), 0 ),
+				bg.getAlpha() );
+
 		mainPanel.removeAll();
 		for ( final NearestObjectStatItem item : model )
 		{
@@ -65,7 +72,7 @@ public class NearestObjectStatListPanel extends JPanel
 			btn.addActionListener( e -> model.remove( item ) );
 			panel.add( btn );
 
-			panel.setBorder( new RoundedBorder( Color.BLACK, getBackground(), 30 ) );
+			panel.setBorder( new RoundedBorder( Color.BLACK.brighter(), bg2, 30 ) );
 			mainPanel.add( panel );
 		}
 		mainPanel.revalidate();

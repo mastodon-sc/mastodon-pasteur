@@ -23,7 +23,7 @@ import net.imglib2.util.Util;
 public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >, Style< NearestObjectStatModel >
 {
 
-	private static final int MAX_N_ITEMS = 20;
+	public static final int MAX_N_ITEMS = 20;
 
 	public static final Collection< NearestObjectStatModel > defaults;
 	static
@@ -146,6 +146,11 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 	public NearestObjectStatItem get( final int i )
 	{
 		return items.get( i );
+	}
+
+	public boolean contains( final NearestObjectStatItem item )
+	{
+		return items.contains( item );
 	}
 
 	@Override
@@ -347,5 +352,4 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 	{
 		public void statModelChanged();
 	}
-
 }

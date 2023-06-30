@@ -29,7 +29,10 @@ public class NearestObjectStatMainPanel extends JPanel
 
 	final JButton btnCancel;
 
+	final JLabel lblLog;
+
 	private final NearestObjectStatPanel nearestObjectStatPanel;
+
 
 	public NearestObjectStatMainPanel( final NearestObjectStatModel model, final AvailableFeatureProjections afp )
 	{
@@ -69,6 +72,8 @@ public class NearestObjectStatMainPanel extends JPanel
 		this.btnAdd = new JButton( MastodonIcons.ADD_ICON );
 		final JPanel pnlButton = new JPanel();
 		pnlButton.setLayout( new BoxLayout( pnlButton, BoxLayout.LINE_AXIS ) );
+		this.lblLog = new JLabel();
+		pnlButton.add( lblLog );
 		pnlButton.add( Box.createHorizontalGlue() );
 		pnlButton.add( new JLabel( "Add to list" ) );
 		pnlButton.add( Box.createHorizontalStrut( 5 ) );
@@ -81,11 +86,10 @@ public class NearestObjectStatMainPanel extends JPanel
 
 		final JPanel panelBottom = new JPanel();
 		splitPane.setRightComponent( panelBottom );
-		panelBottom.setLayout( new BoxLayout( panelBottom, BoxLayout.Y_AXIS ) );
-		panelBottom.add( new JLabel( "Stat list" ) );
-		panelBottom.add( Box.createVerticalStrut( 5 ) );
+		panelBottom.setLayout( new BorderLayout() );
+		panelBottom.add( new JLabel( "Statistics list in current configuration" ), BorderLayout.NORTH );
 		final NearestObjectStatListPanel listPanel = new NearestObjectStatListPanel( model );
-		panelBottom.add( listPanel );
+		panelBottom.add( listPanel, BorderLayout.CENTER );
 	}
 
 	public NearestObjectStatItem getCurrentItem()
