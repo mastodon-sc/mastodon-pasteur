@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import org.mastodon.io.IOUtils;
 import org.mastodon.mamut.nearest.NearestObjectStatModel;
-import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import bdv.ui.settings.style.AbstractStyleManager;
@@ -45,7 +44,7 @@ public class NearestObjectStatModelManager extends AbstractStyleManager< Nearest
 		{
 			IOUtils.mkdirs( filename );
 			final FileWriter output = new FileWriter( filename );
-			final Yaml yaml = createYaml();
+			final Yaml yaml = NearestObjectStatModelIO.createYaml();
 			final ArrayList< Object > objects = new ArrayList<>();
 			objects.add( selectedStyle.getName() );
 			objects.addAll( userStyles );
@@ -76,7 +75,7 @@ public class NearestObjectStatModelManager extends AbstractStyleManager< Nearest
 		try
 		{
 			final FileReader input = new FileReader( filename );
-			final Yaml yaml = createYaml();
+			final Yaml yaml = NearestObjectStatModelIO.createYaml();
 			final Iterable< Object > objs = yaml.loadAll( input );
 			String defaultStyleName = null;
 			for ( final Object obj : objs )
@@ -100,18 +99,5 @@ public class NearestObjectStatModelManager extends AbstractStyleManager< Nearest
 		}
 		catch ( final FileNotFoundException e )
 		{}
-	}
-
-	/**
-	 * Returns a YAML instance that can dump / load a collection of
-	 * {@link NearestObjectStatModel} to / from a .yaml file.
-	 *
-	 * @return a new YAML instance.
-	 */
-	private static Yaml createYaml()
-	{
-		final DumperOptions dumperOptions = new DumperOptions();
-		final Yaml yaml = new Yaml( dumperOptions );
-		return yaml;
 	}
 }
