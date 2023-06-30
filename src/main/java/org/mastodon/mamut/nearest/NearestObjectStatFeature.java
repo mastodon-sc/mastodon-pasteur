@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.mastodon.feature.Dimension;
 import org.mastodon.feature.Feature;
+import org.mastodon.feature.FeatureModel;
 import org.mastodon.feature.FeatureProjection;
 import org.mastodon.feature.FeatureProjectionKey;
 import org.mastodon.feature.FeatureProjectionSpec;
@@ -18,10 +19,10 @@ import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
 import org.mastodon.properties.DoublePropertyMap;
+import org.mastodon.ui.coloring.feature.FeatureProjectionId;
 
 public class NearestObjectStatFeature implements Feature< Spot >
 {
-
 
 	public static final String KEY = "Stats on nearest neighbors";
 
@@ -89,11 +90,27 @@ public class NearestObjectStatFeature implements Feature< Spot >
 
 		for ( final NearestObjectStatItem item : statModel )
 		{
-			// TODO other than distance.
-			final FeatureProjectionSpec fpSpec = new FeatureProjectionSpec( item.toString(), Dimension.LENGTH );
+			Dimension projectionDimension;
+			switch ( item.value )
+			{
+			case DISTANCE:
+			{
+				projectionDimension = Dimension.LENGTH;
+				break;
+			}
+			case FEATURE:
+			{
+				final FeatureProjectionSpec projection = getProjectionSpec( item.featureID, model.getFeatureModel() );
+				projectionDimension = projection.projectionDimension;
+				break;
+			}
+			default:
+				throw new IllegalArgumentException( "Unknown value definition: " + item.value );
+			}
+			final FeatureProjectionSpec fpSpec = new FeatureProjectionSpec( item.toString(), projectionDimension );
 			final FeatureProjectionKey key = FeatureProjectionKey.key( fpSpec );
 			final DoublePropertyMap< Spot > map = new DoublePropertyMap<>( model.getGraph().vertices(), Double.NaN );
-			final String units = Dimension.LENGTH.getUnits( model.getSpaceUnits(), model.getTimeUnits() );
+			final String units = projectionDimension.getUnits( model.getSpaceUnits(), model.getTimeUnits() );
 			final MyDoublePropertyProjection featureProjection = new MyDoublePropertyProjection( key, map, units );
 			featureProjections.put( key, featureProjection );
 			fSpecMap.put( item, key );
@@ -161,4 +178,96 @@ public class NearestObjectStatFeature implements Feature< Spot >
 			super( KEY, HELP_STRING, NearestObjectStatFeature.class, Spot.class, Multiplicity.SINGLE, projectionSpecs );
 		}
 	}
+
+	public static FeatureProjectionSpec getProjectionSpec( final FeatureProjectionId featureID, final FeatureModel featureModel )
+	{
+		FeatureSpec< ?, ? > spec = null;
+		for ( final FeatureSpec< ?, ? > fs : featureModel.getFeatureSpecs() )
+		{
+			if ( fs.getKey().equals( featureID.getFeatureKey() ) )
+			{
+				spec = fs;
+				break;
+			}
+		}
+		if ( spec == null )
+			return null;
+
+		for ( final FeatureProjectionSpec fps : spec.getProjectionSpecs() )
+		{
+			if ( fps.getKey().equals( featureID.getProjectionKey() ) )
+				return fps;
+		}
+		return null;
+	}
+
+	public static final FeatureProjection< Spot > getProjection( final FeatureProjectionId featureID, final FeatureModel featureModel )
+	{
+		FeatureSpec< ?, ? > spec = null;
+		for ( final FeatureSpec< ?, ? > fs : featureModel.getFeatureSpecs() )
+		{
+			if ( fs.getKey().equals( featureID.getFeatureKey() ) )
+			{
+				spec = fs;
+				break;
+			}
+		}
+		if ( spec == null )
+			return DUMMY_PROJECTION;
+
+		@SuppressWarnings( "unchecked" )
+		final Feature< Spot > feature = ( Feature< Spot > ) featureModel.getFeature( spec );
+		FeatureProjectionSpec fpSpec = null;
+		for ( final FeatureProjectionSpec fps : feature.getSpec().getProjectionSpecs() )
+		{
+			if ( fps.getKey().equals( featureID.getProjectionKey() ) )
+				fpSpec = fps;
+		}
+		if ( fpSpec == null )
+			return DUMMY_PROJECTION;
+
+		final int i0 = featureID.getI0();
+		final int i1 = featureID.getI1();
+		final FeatureProjectionKey key;
+		if ( i0 < 0 )
+			key = FeatureProjectionKey.key( fpSpec );
+		else if ( i1 < 0 )
+			key = FeatureProjectionKey.key( fpSpec, i0 );
+		else
+			key = FeatureProjectionKey.key( fpSpec, i0, i1 );
+
+		final FeatureProjection< Spot > projection = feature.project( key );
+		return projection;
+	}
+
+	/**
+	 * A feature projection which always return NaN.
+	 */
+	private static final FeatureProjection< Spot > DUMMY_PROJECTION = new FeatureProjection< Spot >()
+	{
+
+		@Override
+		public double value( final Spot obj )
+		{
+			return Double.NaN;
+		}
+
+		@Override
+		public String units()
+		{
+			return "";
+		}
+
+		@Override
+		public boolean isSet( final Spot obj )
+		{
+			return false;
+		}
+
+		@Override
+		public FeatureProjectionKey getKey()
+		{
+			return null;
+		}
+	};
 }

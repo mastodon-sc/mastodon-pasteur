@@ -6,9 +6,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.ToDoubleBiFunction;
 
 import org.jdom2.IllegalAddException;
 import org.mastodon.feature.FeatureModel;
+import org.mastodon.feature.FeatureProjection;
 import org.mastodon.mamut.feature.SpotIntensityFeature;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
@@ -26,6 +28,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 	public static final int MAX_N_ITEMS = 20;
 
 	public static final Collection< NearestObjectStatModel > defaults;
+
 	static
 	{
 		final NearestObjectStatModel d1 = new NearestObjectStatModel( "default" );
@@ -178,7 +181,6 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 		public final boolean include;
 
-
 		public NearestObjectStatItem()
 		{
 			this(
@@ -259,10 +261,30 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 			return true;
 		}
 
-		public double eval( final Spot neighbor, final Spot center, final FeatureModel featureModel )
+		/**
+		 * Returns a function that map this stat specification to a double
+		 * value. The function is specified as <code>f(neighbor, center)</code>
+		 * where <code>neighbor</code> is one of the neighbors considered, and
+		 * <code>center</code> the spot which neighborhood is being collected.
+		 * 
+		 * @param featureModel
+		 *            a feature model from which to read feature values.
+		 * @return a new {@link ToDoubleBiFunction}.
+		 */
+		public ToDoubleBiFunction< Spot, Spot > eval( final FeatureModel featureModel )
 		{
-			// TODO: this is just the distance.
-			return Util.distance( neighbor, center );
+			switch ( value )
+			{
+			case DISTANCE:
+				return ( s, center ) -> Util.distance( s, center );
+			case FEATURE:
+			{
+				final FeatureProjection< Spot > projection = NearestObjectStatFeature.getProjection( this.featureID, featureModel );
+				return ( s, center ) -> projection.value( s );
+			}
+			default:
+				throw new IllegalArgumentException( "Unknown value definition: " + value );
+			}
 		}
 
 		public double summarize( final TDoubleArrayList arr )
