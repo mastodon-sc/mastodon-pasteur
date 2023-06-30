@@ -15,6 +15,7 @@ import org.mastodon.app.MastodonIcons;
 import org.mastodon.feature.ui.AvailableFeatureProjections;
 import org.mastodon.mamut.nearest.NearestObjectStatModel;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
+import org.mastodon.ui.ProgressListener;
 
 public class NearestObjectStatMainPanel extends JPanel
 {
@@ -25,14 +26,13 @@ public class NearestObjectStatMainPanel extends JPanel
 
 	final JButton btnCompute;
 
-	final JProgressBar pbar;
-
 	final JButton btnCancel;
 
 	final JLabel lblLog;
 
 	private final NearestObjectStatPanel nearestObjectStatPanel;
 
+	private final JProgressBar pbar;
 
 	public NearestObjectStatMainPanel( final NearestObjectStatModel model, final AvailableFeatureProjections afp )
 	{
@@ -44,6 +44,7 @@ public class NearestObjectStatMainPanel extends JPanel
 		panelRun.setLayout( new BoxLayout( panelRun, BoxLayout.X_AXIS ) );
 
 		pbar = new JProgressBar();
+		pbar.setStringPainted( true );
 		panelRun.add( pbar );
 
 		btnCompute = new JButton( "Compute" );
@@ -100,5 +101,31 @@ public class NearestObjectStatMainPanel extends JPanel
 	public void setAvailableFeatureProjections( final AvailableFeatureProjections afp )
 	{
 		nearestObjectStatPanel.setAvailableFeatureProjections( afp );
+	}
+
+	public ProgressListener getProgressListener()
+	{
+		return new ProgressListener()
+		{
+
+			@Override
+			public void showStatus( final String string )
+			{
+				pbar.setString( string );
+			}
+
+			@Override
+			public void showProgress( final int current, final int total )
+			{
+				pbar.setMaximum( total );
+				pbar.setValue( current );
+			}
+
+			@Override
+			public void clearStatus()
+			{
+				pbar.setString( null );
+			}
+		};
 	}
 }
