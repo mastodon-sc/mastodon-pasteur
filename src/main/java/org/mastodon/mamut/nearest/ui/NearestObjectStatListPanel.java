@@ -69,6 +69,7 @@ public class NearestObjectStatListPanel extends JPanel
 			panel.add( new JLabel( item.toString() ) );
 			panel.add( Box.createHorizontalStrut( 5 ) );
 			final JButton btn = new JButton( MastodonIcons.REMOVE_ICON );
+			btn.setOpaque( false );
 			btn.addActionListener( e -> model.remove( item ) );
 			panel.add( btn );
 
