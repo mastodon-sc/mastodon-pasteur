@@ -105,7 +105,7 @@ public class NearestObjectStatPanel extends JPanel
 		gbcLblStat.anchor = GridBagConstraints.EAST;
 		gbcLblStat.insets = new Insets( 0, 0, 5, 5 );
 		gbcLblStat.gridx = 0;
-		gbcLblStat.gridy = 3;
+		gbcLblStat.gridy = 4;
 		add( lblStat, gbcLblStat );
 
 		this.cmbboxStat = new JComboBox<>( new Vector<>( Arrays.asList( Stat.values() ) ) );
@@ -113,7 +113,7 @@ public class NearestObjectStatPanel extends JPanel
 		gbcComboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbcComboBox.insets = new Insets( 0, 0, 5, 5 );
 		gbcComboBox.gridx = 1;
-		gbcComboBox.gridy = 3;
+		gbcComboBox.gridy = 4;
 		add( cmbboxStat, gbcComboBox );
 
 		final JLabel lblInclude = new JLabel( "include obj" );
@@ -121,7 +121,7 @@ public class NearestObjectStatPanel extends JPanel
 		gbcLblInclude.insets = new Insets( 0, 0, 0, 5 );
 		gbcLblInclude.anchor = GridBagConstraints.EAST;
 		gbcLblInclude.gridx = 0;
-		gbcLblInclude.gridy = 4;
+		gbcLblInclude.gridy = 5;
 		add( lblInclude, gbcLblInclude );
 
 		this.chckbxInclude = new JCheckBox( "" );
@@ -129,7 +129,7 @@ public class NearestObjectStatPanel extends JPanel
 		gbcChckbxInclude.insets = new Insets( 0, 0, 0, 5 );
 		gbcChckbxInclude.anchor = GridBagConstraints.WEST;
 		gbcChckbxInclude.gridx = 1;
-		gbcChckbxInclude.gridy = 4;
+		gbcChckbxInclude.gridy = 5;
 		add( chckbxInclude, gbcChckbxInclude );
 
 		// Listeners.
