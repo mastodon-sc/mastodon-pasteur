@@ -11,6 +11,7 @@ import org.mastodon.io.yaml.WorkaroundConstructor;
 import org.mastodon.io.yaml.WorkaroundRepresent;
 import org.mastodon.io.yaml.WorkaroundRepresenter;
 import org.mastodon.mamut.nearest.NearestObjectStatModel;
+import org.mastodon.mamut.nearest.NearestObjectStatModel.CollectBy;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.Stat;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.Value;
@@ -185,12 +186,14 @@ public class NearestObjectStatModelIO
 			try
 			{
 				final Map< Object, Object > mapping = constructMapping( ( MappingNode ) node );
+				final CollectBy collectBy = CollectBy.valueOf( ( String ) mapping.get( "collectBy" ) );
 				final int n = ( ( Number ) mapping.get( "n" ) ).intValue();
+				final double maxDistance = ( ( Number ) mapping.get( "maxDistance" ) ).doubleValue();
 				final Value value = Value.valueOf( ( String ) mapping.get( "value" ) );
 				final FeatureProjectionId featureID = ( FeatureProjectionId ) mapping.get( "featureId" );
 				final Stat stat = Stat.valueOf( ( String ) mapping.get( "stat" ) );
 				final boolean include = ( ( Boolean ) mapping.get( "include" ) ).booleanValue();
-				return new NearestObjectStatItem( n, value, featureID, stat, include );
+				return new NearestObjectStatItem( collectBy, n, maxDistance, value, featureID, stat, include );
 			}
 			catch ( final Exception e )
 			{
@@ -215,7 +218,9 @@ public class NearestObjectStatModelIO
 			final NearestObjectStatItem s = ( NearestObjectStatItem ) obj;
 			final Map< String, Object > mapping = new LinkedHashMap<>();
 
+			mapping.put( "collectBy", s.collectBy.name() );
 			mapping.put( "n", s.n );
+			mapping.put( "maxDistance", s.maxDistance );
 			mapping.put( "value", s.value.name() );
 			mapping.put( "featureId", s.featureID );
 			mapping.put( "stat", s.stat.name() );

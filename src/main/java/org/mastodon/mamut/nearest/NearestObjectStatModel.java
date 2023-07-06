@@ -34,7 +34,10 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		final NearestObjectStatModel d1 = new NearestObjectStatModel( "default" );
 		d1.add( new NearestObjectStatItem() );
 		final NearestObjectStatModel d2 = new NearestObjectStatModel( "Mean of neighbor intensities" );
-		d2.add( new NearestObjectStatItem( 6,
+		d2.add( new NearestObjectStatItem(
+				CollectBy.SPECIFY_N,
+				6,
+				10.,
 				Value.FEATURE,
 				new FeatureProjectionId(
 						SpotIntensityFeature.KEY,
@@ -171,7 +174,11 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 	public static class NearestObjectStatItem
 	{
 
+		public final CollectBy collectBy;
+
 		public final int n;
+
+		public final double maxDistance;
 
 		public final Value value;
 
@@ -184,8 +191,10 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		public NearestObjectStatItem()
 		{
 			this(
+					CollectBy.SPECIFY_N,
 					6,
-					Value.DISTANCE,
+					10.,
+					Value.DISTANCE_OR_N,
 					new FeatureProjectionId(
 							SpotIntensityFeature.KEY,
 							SpotIntensityFeature.MEAN_PROJECTION_SPEC.getKey(),
@@ -195,9 +204,11 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 					false );
 		}
 
-		public NearestObjectStatItem( final int n, final Value value, final FeatureProjectionId featureID, final Stat stat, final boolean include )
+		public NearestObjectStatItem( final CollectBy collectBy, final int n, final double maxDistance, final Value value, final FeatureProjectionId featureID, final Stat stat, final boolean include )
 		{
+			this.collectBy = collectBy;
 			this.n = n;
+			this.maxDistance = maxDistance;
 			this.value = value;
 			this.featureID = featureID;
 			this.stat = stat;
@@ -209,8 +220,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 			return new NearestObjectStatItem();
 		}
 
-		@Override
-		public String toString()
+		public String echo( final String units )
 		{
 			final String featureKey = featureID.getFeatureKey();
 			final String projectionKey = featureID.getProjectionKey();
@@ -234,10 +244,32 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 			}
 			final String statStr = stat.toString();
-			final String valueStr = value == Value.DISTANCE
-					? ( " distance to " ) : ( " of " + featureStr + suffixStr + " over " );
-			return statStr + valueStr + n + " NN" +
-					( include ? " with center" : "" );
+
+			switch ( collectBy )
+			{
+			case MAX_DISTANCE:
+			{
+				if ( value == Value.FEATURE )
+				{
+					final String valueStr = String.format( " of " + featureStr + suffixStr + " over neighbors within %.2f %s", maxDistance, units );
+					return statStr + valueStr + ( include ? " including center" : "" );
+				}
+				else
+				{
+					final String valueStr = String.format( "Number of neighbors within %.2f %s", maxDistance, units );
+					return valueStr + ( include ? " including center" : "" );
+				}
+			}
+			case SPECIFY_N:
+			{
+				final String valueStr = ( value == Value.DISTANCE_OR_N )
+						? ( " distance to " ) : ( " of " + featureStr + suffixStr + " over " );
+				return statStr + valueStr + n + " NN" +
+						( include ? " including center" : "" );
+			}
+			default:
+				throw new IllegalAddException( "Unknown collection method: " + collectBy );
+			}
 		}
 
 		@Override
@@ -247,6 +279,8 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 				return false;
 
 			final NearestObjectStatItem o = ( NearestObjectStatItem ) obj;
+
+			// TODO! It's more complicated now.
 			if ( o.n != n )
 				return false;
 			if ( o.value != value )
@@ -275,8 +309,16 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		{
 			switch ( value )
 			{
-			case DISTANCE:
-				return ( s, center ) -> Util.distance( s, center );
+			case DISTANCE_OR_N:
+				switch ( collectBy )
+				{
+				case MAX_DISTANCE:
+					return null;
+				case SPECIFY_N:
+					return ( s, center ) -> Util.distance( s, center );
+				default:
+					throw new IllegalArgumentException( "Unknown collection method: " + collectBy );
+				}
 			case FEATURE:
 			{
 				final FeatureProjection< Spot > projection = NearestObjectStatFeature.getProjection( this.featureID, featureModel );
@@ -312,7 +354,7 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 	public enum Value
 	{
-		DISTANCE( "Distance" ),
+		DISTANCE_OR_N( "Distance or N" ),
 		FEATURE( "Feature" );
 
 		private final String name;
@@ -342,6 +384,26 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		private final String name;
 
 		Stat( final String name )
+		{
+			this.name = name;
+		}
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+	}
+
+	public enum CollectBy
+	{
+
+		SPECIFY_N( "Specifying N" ),
+		MAX_DISTANCE( "Max distance" );
+
+		private final String name;
+
+		CollectBy( final String name )
 		{
 			this.name = name;
 		}

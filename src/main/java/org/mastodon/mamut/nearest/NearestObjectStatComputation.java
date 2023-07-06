@@ -11,6 +11,7 @@ import org.mastodon.kdtree.IncrementalNearestNeighborSearch;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
+import org.mastodon.mamut.nearest.NearestObjectStatModel.Value;
 import org.mastodon.spatial.SpatialIndex;
 import org.mastodon.tracking.linking.ProgressListeners;
 import org.mastodon.ui.ProgressListener;
@@ -55,16 +56,36 @@ public class NearestObjectStatComputation
 			@Override
 			public void run()
 			{
-				// Max number of neighbors we need to collect.
+				// Max number of neighbors we need to collect when we specify N.
 				int maxN = -1;
+				// Max distance we need to search for when we specify max dist.
+				double maxDistance = Double.NEGATIVE_INFINITY;
+
 				final List< ToDoubleBiFunction< Spot, Spot > > evaluators = new ArrayList<>( nosModel.size() );
 				for ( final NearestObjectStatItem item : nosModel )
 				{
 					final ToDoubleBiFunction< Spot, Spot > evaluator = item.eval( model.getFeatureModel() );
 					evaluators.add( evaluator );
-					final int n = item.n;
-					if ( n > maxN )
-						maxN = n;
+
+					switch ( item.collectBy )
+					{
+					case MAX_DISTANCE:
+					{
+						final double md = item.maxDistance;
+						if ( md > maxDistance )
+							maxDistance = md;
+						break;
+					}
+					case SPECIFY_N:
+					{
+						final int n = item.n;
+						if ( n > maxN )
+							maxN = n;
+						break;
+					}
+					default:
+						throw new IllegalArgumentException( "Unknown collection method: " + item.collectBy );
+					}
 				}
 				final RefList< Spot > list = RefCollections.createRefList( model.getGraph().vertices(), maxN );
 
@@ -73,14 +94,25 @@ public class NearestObjectStatComputation
 				final IncrementalNearestNeighborSearch< Spot > search = si.getIncrementalNearestNeighborSearch();
 
 				// Storage for numerical values fetched from neighbor.
-				final TDoubleArrayList arr = new TDoubleArrayList( maxN );
+				final TDoubleArrayList arr = new TDoubleArrayList();
+				final TDoubleArrayList distances = new TDoubleArrayList();
 				for ( final Spot spot : si )
 				{
-					// Build list of neighbors.
+					// Collect the largest list of neighbors we need.
 					search.search( spot );
 					list.clear();
-					for ( int i = 0; i <= maxN; i++ )
-						list.add( search.next() );
+					int n = 0;
+					while ( true )
+					{
+						final Spot neighbor = search.next();
+						final double d = search.getDistance();
+						if ( n > maxN && d > maxDistance )
+							break;
+
+						n++;
+						distances.add( d );
+						list.add( neighbor );
+					}
 
 					for ( int j = 0; j < nosModel.size(); j++ )
 					{
@@ -91,10 +123,54 @@ public class NearestObjectStatComputation
 						final int start = item.include ? 0 : 1;
 
 						arr.resetQuick();
-						for ( int i = start; i <= item.n; i++ )
-							arr.add( evaluator.applyAsDouble( list.get( i ), spot ) );
+						switch ( item.collectBy )
+						{
+						case MAX_DISTANCE:
+						{
+							// Are collecting the number of neighbors?
+							if ( item.value == Value.DISTANCE_OR_N )
+							{
+								int nNeighbors = 0;
+								for ( int k = start; k <= list.size(); k++ )
+								{
+									final double d = distances.get( k );
+									if ( d > item.maxDistance )
+										break;
 
+									nNeighbors++;
+								}
+								// No need to summarize.
+								feature.set( spot, item, nNeighbors );
+							}
+
+							// Stop collecting neighbors if we are beyond max
+							// limit.
+
+							for ( int k = start; k <= list.size(); k++ )
+							{
+								final double d = distances.get( k );
+								if ( d > item.maxDistance )
+									break;
+
+								arr.add( evaluator.applyAsDouble( list.get( k ), spot ) );
+							}
+							break;
+						}
+						case SPECIFY_N:
+						{
+							// Stop collecting neighbors if we exceed the
+							// specified number of neighbors.
+							for ( int k = start; k <= item.n; k++ )
+								arr.add( evaluator.applyAsDouble( list.get( k ), spot ) );
+							break;
+						}
+						default:
+							throw new IllegalArgumentException( "Unknown collection method: " + item.collectBy );
+						}
+
+						// Summarize measurement on neighbors.
 						final double val = item.summarize( arr );
+						// Store.
 						feature.set( spot, item, val );
 					}
 				}

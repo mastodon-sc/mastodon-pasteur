@@ -93,7 +93,7 @@ public class NearestObjectStatFeature implements Feature< Spot >
 			Dimension projectionDimension;
 			switch ( item.value )
 			{
-			case DISTANCE:
+			case DISTANCE_OR_N:
 			{
 				projectionDimension = Dimension.LENGTH;
 				break;

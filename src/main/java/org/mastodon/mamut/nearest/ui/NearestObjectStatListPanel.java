@@ -33,9 +33,12 @@ public class NearestObjectStatListPanel extends JPanel
 
 	private final JPanel mainPanel;
 
-	public NearestObjectStatListPanel( final NearestObjectStatModel model )
+	private final String units;
+
+	public NearestObjectStatListPanel( final NearestObjectStatModel model, final String units )
 	{
 		super( new BorderLayout() );
+		this.units = units;
 		model.statModelListeners().add( () -> refresh( model ) );
 		this.mainPanel = new JPanel();
 		mainPanel.setLayout( new WrapLayout( FlowLayout.LEFT, 10, 10 ) );
@@ -66,7 +69,7 @@ public class NearestObjectStatListPanel extends JPanel
 		{
 			final JPanel panel = new JPanel();
 			panel.setLayout( new BoxLayout( panel, BoxLayout.LINE_AXIS ) );
-			panel.add( new JLabel( item.toString() ) );
+			panel.add( new JLabel( item.echo( units ) ) );
 			panel.add( Box.createHorizontalStrut( 5 ) );
 			final JButton btn = new JButton( MastodonIcons.REMOVE_ICON );
 			btn.setOpaque( false );

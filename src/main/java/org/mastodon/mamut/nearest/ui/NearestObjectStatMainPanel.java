@@ -34,7 +34,7 @@ public class NearestObjectStatMainPanel extends JPanel
 
 	private final JProgressBar pbar;
 
-	public NearestObjectStatMainPanel( final NearestObjectStatModel model, final AvailableFeatureProjections afp )
+	public NearestObjectStatMainPanel( final NearestObjectStatModel model, final AvailableFeatureProjections afp, final String units )
 	{
 		setLayout( new BorderLayout( 5, 5 ) );
 		setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
@@ -67,7 +67,7 @@ public class NearestObjectStatMainPanel extends JPanel
 		splitPane.setLeftComponent( panelTop );
 		panelTop.setLayout( new BoxLayout( panelTop, BoxLayout.Y_AXIS ) );
 
-		this.nearestObjectStatPanel = new NearestObjectStatPanel( afp );
+		this.nearestObjectStatPanel = new NearestObjectStatPanel( afp, units );
 		panelTop.add( nearestObjectStatPanel );
 		panelTop.add( Box.createVerticalGlue() );
 		this.btnAdd = new JButton( MastodonIcons.ADD_ICON );
@@ -89,7 +89,7 @@ public class NearestObjectStatMainPanel extends JPanel
 		splitPane.setRightComponent( panelBottom );
 		panelBottom.setLayout( new BorderLayout() );
 		panelBottom.add( new JLabel( "Statistics list in current configuration" ), BorderLayout.NORTH );
-		final NearestObjectStatListPanel listPanel = new NearestObjectStatListPanel( model );
+		final NearestObjectStatListPanel listPanel = new NearestObjectStatListPanel( model, units );
 		panelBottom.add( listPanel, BorderLayout.CENTER );
 	}
 

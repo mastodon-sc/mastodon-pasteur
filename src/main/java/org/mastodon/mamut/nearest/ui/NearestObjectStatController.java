@@ -42,7 +42,7 @@ public class NearestObjectStatController
 		this.minTimepoint = minTimepoint;
 		this.maxTimepoint = maxTimepoint;
 
-		this.profileEditor = new NearestObjectStatModelProfileEditPanel( initialStyle, featureProjectionsManager.getAvailableFeatureProjections() );
+		this.profileEditor = new NearestObjectStatModelProfileEditPanel( initialStyle, featureProjectionsManager.getAvailableFeatureProjections(), model.getSpaceUnits() );
 		this.selectedStyle = profileEditor.editedStyle;
 		this.view = profileEditor.getJPanel();
 		view.btnAdd.addActionListener( e -> add( view.getCurrentItem() ) );
@@ -117,10 +117,10 @@ public class NearestObjectStatController
 
 		private boolean trackModifications = true;
 
-		public NearestObjectStatModelProfileEditPanel( final NearestObjectStatModel initialStyle, final AvailableFeatureProjections afp )
+		public NearestObjectStatModelProfileEditPanel( final NearestObjectStatModel initialStyle, final AvailableFeatureProjections afp, final String units )
 		{
 			this.editedStyle = initialStyle.copy( "Edited" );
-			styleEditorPanel = new NearestObjectStatMainPanel( editedStyle, afp );
+			styleEditorPanel = new NearestObjectStatMainPanel( editedStyle, afp, units );
 			modificationListeners = new Listeners.SynchronizedList<>();
 			editedStyle.statModelListeners().add( this );
 		}
