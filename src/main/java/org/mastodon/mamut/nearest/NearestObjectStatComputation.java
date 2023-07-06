@@ -34,8 +34,11 @@ public class NearestObjectStatComputation
 		try
 		{
 			for ( int t = minTimepoint; t <= maxTimepoint; t++ )
+			{
+				progressListener.showProgress( t - minTimepoint, maxTimepoint - minTimepoint + 1 );
 				process( model, selectedStyle, t, feature ).run();
-
+			}
+			progressListener.clearStatus();
 			return feature;
 		}
 		finally
