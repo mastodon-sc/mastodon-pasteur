@@ -235,7 +235,7 @@ public class NearestObjectStatPanel extends JPanel
 		return new NearestObjectStatItem(
 				rdbtnNNearest.isSelected() ? CollectBy.SPECIFY_N : CollectBy.MAX_DISTANCE,
 				spinnerModel.getNumber().intValue(),
-				10., // TODO
+				( ( Number ) ftfMaxDistance.getValue() ).doubleValue(),
 				rdbtnDistanceOrN.isSelected() ? Value.DISTANCE_OR_N : Value.FEATURE,
 				featureID,
 				( Stat ) cmbboxStat.getSelectedItem(),
