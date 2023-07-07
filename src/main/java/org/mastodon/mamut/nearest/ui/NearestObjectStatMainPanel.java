@@ -124,6 +124,7 @@ public class NearestObjectStatMainPanel extends JPanel
 			@Override
 			public void clearStatus()
 			{
+				pbar.setValue( 0 );
 				pbar.setString( null );
 			}
 		};

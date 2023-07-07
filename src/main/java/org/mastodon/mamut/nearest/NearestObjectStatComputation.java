@@ -39,11 +39,11 @@ public class NearestObjectStatComputation
 				progressListener.showProgress( t - minTimepoint, maxTimepoint - minTimepoint + 1 );
 				process( model, selectedStyle, t, feature ).run();
 			}
-			progressListener.clearStatus();
 			return feature;
 		}
 		finally
 		{
+			progressListener.clearStatus();
 			lock.unlock();
 		}
 	}
@@ -87,7 +87,7 @@ public class NearestObjectStatComputation
 						throw new IllegalArgumentException( "Unknown collection method: " + item.collectBy );
 					}
 				}
-				final RefList< Spot > list = RefCollections.createRefList( model.getGraph().vertices(), maxN );
+				final RefList< Spot > list = RefCollections.createRefList( model.getGraph().vertices() );
 
 				// Spatial search.
 				final SpatialIndex< Spot > si = model.getSpatioTemporalIndex().getSpatialIndex( t );
@@ -100,6 +100,7 @@ public class NearestObjectStatComputation
 				{
 					// Collect the largest list of neighbors we need.
 					search.search( spot );
+					distances.clear();
 					list.clear();
 					int n = 0;
 					while ( true )
@@ -131,7 +132,7 @@ public class NearestObjectStatComputation
 							if ( item.value == Value.DISTANCE_OR_N )
 							{
 								int nNeighbors = 0;
-								for ( int k = start; k <= list.size(); k++ )
+								for ( int k = start; k < list.size(); k++ )
 								{
 									final double d = distances.get( k );
 									if ( d > item.maxDistance )
@@ -141,6 +142,7 @@ public class NearestObjectStatComputation
 								}
 								// No need to summarize.
 								feature.set( spot, item, nNeighbors );
+								continue;
 							}
 
 							// Stop collecting neighbors if we are beyond max
