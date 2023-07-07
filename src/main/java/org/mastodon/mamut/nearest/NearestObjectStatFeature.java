@@ -17,6 +17,7 @@ import org.mastodon.feature.FeatureSpec;
 import org.mastodon.feature.Multiplicity;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.mamut.nearest.NearestObjectStatModel.CollectBy;
 import org.mastodon.mamut.nearest.NearestObjectStatModel.NearestObjectStatItem;
 import org.mastodon.properties.DoublePropertyMap;
 import org.mastodon.ui.coloring.feature.FeatureProjectionId;
@@ -95,7 +96,7 @@ public class NearestObjectStatFeature implements Feature< Spot >
 			{
 			case DISTANCE_OR_N:
 			{
-				projectionDimension = Dimension.LENGTH;
+				projectionDimension = ( item.collectBy == CollectBy.SPECIFY_N ) ? Dimension.LENGTH : Dimension.NONE;
 				break;
 			}
 			case FEATURE:
@@ -107,7 +108,7 @@ public class NearestObjectStatFeature implements Feature< Spot >
 			default:
 				throw new IllegalArgumentException( "Unknown value definition: " + item.value );
 			}
-			final FeatureProjectionSpec fpSpec = new FeatureProjectionSpec( item.toString(), projectionDimension );
+			final FeatureProjectionSpec fpSpec = new FeatureProjectionSpec( item.echo( model.getSpaceUnits() ), projectionDimension );
 			final FeatureProjectionKey key = FeatureProjectionKey.key( fpSpec );
 			final DoublePropertyMap< Spot > map = new DoublePropertyMap<>( model.getGraph().vertices(), Double.NaN );
 			final String units = projectionDimension.getUnits( model.getSpaceUnits(), model.getTimeUnits() );
