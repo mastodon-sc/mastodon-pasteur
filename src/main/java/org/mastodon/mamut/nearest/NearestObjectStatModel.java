@@ -279,14 +279,31 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 				return false;
 
 			final NearestObjectStatItem o = ( NearestObjectStatItem ) obj;
-
-			// TODO! It's more complicated now.
-			if ( o.n != n )
+			if ( o.collectBy != collectBy )
 				return false;
+
+			switch ( collectBy )
+			{
+			case MAX_DISTANCE:
+				if ( o.maxDistance != maxDistance )
+					return false;
+				break;
+			case SPECIFY_N:
+			{
+				if ( o.n != n )
+					return false;
+				break;
+			}
+			default:
+				throw new IllegalArgumentException( "Unknown collection method: " + collectBy );
+			}
 			if ( o.value != value )
 				return false;
-			if ( !o.featureID.equals( featureID ) )
-				return false;
+
+			if ( value == Value.FEATURE )
+				if ( !o.featureID.equals( featureID ) )
+					return false;
+
 			if ( o.stat != stat )
 				return false;
 			if ( o.include != include )
