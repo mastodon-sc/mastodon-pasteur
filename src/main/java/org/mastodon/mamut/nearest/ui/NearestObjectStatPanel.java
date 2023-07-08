@@ -11,6 +11,7 @@ import java.util.Vector;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -65,6 +66,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( lblCollectBy, gbcLblCollectBy );
 
 		rdbtnNNearest = new JRadioButton( "specifying N" );
+		rdbtnNNearest.setToolTipText( TOOLTIP_COLLECT_N );
 		final GridBagConstraints gbcRdbtnNNearest = new GridBagConstraints();
 		gbcRdbtnNNearest.anchor = GridBagConstraints.WEST;
 		gbcRdbtnNNearest.insets = new Insets( 0, 0, 5, 5 );
@@ -74,6 +76,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( rdbtnNNearest, gbcRdbtnNNearest );
 
 		final JRadioButton rdbtnMaxdistance = new JRadioButton( "max distance" );
+		rdbtnMaxdistance.setToolTipText( TOOLTIP_COLLECT_DISTANCE );
 		final GridBagConstraints gbcRdbtnMaxdistance = new GridBagConstraints();
 		gbcRdbtnMaxdistance.anchor = GridBagConstraints.WEST;
 		gbcRdbtnMaxdistance.insets = new Insets( 0, 0, 5, 5 );
@@ -83,6 +86,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( rdbtnMaxdistance, gbcRdbtnMaxdistance );
 
 		final JLabel lblN = new JLabel( "N:" );
+		lblN.setToolTipText( TOOLTIP_N );
 		final GridBagConstraints gbcLblN = new GridBagConstraints();
 		gbcLblN.anchor = GridBagConstraints.EAST;
 		gbcLblN.insets = new Insets( 0, 0, 5, 5 );
@@ -92,6 +96,7 @@ public class NearestObjectStatPanel extends JPanel
 
 		this.spinnerModel = new SpinnerNumberModel( 6, 1, 200, 1 );
 		final JSpinner spinner = new JSpinner( spinnerModel );
+		spinner.setToolTipText( TOOLTIP_N );
 		spinner.setMaximumSize( new Dimension( 120, 120 ) );
 		final GridBagConstraints gbcSpinner = new GridBagConstraints();
 		gbcSpinner.gridwidth = 1;
@@ -102,6 +107,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( spinner, gbcSpinner );
 
 		final JLabel lblMaxDistance = new JLabel( "max distance:" );
+		lblMaxDistance.setToolTipText( TOOLTIP_DISTANCE );
 		final GridBagConstraints gbcLblMaxDistance = new GridBagConstraints();
 		gbcLblMaxDistance.anchor = GridBagConstraints.EAST;
 		gbcLblMaxDistance.insets = new Insets( 0, 0, 5, 5 );
@@ -110,6 +116,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( lblMaxDistance, gbcLblMaxDistance );
 
 		this.ftfMaxDistance = new JFormattedTextField( "0.00" );
+		ftfMaxDistance.setToolTipText( TOOLTIP_DISTANCE );
 		ftfMaxDistance.setHorizontalAlignment( JFormattedTextField.RIGHT );
 		final GridBagConstraints gbcFtfMaxDistance = new GridBagConstraints();
 		gbcFtfMaxDistance.insets = new Insets( 0, 0, 5, 5 );
@@ -135,6 +142,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( lblMetrics, gbcLblMetrics );
 
 		this.rdbtnDistanceOrN = new JRadioButton( "distance" );
+		rdbtnDistanceOrN.setToolTipText( rdbtnNNearest.isSelected() ? TOOLTIP_VALUE_DISTANCE : TOOLTIP_VALUE_N );
 		final GridBagConstraints gbcRdbtnDistance = new GridBagConstraints();
 		gbcRdbtnDistance.anchor = GridBagConstraints.WEST;
 		gbcRdbtnDistance.insets = new Insets( 0, 0, 5, 5 );
@@ -142,8 +150,8 @@ public class NearestObjectStatPanel extends JPanel
 		gbcRdbtnDistance.gridy = 4;
 		add( rdbtnDistanceOrN, gbcRdbtnDistance );
 
-
 		final JRadioButton rdbtnFeature = new JRadioButton( "feature" );
+		rdbtnFeature.setToolTipText( TOOLTIP_VALUE_FEATURE );
 		final GridBagConstraints gbcRdbtnFeature = new GridBagConstraints();
 		gbcRdbtnFeature.anchor = GridBagConstraints.WEST;
 		gbcRdbtnFeature.insets = new Insets( 0, 0, 5, 0 );
@@ -152,6 +160,9 @@ public class NearestObjectStatPanel extends JPanel
 		add( rdbtnFeature, gbcRdbtnFeature );
 
 		this.featureSelectionPanel = new FeatureSelectionPanel();
+		featureSelectionPanel.getPanel().setToolTipText( TOOLTIP_FEATURE );
+		for ( final Component c : featureSelectionPanel.getPanel().getComponents() )
+			( ( JComponent ) c ).setToolTipText( TOOLTIP_FEATURE );
 		featureSelectionPanel.setAvailableFeatureProjections( afp, TargetType.VERTEX );
 		final GridBagConstraints gbcFeatureSelectionPanel = new GridBagConstraints();
 		gbcFeatureSelectionPanel.anchor = GridBagConstraints.EAST;
@@ -163,6 +174,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( featureSelectionPanel.getPanel(), gbcFeatureSelectionPanel );
 
 		final JLabel lblStat = new JLabel( "statistics:" );
+		lblStat.setToolTipText( TOOLTIP_STAT );
 		final GridBagConstraints gbcLblStat = new GridBagConstraints();
 		gbcLblStat.anchor = GridBagConstraints.EAST;
 		gbcLblStat.insets = new Insets( 0, 0, 5, 5 );
@@ -171,6 +183,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( lblStat, gbcLblStat );
 
 		this.cmbboxStat = new JComboBox<>( new Vector<>( Arrays.asList( Stat.values() ) ) );
+		cmbboxStat.setToolTipText( TOOLTIP_STAT );
 		final GridBagConstraints gbcComboBox = new GridBagConstraints();
 		gbcComboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbcComboBox.insets = new Insets( 0, 0, 5, 5 );
@@ -179,6 +192,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( cmbboxStat, gbcComboBox );
 
 		final JLabel lblInclude = new JLabel( "include center:" );
+		lblInclude.setToolTipText( TOOLTIP_INCLUDE );
 		final GridBagConstraints gbcLblInclude = new GridBagConstraints();
 		gbcLblInclude.insets = new Insets( 0, 0, 5, 5 );
 		gbcLblInclude.anchor = GridBagConstraints.EAST;
@@ -187,6 +201,7 @@ public class NearestObjectStatPanel extends JPanel
 		add( lblInclude, gbcLblInclude );
 
 		this.chckbxInclude = new JCheckBox( "" );
+		chckbxInclude.setToolTipText( TOOLTIP_INCLUDE );
 		final GridBagConstraints gbcChckbxInclude = new GridBagConstraints();
 		gbcChckbxInclude.insets = new Insets( 0, 0, 5, 5 );
 		gbcChckbxInclude.anchor = GridBagConstraints.WEST;
@@ -205,6 +220,7 @@ public class NearestObjectStatPanel extends JPanel
 			ftfMaxDistance.setEnabled( !isN );
 			spinner.setEnabled( isN );
 			rdbtnDistanceOrN.setText( isN ? "distance" : "N neighbors" );
+			rdbtnDistanceOrN.setToolTipText( isN ? TOOLTIP_VALUE_DISTANCE : TOOLTIP_VALUE_N );
 			cmbboxStat.setEnabled( isN || !rdbtnDistanceOrN.isSelected() );
 		} );
 
@@ -261,4 +277,66 @@ public class NearestObjectStatPanel extends JPanel
 		frame.setLocationRelativeTo( null );
 		frame.setVisible( true );
 	}
+
+	private static final String TOOLTIP_COLLECT_N = "<html>"
+			+ "If selected, the statistics will be built using a fixed <br>"
+			+ "number of neighbors. This number is specified with the <br>"
+			+ "spinner below."
+			+ "</html>";
+
+	private static final String TOOLTIP_COLLECT_DISTANCE = "<html>"
+			+ "If selected, the statistics will be built from all the <br>"
+			+ "neighbors that are within a given distance from the spot. <br>"
+			+ "The distance is specified in the numeric field below."
+			+ "</html>";
+
+	private static final String TOOLTIP_N = "<html>"
+			+ "Specifies the number of nearest neighbors to include in <br>"
+			+ "the statistics when collecting them by number."
+			+ "</html>";
+
+	private static final String TOOLTIP_DISTANCE = "<html>"
+			+ "Specifies the maximum distance when collecting nearest <br>"
+			+ "neighbors based on their distance to the spot."
+			+ "</html>";
+
+	private static final String TOOLTIP_VALUE_DISTANCE = "<html>"
+			+ "If selected, the statistics will be computed on the <br>"
+			+ "distances from the spot to the nearest-neighbors <br>"
+			+ "collected."
+			+ "</html>";
+
+	private static final String TOOLTIP_VALUE_N = "<html>"
+			+ "If selected, the statistics will report the number of <br>"
+			+ "neighbors that are found withing the maximal distance <br>"
+			+ "specified above. The statistics function below has no <br>"
+			+ "impact."
+			+ "</html>";
+
+	private static final String TOOLTIP_VALUE_FEATURE = "<html>"
+			+ "If selected, the statistics will be computed on the feature <br>"
+			+ "values collected from the nearest-neighbors. The feature to <br>"
+			+ "read values from is specified below."
+			+ "</html>";
+
+	private static final String TOOLTIP_FEATURE = "<html>"
+			+ "Specifies what feature to read values from when the value <br>"
+			+ "setting above is 'feature'. The feature values must be <br>"
+			+ "computed <b>before</b> running the statistics computation <br>"
+			+ "as they are not automatically recomputed. If a neighbor has <br>"
+			+ " missing value for the requested feature, then the NN <br>"
+			+ "statistics will report 'NaN' for this spot."
+			+ "</html>";
+
+	private static final String TOOLTIP_STAT = "<html>"
+			+ "Specifies how to generate a summarized value from the <br>"
+			+ "collection of values extracted from neighbors."
+			+ "</html>";
+
+	private static final String TOOLTIP_INCLUDE = "<html>"
+			+ "If selected, the statistics will be computed on values <br>"
+			+ "that include the spot. When collecting the number of <br>"
+			+ "neighbors within a max distance, the spot will be included <br>"
+			+ "in the count."
+			+ "</html>";
 }
