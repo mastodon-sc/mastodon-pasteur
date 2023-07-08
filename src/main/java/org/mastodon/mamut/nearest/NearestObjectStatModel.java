@@ -304,8 +304,11 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 				if ( !o.featureID.equals( featureID ) )
 					return false;
 
-			if ( o.stat != stat )
-				return false;
+			// Test stat only if we are not collecting number of neighbors.
+			if ( !( collectBy == CollectBy.MAX_DISTANCE && value == Value.DISTANCE_OR_N ) )
+				if ( o.stat != stat )
+					return false;
+
 			if ( o.include != include )
 				return false;
 
