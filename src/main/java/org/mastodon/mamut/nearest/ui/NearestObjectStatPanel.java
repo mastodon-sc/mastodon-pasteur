@@ -195,12 +195,17 @@ public class NearestObjectStatPanel extends JPanel
 		add( chckbxInclude, gbcChckbxInclude );
 
 		// Listeners.
-		rdbtnDistanceOrN.addItemListener( e -> toggleFeatureEnabled( !rdbtnDistanceOrN.isSelected() ) );
+		rdbtnDistanceOrN.addItemListener( e -> {
+			toggleFeatureEnabled( !rdbtnDistanceOrN.isSelected() );
+			cmbboxStat.setEnabled( rdbtnNNearest.isSelected() || !rdbtnDistanceOrN.isSelected() );
+		} );
+
 		rdbtnNNearest.addItemListener( e -> {
 			final boolean isN = rdbtnNNearest.isSelected();
 			ftfMaxDistance.setEnabled( !isN );
 			spinner.setEnabled( isN );
 			rdbtnDistanceOrN.setText( isN ? "distance" : "N neighbors" );
+			cmbboxStat.setEnabled( isN || !rdbtnDistanceOrN.isSelected() );
 		} );
 
 		// Massage.
