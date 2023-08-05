@@ -273,6 +273,12 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 		}
 
 		@Override
+		public String toString()
+		{
+			return echo( "" );
+		}
+
+		@Override
 		public boolean equals( final Object obj )
 		{
 			if ( !NearestObjectStatItem.class.isInstance( obj ) )
@@ -351,6 +357,8 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 
 		public double summarize( final TDoubleArrayList arr )
 		{
+			if ( arr.isEmpty() )
+				return Double.NaN;
 			switch ( stat )
 			{
 			case MEAN:
@@ -369,6 +377,11 @@ public class NearestObjectStatModel implements Iterable< NearestObjectStatItem >
 			default:
 				throw new IllegalAddException( "This summarizing operation is unknown: " + stat );
 			}
+		}
+
+		public static Builder create()
+		{
+			return new Builder();
 		}
 	}
 
