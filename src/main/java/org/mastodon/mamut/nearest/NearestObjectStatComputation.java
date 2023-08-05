@@ -21,9 +21,9 @@ import gnu.trove.list.array.TDoubleArrayList;
 public class NearestObjectStatComputation
 {
 
-	public static final NearestObjectStatFeature compute( final Model model, final NearestObjectStatModel selectedStyle, final int minTimepoint, final int maxTimepoint )
+	public static final NearestObjectStatFeature compute( final Model model, final NearestObjectStatModel statModel, final int minTimepoint, final int maxTimepoint )
 	{
-		return compute( model, selectedStyle, minTimepoint, maxTimepoint, ProgressListeners.voidLogger() );
+		return compute( model, statModel, minTimepoint, maxTimepoint, ProgressListeners.voidLogger() );
 	}
 
 	public static NearestObjectStatFeature compute( final Model model, final NearestObjectStatModel statModel, final int minTimepoint, final int maxTimepoint, final ProgressListener progressListener )
@@ -106,6 +106,9 @@ public class NearestObjectStatComputation
 					while ( true )
 					{
 						final Spot neighbor = search.next();
+						if ( neighbor == null )
+							break;
+
 						final double d = search.getDistance();
 						if ( n > maxN && d > maxDistance )
 							break;
@@ -148,7 +151,7 @@ public class NearestObjectStatComputation
 							// Stop collecting neighbors if we are beyond max
 							// limit.
 
-							for ( int k = start; k <= list.size(); k++ )
+							for ( int k = start; k <= list.size() && k < distances.size(); k++ )
 							{
 								final double d = distances.get( k );
 								if ( d > item.maxDistance )
