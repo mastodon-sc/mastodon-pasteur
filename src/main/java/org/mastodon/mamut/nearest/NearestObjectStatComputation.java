@@ -26,9 +26,9 @@ public class NearestObjectStatComputation
 		return compute( model, selectedStyle, minTimepoint, maxTimepoint, ProgressListeners.voidLogger() );
 	}
 
-	public static NearestObjectStatFeature compute( final Model model, final NearestObjectStatModel selectedStyle, final int minTimepoint, final int maxTimepoint, final ProgressListener progressListener )
+	public static NearestObjectStatFeature compute( final Model model, final NearestObjectStatModel statModel, final int minTimepoint, final int maxTimepoint, final ProgressListener progressListener )
 	{
-		final NearestObjectStatFeature feature = NearestObjectStatFeature.createFeature( selectedStyle, model );
+		final NearestObjectStatFeature feature = NearestObjectStatFeature.createFeature( statModel, model );
 
 		final ReadLock lock = model.getGraph().getLock().readLock();
 		lock.lock();
@@ -37,7 +37,7 @@ public class NearestObjectStatComputation
 			for ( int t = minTimepoint; t <= maxTimepoint; t++ )
 			{
 				progressListener.showProgress( t - minTimepoint, maxTimepoint - minTimepoint + 1 );
-				process( model, selectedStyle, t, feature ).run();
+				process( model, statModel, t, feature ).run();
 			}
 			return feature;
 		}
