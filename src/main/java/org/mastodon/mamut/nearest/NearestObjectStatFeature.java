@@ -42,6 +42,23 @@ public class NearestObjectStatFeature implements Feature< Spot >
 		this.fSpecMap = fSpecMap;
 	}
 
+	/**
+	 * Returns the projection corresponding to the specified stat item, or
+	 * <code>null</code> if the results for the stat item are not stored in this
+	 * feature.
+	 * 
+	 * @param item
+	 *            the stat item.
+	 * @return the projection, or <code>null</code>.
+	 */
+	public FeatureProjection< Spot > get( final NearestObjectStatItem item )
+	{
+		final FeatureProjectionKey key = fSpecMap.get( item );
+		if ( key == null )
+			return null;
+		return featureProjections.get( key );
+	}
+
 	@Override
 	public FeatureProjection< Spot > project( final FeatureProjectionKey key )
 	{
