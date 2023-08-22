@@ -43,20 +43,20 @@ import javax.swing.WindowConstants;
 
 import org.mastodon.app.MastodonIcons;
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
-import org.mastodon.mamut.MamutAppModel;
+import org.mastodon.mamut.KeyConfigScopes;
 import org.mastodon.mamut.MamutMenuBuilder;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.Spot;
 import org.mastodon.mamut.plugin.MamutPlugin;
-import org.mastodon.mamut.plugin.MamutPluginAppModel;
 import org.mastodon.model.SelectionModel;
-import org.mastodon.ui.keymap.CommandDescriptionProvider;
-import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.mastodon.views.bdv.SharedBigDataViewerData;
 import org.scijava.Context;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptionProvider;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptions;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 
@@ -99,11 +99,8 @@ public class SpotTrackImagePlugin implements MamutPlugin
 	}
 
 	@Override
-	public void setAppPluginModel( final MamutPluginAppModel appModel )
+	public void setAppPluginModel( final ProjectModel appModel )
 	{
-		if ( null == appModel || null == appModel.getAppModel() )
-			return;
-
 		toggleDialog.setAppModel( appModel );
 	}
 
@@ -115,7 +112,7 @@ public class SpotTrackImagePlugin implements MamutPlugin
 	{
 		public Descriptions()
 		{
-			super( KeyConfigContexts.MASTODON );
+			super( KeyConfigScopes.MAMUT, KeyConfigContexts.MASTODON );
 		}
 
 		@Override
@@ -140,10 +137,9 @@ public class SpotTrackImagePlugin implements MamutPlugin
 			super( SHOW_TRACK_IMAGE_DIALOG_ACTION );
 		}
 
-		public void setAppModel( final MamutPluginAppModel pluginModel )
+		public void setAppModel( final ProjectModel appModel )
 		{
-			final MamutAppModel appModel = pluginModel.getAppModel();
-			final Context context = pluginModel.getWindowManager().getContext();
+			final Context context = appModel.getContext();
 
 			final SharedBigDataViewerData bdvData = appModel.getSharedBdvData();
 			final Model model = appModel.getModel();

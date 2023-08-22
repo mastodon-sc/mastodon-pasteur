@@ -7,16 +7,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
+import org.mastodon.mamut.KeyConfigScopes;
 import org.mastodon.mamut.MamutMenuBuilder;
 import org.mastodon.mamut.PreferencesDialog;
+import org.mastodon.mamut.ProjectModel;
+import org.mastodon.mamut.feature.MamutFeatureProjectionsManager;
 import org.mastodon.mamut.nearest.ui.NearestObjectStatController;
 import org.mastodon.mamut.nearest.ui.NearestObjectStatModelManager;
 import org.mastodon.mamut.plugin.MamutPlugin;
-import org.mastodon.mamut.plugin.MamutPluginAppModel;
-import org.mastodon.ui.keymap.CommandDescriptionProvider;
-import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptionProvider;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptions;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 
@@ -43,7 +45,7 @@ public class NearestObjectStatPlugin implements MamutPlugin
 
 	private final ShowDialogAction toggleDialog = new ShowDialogAction();
 
-	private MamutPluginAppModel appModel;
+	private ProjectModel appModel;
 
 	private SelectAndEditProfileSettingsPage< StyleProfile< NearestObjectStatModel > > page;
 
@@ -67,20 +69,17 @@ public class NearestObjectStatPlugin implements MamutPlugin
 	}
 
 	@Override
-	public void setAppPluginModel( final MamutPluginAppModel appModel )
+	public void setAppPluginModel( final ProjectModel appModel )
 	{
 		this.appModel = appModel;
-
-		if ( null == appModel || null == appModel.getAppModel() )
-			return;
-		
 		final NearestObjectStatModelManager manager = new NearestObjectStatModelManager();
+		final MamutFeatureProjectionsManager featureProjectionsManager = appModel.getWindowManager().getManager( MamutFeatureProjectionsManager.class );
 		final NearestObjectStatController controller = new NearestObjectStatController(
 				manager.getSelectedStyle(),
-				appModel.getAppModel().getModel(),
-				appModel.getAppModel().getMinTimepoint(),
-				appModel.getAppModel().getMaxTimepoint(),
-				appModel.getAppModel().getFeatureProjectionsManager() );
+				appModel.getModel(),
+				appModel.getMinTimepoint(),
+				appModel.getMaxTimepoint(),
+				featureProjectionsManager );
 
 		this.page = new SelectAndEditProfileSettingsPage<>(
 				"Stats on nearest-neighbors",
@@ -97,7 +96,7 @@ public class NearestObjectStatPlugin implements MamutPlugin
 	{
 		public Descriptions()
 		{
-			super( KeyConfigContexts.MASTODON );
+			super( KeyConfigScopes.MAMUT, KeyConfigContexts.MASTODON );
 		}
 
 		@Override

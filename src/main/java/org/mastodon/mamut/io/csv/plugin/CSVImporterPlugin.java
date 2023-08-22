@@ -42,15 +42,16 @@ import javax.swing.WindowConstants;
 
 import org.mastodon.app.MastodonIcons;
 import org.mastodon.app.ui.ViewMenuBuilder.MenuItem;
+import org.mastodon.mamut.KeyConfigScopes;
 import org.mastodon.mamut.MamutMenuBuilder;
+import org.mastodon.mamut.ProjectModel;
 import org.mastodon.mamut.io.csv.plugin.ui.CSVImporterUIController;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.plugin.MamutPlugin;
-import org.mastodon.mamut.plugin.MamutPluginAppModel;
-import org.mastodon.ui.keymap.CommandDescriptionProvider;
-import org.mastodon.ui.keymap.CommandDescriptions;
 import org.mastodon.ui.keymap.KeyConfigContexts;
 import org.scijava.plugin.Plugin;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptionProvider;
+import org.scijava.ui.behaviour.io.gui.CommandDescriptions;
 import org.scijava.ui.behaviour.util.AbstractNamedAction;
 import org.scijava.ui.behaviour.util.Actions;
 
@@ -92,12 +93,9 @@ public class CSVImporterPlugin implements MamutPlugin
 	}
 
 	@Override
-	public void setAppPluginModel( final MamutPluginAppModel appModel )
+	public void setAppPluginModel( final ProjectModel appModel )
 	{
-		if ( null == appModel.getAppModel().getModel() )
-			return;
-
-		toggleImporterDialog.setModel( appModel.getAppModel().getModel() );
+		toggleImporterDialog.setModel( appModel.getModel() );
 	}
 
 	private static final MenuItem makeFullMenuItem( final MenuItem item )
@@ -116,7 +114,7 @@ public class CSVImporterPlugin implements MamutPlugin
 	{
 		public Descriptions()
 		{
-			super( KeyConfigContexts.MASTODON );
+			super( KeyConfigScopes.MAMUT, KeyConfigContexts.MASTODON );
 		}
 
 		@Override
