@@ -190,8 +190,10 @@ public class CSVImporterUIController
 		try
 		{
 			final CSVFormat csvFormat = CSVFormat.EXCEL
-					.withHeader()
-					.withCommentMarker( '#' );
+					.builder()
+					.setHeader()
+					.setCommentMarker( '#' )
+					.build();
 			records = csvFormat.parse( in );
 		}
 		catch ( final Exception e )

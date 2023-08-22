@@ -138,8 +138,10 @@ public class CSVImporter implements Algorithm
 	public boolean checkInput()
 	{
 		final CSVFormat csvFormat = CSVFormat.EXCEL
-				.withHeader()
-				.withCommentMarker( '#' );
+				.builder()
+				.setHeader()
+				.setCommentMarker( '#' )
+				.build();
 		try (Reader in = new FileReader( filePath );
 				CSVParser records = csvFormat.parse( in );)
 		{
@@ -184,9 +186,11 @@ public class CSVImporter implements Algorithm
 		}
 
 		final CSVFormat csvFormat = CSVFormat.EXCEL
-				.withHeader()
-				.withCommentMarker( '#' )
-				.withDelimiter( separator );
+				.builder()
+				.setDelimiter( separator )
+				.setHeader()
+				.setCommentMarker( '#' )
+				.build();
 
 		try (Reader in = new FileReader( filePath );
 				CSVParser records = csvFormat.parse( in );)
