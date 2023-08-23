@@ -1,22 +1,14 @@
 package org.mastodon.mamut.nearest.ui;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.mastodon.io.IOUtils;
+import org.mastodon.app.ui.AbstractStyleManagerYaml;
 import org.mastodon.mamut.nearest.NearestObjectStatModel;
 import org.yaml.snakeyaml.Yaml;
 
-import bdv.ui.settings.style.AbstractStyleManager;
-
-public class NearestObjectStatModelManager extends AbstractStyleManager< NearestObjectStatModelManager, NearestObjectStatModel >
+public class NearestObjectStatModelManager extends AbstractStyleManagerYaml< NearestObjectStatModelManager, NearestObjectStatModel >
 {
 
 	private static final String STYLE_FILE = System.getProperty( "user.home" ) + "/.mastodon/nearestneighborstatsettings.yaml";
@@ -38,25 +30,6 @@ public class NearestObjectStatModelManager extends AbstractStyleManager< Nearest
 		saveStyles( STYLE_FILE );
 	}
 
-	public void saveStyles( final String filename )
-	{
-		try
-		{
-			IOUtils.mkdirs( filename );
-			final FileWriter output = new FileWriter( filename );
-			final Yaml yaml = NearestObjectStatModelIO.createYaml();
-			final ArrayList< Object > objects = new ArrayList<>();
-			objects.add( selectedStyle.getName() );
-			objects.addAll( userStyles );
-			yaml.dumpAll( objects.iterator(), output );
-			output.close();
-		}
-		catch ( final IOException e )
-		{
-			e.printStackTrace();
-		}
-	}
-
 	@Override
 	protected List< NearestObjectStatModel > loadBuiltinStyles()
 	{
@@ -68,36 +41,9 @@ public class NearestObjectStatModelManager extends AbstractStyleManager< Nearest
 		loadStyles( STYLE_FILE );
 	}
 
-	public void loadStyles( final String filename )
+	@Override
+	protected Yaml createYaml()
 	{
-		userStyles.clear();
-		final Set< String > names = builtinStyles.stream().map( NearestObjectStatModel::getName ).collect( Collectors.toSet() );
-		try
-		{
-			final FileReader input = new FileReader( filename );
-			final Yaml yaml = NearestObjectStatModelIO.createYaml();
-			final Iterable< Object > objs = yaml.loadAll( input );
-			String defaultStyleName = null;
-			for ( final Object obj : objs )
-			{
-				if ( obj instanceof String )
-				{
-					defaultStyleName = ( String ) obj;
-				}
-				else if ( obj instanceof NearestObjectStatModel )
-				{
-					final NearestObjectStatModel ts = ( NearestObjectStatModel ) obj;
-					if ( null != ts )
-					{
-						// sanity check: style names must be unique
-						if ( names.add( ts.getName() ) )
-							userStyles.add( ts );
-					}
-				}
-			}
-			setSelectedStyle( styleForName( defaultStyleName ).orElseGet( () -> builtinStyles.get( 0 ) ) );
-		}
-		catch ( final FileNotFoundException e )
-		{}
+		return NearestObjectStatModelIO.createYaml();
 	}
 }

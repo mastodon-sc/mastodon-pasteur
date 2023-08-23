@@ -85,10 +85,10 @@ public class NearestObjectStatModelIO
 			try
 			{
 				final Map< Object, Object > mapping = constructMapping( ( MappingNode ) node );
-				final String featureKey = ( ( String ) mapping.get( "featureKey" ) );
-				final String projectionKey = ( ( String ) mapping.get( "projectionKey" ) );
-				final int i0 = ( Integer ) mapping.get( "i0" );
-				final int i1 = ( Integer ) mapping.get( "i1" );
+				final String featureKey = getString( mapping, "featureKey" );
+				final String projectionKey = getString( mapping, "projectionKey" );
+				final int i0 = getInt( mapping, "i0" );
+				final int i1 = getInt( mapping, "i1" );
 				return new FeatureProjectionId( featureKey, projectionKey, TargetType.VERTEX, i0, i1 );
 			}
 			catch ( final Exception e )
@@ -186,13 +186,13 @@ public class NearestObjectStatModelIO
 			try
 			{
 				final Map< Object, Object > mapping = constructMapping( ( MappingNode ) node );
-				final CollectBy collectBy = CollectBy.valueOf( ( String ) mapping.get( "collectBy" ) );
-				final int n = ( ( Number ) mapping.get( "n" ) ).intValue();
-				final double maxDistance = ( ( Number ) mapping.get( "maxDistance" ) ).doubleValue();
-				final Value value = Value.valueOf( ( String ) mapping.get( "value" ) );
+				final CollectBy collectBy = CollectBy.valueOf( getString( mapping, "collectBy" ) );
+				final int n = getInt( mapping, "n" );
+				final double maxDistance = getDouble( mapping, "maxDistance" );
+				final Value value = Value.valueOf( getString( mapping, "value" ) );
 				final FeatureProjectionId featureID = ( FeatureProjectionId ) mapping.get( "featureId" );
-				final Stat stat = Stat.valueOf( ( String ) mapping.get( "stat" ) );
-				final boolean include = ( ( Boolean ) mapping.get( "include" ) ).booleanValue();
+				final Stat stat = Stat.valueOf( getString( mapping, "stat" ) );
+				final boolean include = getBoolean( mapping, "include" );
 				return new NearestObjectStatItem( collectBy, n, maxDistance, value, featureID, stat, include );
 			}
 			catch ( final Exception e )
