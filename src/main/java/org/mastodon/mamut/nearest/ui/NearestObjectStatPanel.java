@@ -5,6 +5,8 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -19,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.text.DefaultFormatter;
 
 import org.mastodon.feature.ui.AvailableFeatureProjections;
 import org.mastodon.feature.ui.FeatureSelectionPanel;
@@ -115,7 +118,37 @@ public class NearestObjectStatPanel extends JPanel
 		gbcLblMaxDistance.gridy = 3;
 		add( lblMaxDistance, gbcLblMaxDistance );
 
-		this.ftfMaxDistance = new JFormattedTextField( "0.00" );
+		this.ftfMaxDistance = new JFormattedTextField( new DecimalFormat( "0.0" ) )
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void commitEdit() throws ParseException
+			{
+				if ( !isEditValid() )
+					return;
+				super.commitEdit();
+			}
+
+			@Override
+			public boolean isEditValid()
+			{
+				if ( !super.isEditValid() )
+					return false;
+
+				try
+				{
+					final double val = Double.parseDouble( getText() );
+					return val >= 0;
+				}
+				catch ( final NumberFormatException nfe )
+				{
+					return false;
+				}
+			}
+		};
+		( ( DefaultFormatter ) ftfMaxDistance.getFormatter() ).setOverwriteMode( false );
+		( ( DefaultFormatter ) ftfMaxDistance.getFormatter() ).setCommitsOnValidEdit( true );
 		ftfMaxDistance.setToolTipText( TOOLTIP_DISTANCE );
 		ftfMaxDistance.setHorizontalAlignment( JFormattedTextField.RIGHT );
 		final GridBagConstraints gbcFtfMaxDistance = new GridBagConstraints();
@@ -271,7 +304,7 @@ public class NearestObjectStatPanel extends JPanel
 	public static void main( final String[] args )
 	{
 		final NearestObjectStatPanel panel = new NearestObjectStatPanel( null, "µm" );
-		final JFrame frame = new JFrame("stat panel");
+		final JFrame frame = new JFrame( "stat panel" );
 		frame.getContentPane().add( panel );
 		frame.pack();
 		frame.setLocationRelativeTo( null );
