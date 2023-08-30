@@ -11,7 +11,8 @@ import org.yaml.snakeyaml.Yaml;
 public class NearestObjectStatModelManager extends AbstractStyleManagerYaml< NearestObjectStatModelManager, NearestObjectStatModel >
 {
 
-	private static final String STYLE_FILE = System.getProperty( "user.home" ) + "/.mastodon/nearestneighborstatsettings.yaml";
+	private static final String STYLE_FILE = System.getProperty( "user.home" ) + "/.mastodon/plugins/nearest-neighbor-stat/nearest-neighbor-stat-settings.yaml";
+	private static final String LEGACY_STYLE_FILE = System.getProperty( "user.home" ) + "/.mastodon/nearestneighborstatsettings.yaml";
 
 	public NearestObjectStatModelManager()
 	{
@@ -39,6 +40,7 @@ public class NearestObjectStatModelManager extends AbstractStyleManagerYaml< Nea
 	public void loadStyles()
 	{
 		loadStyles( STYLE_FILE );
+		handleLegacyFile( LEGACY_STYLE_FILE );
 	}
 
 	@Override
