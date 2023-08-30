@@ -82,7 +82,7 @@ public class NearestObjectStatPlugin implements MamutPlugin
 				featureProjectionsManager );
 
 		this.page = new SelectAndEditProfileSettingsPage<>(
-				"Stats on nearest-neighbors",
+				"Plugins > Stats on nearest-neighbors",
 				new StyleProfileManager<>( manager, new NearestObjectStatModelManager( false ) ),
 				controller.getProfileEditor() );
 		appModel.getWindowManager().getPreferencesDialog().addPage( page );
