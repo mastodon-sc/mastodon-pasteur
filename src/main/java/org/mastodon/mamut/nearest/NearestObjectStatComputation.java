@@ -165,7 +165,7 @@ public class NearestObjectStatComputation
 						{
 							// Stop collecting neighbors if we exceed the
 							// specified number of neighbors.
-							for ( int k = start; k <= item.n; k++ )
+							for ( int k = start; k <= Math.min( item.n, list.size() - 1 ); k++ )
 								arr.add( evaluator.applyAsDouble( list.get( k ), spot ) );
 							break;
 						}
