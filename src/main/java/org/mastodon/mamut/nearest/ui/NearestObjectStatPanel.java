@@ -54,38 +54,48 @@ public class NearestObjectStatPanel extends JPanel
 	public NearestObjectStatPanel( final AvailableFeatureProjections afp, final String units )
 	{
 		final GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 106, 120, 0, 0 };
-		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 1.0, Double.MIN_VALUE };
-		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
+		gridBagLayout.columnWidths = new int[] { 0, 0, 106, 120, 0, 0 };
+		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
 		setLayout( gridBagLayout );
+
+		final JLabel lblInputValue = new JLabel( "Input values:" );
+		final GridBagConstraints gbc_lblInputValue = new GridBagConstraints();
+		gbc_lblInputValue.gridwidth = 5;
+		gbc_lblInputValue.fill = GridBagConstraints.HORIZONTAL;
+		gbc_lblInputValue.anchor = GridBagConstraints.WEST;
+		gbc_lblInputValue.insets = new Insets( 0, 0, 5, 5 );
+		gbc_lblInputValue.gridx = 0;
+		gbc_lblInputValue.gridy = 0;
+		add( lblInputValue, gbc_lblInputValue );
 
 		final JLabel lblCollectBy = new JLabel( "collect neighbors by:" );
 		final GridBagConstraints gbcLblCollectBy = new GridBagConstraints();
 		gbcLblCollectBy.anchor = GridBagConstraints.EAST;
 		gbcLblCollectBy.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblCollectBy.gridx = 0;
-		gbcLblCollectBy.gridy = 0;
+		gbcLblCollectBy.gridx = 2;
+		gbcLblCollectBy.gridy = 1;
 		add( lblCollectBy, gbcLblCollectBy );
 
 		rdbtnNNearest = new JRadioButton( "specifying N" );
 		rdbtnNNearest.setToolTipText( TOOLTIP_COLLECT_N );
 		final GridBagConstraints gbcRdbtnNNearest = new GridBagConstraints();
 		gbcRdbtnNNearest.anchor = GridBagConstraints.WEST;
-		gbcRdbtnNNearest.insets = new Insets( 0, 0, 5, 5 );
+		gbcRdbtnNNearest.insets = new Insets( 0, 0, 5, 0 );
 		gbcRdbtnNNearest.gridwidth = 2;
-		gbcRdbtnNNearest.gridx = 1;
-		gbcRdbtnNNearest.gridy = 0;
+		gbcRdbtnNNearest.gridx = 3;
+		gbcRdbtnNNearest.gridy = 1;
 		add( rdbtnNNearest, gbcRdbtnNNearest );
 
 		final JRadioButton rdbtnMaxdistance = new JRadioButton( "max distance" );
 		rdbtnMaxdistance.setToolTipText( TOOLTIP_COLLECT_DISTANCE );
 		final GridBagConstraints gbcRdbtnMaxdistance = new GridBagConstraints();
 		gbcRdbtnMaxdistance.anchor = GridBagConstraints.WEST;
-		gbcRdbtnMaxdistance.insets = new Insets( 0, 0, 5, 5 );
+		gbcRdbtnMaxdistance.insets = new Insets( 0, 0, 5, 0 );
 		gbcRdbtnMaxdistance.gridwidth = 2;
-		gbcRdbtnMaxdistance.gridx = 1;
-		gbcRdbtnMaxdistance.gridy = 1;
+		gbcRdbtnMaxdistance.gridx = 3;
+		gbcRdbtnMaxdistance.gridy = 2;
 		add( rdbtnMaxdistance, gbcRdbtnMaxdistance );
 
 		final JLabel lblN = new JLabel( "N:" );
@@ -93,8 +103,8 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcLblN = new GridBagConstraints();
 		gbcLblN.anchor = GridBagConstraints.EAST;
 		gbcLblN.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblN.gridx = 0;
-		gbcLblN.gridy = 2;
+		gbcLblN.gridx = 2;
+		gbcLblN.gridy = 3;
 		add( lblN, gbcLblN );
 
 		this.spinnerModel = new SpinnerNumberModel( 6, 1, 200, 1 );
@@ -105,8 +115,8 @@ public class NearestObjectStatPanel extends JPanel
 		gbcSpinner.gridwidth = 1;
 		gbcSpinner.fill = GridBagConstraints.HORIZONTAL;
 		gbcSpinner.insets = new Insets( 0, 0, 5, 5 );
-		gbcSpinner.gridx = 1;
-		gbcSpinner.gridy = 2;
+		gbcSpinner.gridx = 3;
+		gbcSpinner.gridy = 3;
 		add( spinner, gbcSpinner );
 
 		final JLabel lblMaxDistance = new JLabel( "max distance:" );
@@ -114,8 +124,8 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcLblMaxDistance = new GridBagConstraints();
 		gbcLblMaxDistance.anchor = GridBagConstraints.EAST;
 		gbcLblMaxDistance.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblMaxDistance.gridx = 0;
-		gbcLblMaxDistance.gridy = 3;
+		gbcLblMaxDistance.gridx = 2;
+		gbcLblMaxDistance.gridy = 4;
 		add( lblMaxDistance, gbcLblMaxDistance );
 
 		this.ftfMaxDistance = new JFormattedTextField( new DecimalFormat( "0.0" ) )
@@ -154,24 +164,33 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcFtfMaxDistance = new GridBagConstraints();
 		gbcFtfMaxDistance.insets = new Insets( 0, 0, 5, 5 );
 		gbcFtfMaxDistance.fill = GridBagConstraints.HORIZONTAL;
-		gbcFtfMaxDistance.gridx = 1;
-		gbcFtfMaxDistance.gridy = 3;
+		gbcFtfMaxDistance.gridx = 3;
+		gbcFtfMaxDistance.gridy = 4;
 		add( ftfMaxDistance, gbcFtfMaxDistance );
 
 		final JLabel lblUnits = new JLabel( units );
 		final GridBagConstraints gbcLblUnits = new GridBagConstraints();
 		gbcLblUnits.anchor = GridBagConstraints.WEST;
 		gbcLblUnits.insets = new Insets( 0, 0, 5, 0 );
-		gbcLblUnits.gridx = 2;
-		gbcLblUnits.gridy = 3;
+		gbcLblUnits.gridx = 4;
+		gbcLblUnits.gridy = 4;
 		add( lblUnits, gbcLblUnits );
+
+		final JLabel lblOutputValues = new JLabel( "Output values:" );
+		final GridBagConstraints gbc_lblOutputValues = new GridBagConstraints();
+		gbc_lblOutputValues.anchor = GridBagConstraints.WEST;
+		gbc_lblOutputValues.gridwidth = 4;
+		gbc_lblOutputValues.insets = new Insets( 0, 0, 5, 5 );
+		gbc_lblOutputValues.gridx = 1;
+		gbc_lblOutputValues.gridy = 5;
+		add( lblOutputValues, gbc_lblOutputValues );
 
 		final JLabel lblMetrics = new JLabel( "value:" );
 		final GridBagConstraints gbcLblMetrics = new GridBagConstraints();
 		gbcLblMetrics.anchor = GridBagConstraints.EAST;
 		gbcLblMetrics.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblMetrics.gridx = 0;
-		gbcLblMetrics.gridy = 4;
+		gbcLblMetrics.gridx = 2;
+		gbcLblMetrics.gridy = 6;
 		add( lblMetrics, gbcLblMetrics );
 
 		this.rdbtnDistanceOrN = new JRadioButton( "distance" );
@@ -179,8 +198,8 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcRdbtnDistance = new GridBagConstraints();
 		gbcRdbtnDistance.anchor = GridBagConstraints.WEST;
 		gbcRdbtnDistance.insets = new Insets( 0, 0, 5, 5 );
-		gbcRdbtnDistance.gridx = 1;
-		gbcRdbtnDistance.gridy = 4;
+		gbcRdbtnDistance.gridx = 3;
+		gbcRdbtnDistance.gridy = 6;
 		add( rdbtnDistanceOrN, gbcRdbtnDistance );
 
 		final JRadioButton rdbtnFeature = new JRadioButton( "feature" );
@@ -188,8 +207,8 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcRdbtnFeature = new GridBagConstraints();
 		gbcRdbtnFeature.anchor = GridBagConstraints.WEST;
 		gbcRdbtnFeature.insets = new Insets( 0, 0, 5, 0 );
-		gbcRdbtnFeature.gridx = 2;
-		gbcRdbtnFeature.gridy = 4;
+		gbcRdbtnFeature.gridx = 4;
+		gbcRdbtnFeature.gridy = 6;
 		add( rdbtnFeature, gbcRdbtnFeature );
 
 		this.featureSelectionPanel = new FeatureSelectionPanel();
@@ -211,8 +230,8 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcLblStat = new GridBagConstraints();
 		gbcLblStat.anchor = GridBagConstraints.EAST;
 		gbcLblStat.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblStat.gridx = 0;
-		gbcLblStat.gridy = 7;
+		gbcLblStat.gridx = 2;
+		gbcLblStat.gridy = 9;
 		add( lblStat, gbcLblStat );
 
 		this.cmbboxStat = new JComboBox<>( new Vector<>( Arrays.asList( Stat.values() ) ) );
@@ -220,8 +239,8 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcComboBox = new GridBagConstraints();
 		gbcComboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbcComboBox.insets = new Insets( 0, 0, 5, 5 );
-		gbcComboBox.gridx = 1;
-		gbcComboBox.gridy = 7;
+		gbcComboBox.gridx = 3;
+		gbcComboBox.gridy = 9;
 		add( cmbboxStat, gbcComboBox );
 
 		final JLabel lblInclude = new JLabel( "include center:" );
@@ -229,8 +248,8 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcLblInclude = new GridBagConstraints();
 		gbcLblInclude.insets = new Insets( 0, 0, 5, 5 );
 		gbcLblInclude.anchor = GridBagConstraints.EAST;
-		gbcLblInclude.gridx = 0;
-		gbcLblInclude.gridy = 8;
+		gbcLblInclude.gridx = 2;
+		gbcLblInclude.gridy = 10;
 		add( lblInclude, gbcLblInclude );
 
 		this.chckbxInclude = new JCheckBox( "" );
@@ -238,8 +257,8 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcChckbxInclude = new GridBagConstraints();
 		gbcChckbxInclude.insets = new Insets( 0, 0, 5, 5 );
 		gbcChckbxInclude.anchor = GridBagConstraints.WEST;
-		gbcChckbxInclude.gridx = 1;
-		gbcChckbxInclude.gridy = 8;
+		gbcChckbxInclude.gridx = 3;
+		gbcChckbxInclude.gridy = 10;
 		add( chckbxInclude, gbcChckbxInclude );
 
 		// Listeners.
