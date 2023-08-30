@@ -1,5 +1,8 @@
 package org.mastodon.mamut.nearest.ui;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javax.swing.JLabel;
 
 import org.mastodon.feature.ui.AvailableFeatureProjections;
@@ -31,6 +34,10 @@ public class NearestObjectStatController
 
 	private final NearestObjectStatMainPanel view;
 
+	private Timer resetLogTimer;
+
+	private int previousNItems;
+
 	public NearestObjectStatController(
 			final NearestObjectStatModel initialStyle,
 			final Model model,
@@ -41,10 +48,12 @@ public class NearestObjectStatController
 		this.model = model;
 		this.minTimepoint = minTimepoint;
 		this.maxTimepoint = maxTimepoint;
-
+		this.resetLogTimer = new Timer();
 		this.profileEditor = new NearestObjectStatModelProfileEditPanel( initialStyle, featureProjectionsManager.getAvailableFeatureProjections(), model.getSpaceUnits() );
 		this.selectedStyle = profileEditor.editedStyle;
 		this.view = profileEditor.getJPanel();
+		this.previousNItems = selectedStyle.size();
+		selectedStyle.statModelListeners().add( () -> logModelChange() );
 		view.btnAdd.addActionListener( e -> add( view.getCurrentItem() ) );
 		view.btnCompute.addActionListener( e -> compute() );
 		featureProjectionsManager.listeners().add( () -> profileEditor.getJPanel()
@@ -54,18 +63,44 @@ public class NearestObjectStatController
 
 	private void add( final NearestObjectStatItem item )
 	{
-		if ( selectedStyle.size() >= NearestObjectStatModel.MAX_N_ITEMS)
+		if ( selectedStyle.size() >= NearestObjectStatModel.MAX_N_ITEMS )
 		{
-			view.lblLog.setText( "Cannot have more than " + NearestObjectStatModel.MAX_N_ITEMS + " stat items." );
+			log( "Cannot have more than " + NearestObjectStatModel.MAX_N_ITEMS + " statistic items." );
 			return;
 		}
 		if ( selectedStyle.contains( item ) )
 		{
-			view.lblLog.setText( "Current configuration already has this stat item." );
+			log( "Current configuration already has this statistic item." );
 			return;
 		}
 		selectedStyle.add( item );
-		view.lblLog.setText( "Stat item added." );
+	}
+
+	private void logModelChange()
+	{
+		final int currentSize = selectedStyle.size();
+		if ( currentSize > previousNItems )
+			log( "Statistic item added." );
+		else if ( currentSize < previousNItems )
+			log( "Statistic item removed." );
+		previousNItems = currentSize;
+		view.btnCompute.setEnabled( currentSize > 0 );
+	}
+
+	private void log( final String msg )
+	{
+		view.lblLog.setText( msg );
+		resetLogTimer.cancel();
+		resetLogTimer = new Timer();
+		final TimerTask resetLogTask = new TimerTask()
+		{
+			@Override
+			public void run()
+			{
+				view.lblLog.setText( "" );
+			}
+		};
+		resetLogTimer.schedule( resetLogTask, 2000 );
 	}
 
 	private void compute()
