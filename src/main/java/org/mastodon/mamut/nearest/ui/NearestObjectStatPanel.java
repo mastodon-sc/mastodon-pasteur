@@ -2,6 +2,7 @@ package org.mastodon.mamut.nearest.ui;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -53,28 +54,31 @@ public class NearestObjectStatPanel extends JPanel
 
 	public NearestObjectStatPanel( final AvailableFeatureProjections afp, final String units )
 	{
+		final Font boldFont = getFont().deriveFont( Font.BOLD );
+
 		final GridBagLayout gridBagLayout = new GridBagLayout();
-		gridBagLayout.columnWidths = new int[] { 0, 0, 106, 120, 0, 0 };
+		gridBagLayout.columnWidths = new int[] { 20, 0, 106, 120, 0, 0 };
 		gridBagLayout.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		gridBagLayout.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
 		gridBagLayout.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0 };
 		setLayout( gridBagLayout );
 
 		final JLabel lblInputValue = new JLabel( "Input values:" );
-		final GridBagConstraints gbc_lblInputValue = new GridBagConstraints();
-		gbc_lblInputValue.gridwidth = 5;
-		gbc_lblInputValue.fill = GridBagConstraints.HORIZONTAL;
-		gbc_lblInputValue.anchor = GridBagConstraints.WEST;
-		gbc_lblInputValue.insets = new Insets( 0, 0, 5, 5 );
-		gbc_lblInputValue.gridx = 0;
-		gbc_lblInputValue.gridy = 0;
-		add( lblInputValue, gbc_lblInputValue );
+		lblInputValue.setFont( boldFont );
+		final GridBagConstraints gbcLblInputValue = new GridBagConstraints();
+		gbcLblInputValue.gridwidth = 5;
+		gbcLblInputValue.fill = GridBagConstraints.HORIZONTAL;
+		gbcLblInputValue.anchor = GridBagConstraints.WEST;
+		gbcLblInputValue.insets = new Insets( 0, 0, 5, 5 );
+		gbcLblInputValue.gridx = 0;
+		gbcLblInputValue.gridy = 0;
+		add( lblInputValue, gbcLblInputValue );
 
 		final JLabel lblCollectBy = new JLabel( "collect neighbors by:" );
 		final GridBagConstraints gbcLblCollectBy = new GridBagConstraints();
 		gbcLblCollectBy.anchor = GridBagConstraints.EAST;
 		gbcLblCollectBy.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblCollectBy.gridx = 2;
+		gbcLblCollectBy.gridx = 1;
 		gbcLblCollectBy.gridy = 1;
 		add( lblCollectBy, gbcLblCollectBy );
 
@@ -84,7 +88,7 @@ public class NearestObjectStatPanel extends JPanel
 		gbcRdbtnNNearest.anchor = GridBagConstraints.WEST;
 		gbcRdbtnNNearest.insets = new Insets( 0, 0, 5, 0 );
 		gbcRdbtnNNearest.gridwidth = 2;
-		gbcRdbtnNNearest.gridx = 3;
+		gbcRdbtnNNearest.gridx = 2;
 		gbcRdbtnNNearest.gridy = 1;
 		add( rdbtnNNearest, gbcRdbtnNNearest );
 
@@ -94,7 +98,7 @@ public class NearestObjectStatPanel extends JPanel
 		gbcRdbtnMaxdistance.anchor = GridBagConstraints.WEST;
 		gbcRdbtnMaxdistance.insets = new Insets( 0, 0, 5, 0 );
 		gbcRdbtnMaxdistance.gridwidth = 2;
-		gbcRdbtnMaxdistance.gridx = 3;
+		gbcRdbtnMaxdistance.gridx = 2;
 		gbcRdbtnMaxdistance.gridy = 2;
 		add( rdbtnMaxdistance, gbcRdbtnMaxdistance );
 
@@ -103,7 +107,7 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcLblN = new GridBagConstraints();
 		gbcLblN.anchor = GridBagConstraints.EAST;
 		gbcLblN.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblN.gridx = 2;
+		gbcLblN.gridx = 1;
 		gbcLblN.gridy = 3;
 		add( lblN, gbcLblN );
 
@@ -115,7 +119,7 @@ public class NearestObjectStatPanel extends JPanel
 		gbcSpinner.gridwidth = 1;
 		gbcSpinner.fill = GridBagConstraints.HORIZONTAL;
 		gbcSpinner.insets = new Insets( 0, 0, 5, 5 );
-		gbcSpinner.gridx = 3;
+		gbcSpinner.gridx = 2;
 		gbcSpinner.gridy = 3;
 		add( spinner, gbcSpinner );
 
@@ -124,7 +128,7 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcLblMaxDistance = new GridBagConstraints();
 		gbcLblMaxDistance.anchor = GridBagConstraints.EAST;
 		gbcLblMaxDistance.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblMaxDistance.gridx = 2;
+		gbcLblMaxDistance.gridx = 1;
 		gbcLblMaxDistance.gridy = 4;
 		add( lblMaxDistance, gbcLblMaxDistance );
 
@@ -164,7 +168,7 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcFtfMaxDistance = new GridBagConstraints();
 		gbcFtfMaxDistance.insets = new Insets( 0, 0, 5, 5 );
 		gbcFtfMaxDistance.fill = GridBagConstraints.HORIZONTAL;
-		gbcFtfMaxDistance.gridx = 3;
+		gbcFtfMaxDistance.gridx = 2;
 		gbcFtfMaxDistance.gridy = 4;
 		add( ftfMaxDistance, gbcFtfMaxDistance );
 
@@ -172,24 +176,25 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcLblUnits = new GridBagConstraints();
 		gbcLblUnits.anchor = GridBagConstraints.WEST;
 		gbcLblUnits.insets = new Insets( 0, 0, 5, 0 );
-		gbcLblUnits.gridx = 4;
+		gbcLblUnits.gridx = 3;
 		gbcLblUnits.gridy = 4;
 		add( lblUnits, gbcLblUnits );
 
 		final JLabel lblOutputValues = new JLabel( "Output values:" );
-		final GridBagConstraints gbc_lblOutputValues = new GridBagConstraints();
-		gbc_lblOutputValues.anchor = GridBagConstraints.WEST;
-		gbc_lblOutputValues.gridwidth = 4;
-		gbc_lblOutputValues.insets = new Insets( 0, 0, 5, 5 );
-		gbc_lblOutputValues.gridx = 1;
-		gbc_lblOutputValues.gridy = 5;
-		add( lblOutputValues, gbc_lblOutputValues );
+		lblOutputValues.setFont( boldFont );
+		final GridBagConstraints gbcLblOutputValues = new GridBagConstraints();
+		gbcLblOutputValues.anchor = GridBagConstraints.WEST;
+		gbcLblOutputValues.gridwidth = 4;
+		gbcLblOutputValues.insets = new Insets( 0, 0, 5, 5 );
+		gbcLblOutputValues.gridx = 0;
+		gbcLblOutputValues.gridy = 5;
+		add( lblOutputValues, gbcLblOutputValues );
 
 		final JLabel lblMetrics = new JLabel( "value:" );
 		final GridBagConstraints gbcLblMetrics = new GridBagConstraints();
 		gbcLblMetrics.anchor = GridBagConstraints.EAST;
 		gbcLblMetrics.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblMetrics.gridx = 2;
+		gbcLblMetrics.gridx = 1;
 		gbcLblMetrics.gridy = 6;
 		add( lblMetrics, gbcLblMetrics );
 
@@ -198,7 +203,7 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcRdbtnDistance = new GridBagConstraints();
 		gbcRdbtnDistance.anchor = GridBagConstraints.WEST;
 		gbcRdbtnDistance.insets = new Insets( 0, 0, 5, 5 );
-		gbcRdbtnDistance.gridx = 3;
+		gbcRdbtnDistance.gridx = 2;
 		gbcRdbtnDistance.gridy = 6;
 		add( rdbtnDistanceOrN, gbcRdbtnDistance );
 
@@ -207,7 +212,7 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcRdbtnFeature = new GridBagConstraints();
 		gbcRdbtnFeature.anchor = GridBagConstraints.WEST;
 		gbcRdbtnFeature.insets = new Insets( 0, 0, 5, 0 );
-		gbcRdbtnFeature.gridx = 4;
+		gbcRdbtnFeature.gridx = 3;
 		gbcRdbtnFeature.gridy = 6;
 		add( rdbtnFeature, gbcRdbtnFeature );
 
@@ -221,8 +226,8 @@ public class NearestObjectStatPanel extends JPanel
 		gbcFeatureSelectionPanel.insets = new Insets( 0, 0, 5, 5 );
 		gbcFeatureSelectionPanel.fill = GridBagConstraints.HORIZONTAL;
 		gbcFeatureSelectionPanel.gridwidth = 3;
-		gbcFeatureSelectionPanel.gridx = 0;
-		gbcFeatureSelectionPanel.gridy = 5;
+		gbcFeatureSelectionPanel.gridx = 1;
+		gbcFeatureSelectionPanel.gridy = 7;
 		add( featureSelectionPanel.getPanel(), gbcFeatureSelectionPanel );
 
 		final JLabel lblStat = new JLabel( "statistics:" );
@@ -230,7 +235,7 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcLblStat = new GridBagConstraints();
 		gbcLblStat.anchor = GridBagConstraints.EAST;
 		gbcLblStat.insets = new Insets( 0, 0, 5, 5 );
-		gbcLblStat.gridx = 2;
+		gbcLblStat.gridx = 1;
 		gbcLblStat.gridy = 9;
 		add( lblStat, gbcLblStat );
 
@@ -239,7 +244,7 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcComboBox = new GridBagConstraints();
 		gbcComboBox.fill = GridBagConstraints.HORIZONTAL;
 		gbcComboBox.insets = new Insets( 0, 0, 5, 5 );
-		gbcComboBox.gridx = 3;
+		gbcComboBox.gridx = 2;
 		gbcComboBox.gridy = 9;
 		add( cmbboxStat, gbcComboBox );
 
@@ -248,7 +253,7 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcLblInclude = new GridBagConstraints();
 		gbcLblInclude.insets = new Insets( 0, 0, 5, 5 );
 		gbcLblInclude.anchor = GridBagConstraints.EAST;
-		gbcLblInclude.gridx = 2;
+		gbcLblInclude.gridx = 1;
 		gbcLblInclude.gridy = 10;
 		add( lblInclude, gbcLblInclude );
 
@@ -257,7 +262,7 @@ public class NearestObjectStatPanel extends JPanel
 		final GridBagConstraints gbcChckbxInclude = new GridBagConstraints();
 		gbcChckbxInclude.insets = new Insets( 0, 0, 5, 5 );
 		gbcChckbxInclude.anchor = GridBagConstraints.WEST;
-		gbcChckbxInclude.gridx = 3;
+		gbcChckbxInclude.gridx = 2;
 		gbcChckbxInclude.gridy = 10;
 		add( chckbxInclude, gbcChckbxInclude );
 
@@ -327,6 +332,7 @@ public class NearestObjectStatPanel extends JPanel
 		frame.getContentPane().add( panel );
 		frame.pack();
 		frame.setLocationRelativeTo( null );
+		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 		frame.setVisible( true );
 	}
 
