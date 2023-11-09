@@ -51,7 +51,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.mastodon.tracking.mamut.trackmate.wizard.util.SetupIDComboBox;
+import org.mastodon.ui.util.SetupIDComboBox;
 
 import bdv.viewer.SourceAndConverter;
 
