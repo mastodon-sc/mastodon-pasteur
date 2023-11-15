@@ -119,6 +119,10 @@ public class NearestObjectStatFeature implements Feature< Spot >
 			case FEATURE:
 			{
 				final FeatureProjectionSpec projection = getProjectionSpec( item.featureID, model.getFeatureModel() );
+				// Deal with the feature not being present in the model.
+				if ( projection == null )
+					continue;
+
 				projectionDimension = projection.projectionDimension;
 				break;
 			}
