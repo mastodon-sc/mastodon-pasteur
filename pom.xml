@@ -10,7 +10,7 @@
 	
 	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-pasteur</artifactId>
-	<version>1.0.0-beta-7-SNAPSHOT</version>
+	<version>1.0.0-beta-7</version>
 
 	<name>Mastodon Pasteur Plugins</name>
 	<description>Mastodon plugins developed in the context of Pasteur users projects.</description>
@@ -82,7 +82,7 @@
 	<scm>
 		<connection>scm:git:https:github.com/mastodon-sc/mastodon-pasteur</connection>
 		<developerConnection>scm:git:git@github.com:mastodon-sc/mastodon-pasteur</developerConnection>
-		<tag>HEAD</tag>
+		<tag>mastodon-pasteur-1.0.0-beta-7</tag>
 		<url>https://github.com/mastodon-sc/mastodon-pasteur</url>
 	</scm>
 	<issueManagement>
