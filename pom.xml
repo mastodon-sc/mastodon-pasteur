@@ -10,7 +10,7 @@
 	
 	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-pasteur</artifactId>
-	<version>1.0.0-beta-7-SNAPSHOT</version>
+	<version>1.0.0-beta-8-SNAPSHOT</version>
 
 	<name>Mastodon Pasteur Plugins</name>
 	<description>Mastodon plugins developed in the context of Pasteur users projects.</description>
@@ -75,7 +75,7 @@
 	<mailingLists>
 		<mailingList>
 			<name>ImageJ Forum</name>
-			<archive>http://forum.imagej.net/</archive>
+			<archive>https://forum.image.sc/</archive>
 		</mailingList>
 	</mailingLists>
 
@@ -101,8 +101,8 @@
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
 		
-		<mastodon.version>1.0.0-beta-27-SNAPSHOT</mastodon.version>
-		<mastodon-tracking.version>1.0.0-beta-14-SNAPSHOT</mastodon-tracking.version>
+		<mastodon.version>1.0.0-beta-27</mastodon.version>
+		<mastodon-tracking.version>1.0.0-beta-14</mastodon-tracking.version>
 		
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
