@@ -51,21 +51,26 @@ public class CSVImporterTestDrive
 		Locale.setDefault( Locale.ROOT );
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 
-		final String bdvFile = "samples/200212__pos1.xml";
+//		final String bdvFile = "samples/200212__pos1.xml";
+		final String bdvFile = "../mastodon/samples/datasethdf5.xml";
 		final ProjectModel projectModel = ProjectCreator.createProjectFromBdvFile( new File( bdvFile ), new Context() );
 		new MainWindow( projectModel ).setVisible( true );
 
 		final Model model = projectModel.getModel();
-		final String csvFilePath = "samples/200212__pos1.csv";
+//		final String csvFilePath = "samples/200212__pos1.csv";
+		final String csvFilePath = "samples/MastodonTable-Spot-1lineheader.csv";
 		final CSVImporter importer = CSVImporter.create()
 				.model( model )
 				.csvFilePath( csvFilePath )
+				.separator( ',' )
 				.radius( 2. )
-				.xColumnName( "x" )
-				.yColumnName( "y" )
-				.zColumnName( "z" )
-				.frameColumnName( "time" )
-				.idColumnName( "index" )
+				.xColumnName( "X" )
+				.yColumnName( "Y" )
+				.zColumnName( "Z" )
+				.frameColumnName( "Spot frame" )
+				.idColumnName( "ID" )
+				.labelColumnName( "Label" )
+				.qualityColumnName( "Detection quality" )
 				.get();
 
 		System.out.println( "Starting import" );

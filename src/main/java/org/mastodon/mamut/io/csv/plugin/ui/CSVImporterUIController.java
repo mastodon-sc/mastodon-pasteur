@@ -32,21 +32,24 @@ import java.awt.FileDialog;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.mastodon.mamut.io.csv.CSVImporter;
 import org.mastodon.mamut.model.Model;
 import org.scijava.log.Logger;
 import org.scijava.log.StderrLogService;
+
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 public class CSVImporterUIController
 {
@@ -173,151 +176,147 @@ public class CSVImporterUIController
 		 * Open and parse file.
 		 */
 
-		Reader in;
-		CSVParser records;
+		final CSVParser parser =
+				new CSVParserBuilder()
+						.withIgnoreQuotations( true )
+						.build();
 		try
 		{
-			in = new FileReader( filePath );
+			final CSVReader reader = new CSVReaderBuilder( new FileReader( filePath ) )
+					.withCSVParser( parser )
+					.build();
+			final Iterator< String[] > it = reader.iterator();
+
+			/*
+			 * Parse first line and reads it as the header of the file.
+			 */
+
+			if ( !it.hasNext() )
+			{
+				error( "CSV file is empty." );
+				clearComboBoxes();
+				return false;
+			}
+
+			final String[] firstLine = it.next();
+			this.headerMap = new HashMap<>( firstLine.length );
+			for ( int i = 0; i < firstLine.length; i++ )
+			{
+				final String cleanKey = firstLine[ i ].trim().replaceAll( "\\p{C}", "" );
+				headerMap.put( cleanKey, Integer.valueOf( i ) );
+			}
+
+			// Iterate in column orders.
+			final ArrayList< String > headers = new ArrayList<>( headerMap.keySet() );
+			headers.removeIf( ( e ) -> e.trim().isEmpty() );
+
+			if ( headers.isEmpty() )
+			{
+				error( "Could not read the header of the CSV file.\nIt does not seem present.\n" );
+				clearComboBoxes();
+				return false;
+			}
+
+			final String[] mandatory = headers.toArray( new String[] {} );
+			view.comboBoxXCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
+			view.comboBoxYCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
+			view.comboBoxZCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
+			view.comboBoxFrameCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
+			view.comboBoxTrackCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
+
+			// Try to be clever and guess from header names.
+			int tcol = -1;
+			int xcol = -1;
+			int ycol = -1;
+			int zcol = -1;
+			int trackcol = -1;
+			for ( int i = 0; i < mandatory.length; i++ )
+			{
+				final String current = mandatory[ i ];
+
+				if ( current.toLowerCase().startsWith( "x" ) || current.toLowerCase().endsWith( "x" ) )
+				{
+					if ( xcol < 0 || ( current.length() < mandatory[ xcol ].length() ) )
+						xcol = i;
+				}
+
+				if ( current.toLowerCase().startsWith( "y" ) || current.toLowerCase().endsWith( "y" ) )
+				{
+					if ( ycol < 0 || ( current.length() < mandatory[ ycol ].length() ) )
+						ycol = i;
+				}
+
+				if ( current.toLowerCase().startsWith( "z" ) || current.toLowerCase().endsWith( "z" ) )
+				{
+					if ( zcol < 0 || ( current.length() < mandatory[ zcol ].length() ) )
+						zcol = i;
+				}
+
+				if ( current.toLowerCase().startsWith( "frame" )
+						|| current.toLowerCase().startsWith( "time" )
+						|| current.toLowerCase().startsWith( "t" ) )
+				{
+					if ( tcol < 0 || current.equals( "frame" ) )
+						tcol = i;
+				}
+
+				if ( current.toLowerCase().startsWith( "track" ) || current.toLowerCase().startsWith( "traj" ) )
+				{
+					if ( trackcol < 0 || current.equals( "track" ) )
+						trackcol = i;
+				}
+			}
+			if ( tcol < 0 )
+				tcol = 0 % ( mandatory.length - 1 );
+			if ( xcol < 0 )
+				xcol = 1 % ( mandatory.length - 1 );
+			if ( ycol < 0 )
+				ycol = 2 % ( mandatory.length - 1 );
+			if ( zcol < 0 )
+				zcol = 3 % ( mandatory.length - 1 );
+			if ( trackcol < 0 )
+				trackcol = 4 % ( mandatory.length - 1 );
+
+			view.comboBoxXCol.setSelectedIndex( xcol );
+			view.comboBoxYCol.setSelectedIndex( ycol );
+			view.comboBoxZCol.setSelectedIndex( zcol );
+			view.comboBoxFrameCol.setSelectedIndex( tcol );
+			view.comboBoxTrackCol.setSelectedIndex( trackcol );
+
+			// Add a NONE for non mandatory columns
+			headers.add( NONE_COLUMN );
+			final String[] nonMandatory = headers.toArray( new String[] {} );
+			view.comboBoxQualityCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
+			view.comboBoxNameCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
+			view.comboBoxIDCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
+
+			int idcol = headers.indexOf( NONE_COLUMN );
+			int qualitycol = headers.indexOf( NONE_COLUMN );
+			int namecol = headers.indexOf( NONE_COLUMN );
+			for ( int i = 0; i < nonMandatory.length; i++ )
+			{
+				final String current = nonMandatory[ i ];
+
+				if ( current.toLowerCase().startsWith( "id" )
+						|| current.toLowerCase().startsWith( "index" ) )
+					idcol = i;
+
+				if ( current.toLowerCase().startsWith( "name" ) )
+					namecol = i;
+
+				if ( current.toLowerCase().startsWith( "q" ) )
+					qualitycol = i;
+			}
+
+			view.comboBoxIDCol.setSelectedIndex( idcol );
+			view.comboBoxQualityCol.setSelectedIndex( qualitycol );
+			view.comboBoxNameCol.setSelectedIndex( namecol );
 		}
 		catch ( final FileNotFoundException e )
 		{
-			error( "Could not find CSV file:\n" + e.getMessage() + '\n' );
+			error( "Cannot find file " + filePath );
 			e.printStackTrace();
-			clearComboBoxes();
 			return false;
-		}
-
-		try
-		{
-			final CSVFormat csvFormat = CSVFormat.EXCEL
-					.builder()
-					.setHeader()
-					.setCommentMarker( '#' )
-					.build();
-			records = csvFormat.parse( in );
-		}
-		catch ( final Exception e )
-		{
-			e.printStackTrace();
-			error( "Could not browse CSV file:\n" + e.getMessage() + "\n" );
-			clearComboBoxes();
-			return false;
-		}
-
-		this.headerMap = records.getHeaderMap();
-
-		// Iterate in column orders.
-		final ArrayList< String > headers = new ArrayList<>( headerMap.keySet() );
-		headers.removeIf( ( e ) -> e.trim().isEmpty() );
-
-		if ( headers.isEmpty() )
-		{
-			error( "Could not read the header of the CSV file.\nIt does not seem present.\n" );
-			return false;
-		}
-
-		final String[] mandatory = headers.toArray( new String[] {} );
-		view.comboBoxXCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
-		view.comboBoxYCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
-		view.comboBoxZCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
-		view.comboBoxFrameCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
-		view.comboBoxTrackCol.setModel( new DefaultComboBoxModel<>( mandatory ) );
-
-		// Try to be clever and guess from header names.
-		int tcol = -1;
-		int xcol = -1;
-		int ycol = -1;
-		int zcol = -1;
-		int trackcol = -1;
-		for ( int i = 0; i < mandatory.length; i++ )
-		{
-			final String current = mandatory[ i ];
-
-			if ( current.toLowerCase().startsWith( "x" ) || current.toLowerCase().endsWith( "x" ) )
-			{
-				if ( xcol < 0 || ( current.length() < mandatory[ xcol ].length() ) )
-					xcol = i;
-			}
-
-			if ( current.toLowerCase().startsWith( "y" ) || current.toLowerCase().endsWith( "y" ) )
-			{
-				if ( ycol < 0 || ( current.length() < mandatory[ ycol ].length() ) )
-					ycol = i;
-			}
-
-			if ( current.toLowerCase().startsWith( "z" ) || current.toLowerCase().endsWith( "z" ) )
-			{
-				if ( zcol < 0 || ( current.length() < mandatory[ zcol ].length() ) )
-					zcol = i;
-			}
-
-			if ( current.toLowerCase().startsWith( "frame" )
-					|| current.toLowerCase().startsWith( "time" )
-					|| current.toLowerCase().startsWith( "t" ) )
-			{
-				if ( tcol < 0 || current.equals( "frame" ) )
-					tcol = i;
-			}
-
-			if ( current.toLowerCase().startsWith( "track" ) || current.toLowerCase().startsWith( "traj" ) )
-			{
-				if ( trackcol < 0 || current.equals( "track" ) )
-					trackcol = i;
-			}
-		}
-		if ( tcol < 0 )
-			tcol = 0 % ( mandatory.length - 1 );
-		if ( xcol < 0 )
-			xcol = 1 % ( mandatory.length - 1 );
-		if ( ycol < 0 )
-			ycol = 2 % ( mandatory.length - 1 );
-		if ( zcol < 0 )
-			zcol = 3 % ( mandatory.length - 1 );
-		if ( trackcol < 0 )
-			trackcol = 4 % ( mandatory.length - 1 );
-
-		view.comboBoxXCol.setSelectedIndex( xcol );
-		view.comboBoxYCol.setSelectedIndex( ycol );
-		view.comboBoxZCol.setSelectedIndex( zcol );
-		view.comboBoxFrameCol.setSelectedIndex( tcol );
-		view.comboBoxTrackCol.setSelectedIndex( trackcol );
-
-		// Add a NONE for non mandatory columns
-		headers.add( NONE_COLUMN );
-		final String[] nonMandatory = headers.toArray( new String[] {} );
-		view.comboBoxQualityCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
-		view.comboBoxNameCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
-		view.comboBoxIDCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
-
-		int idcol = headers.indexOf( NONE_COLUMN );
-		int qualitycol = headers.indexOf( NONE_COLUMN );
-		int namecol = headers.indexOf( NONE_COLUMN );
-		for ( int i = 0; i < nonMandatory.length; i++ )
-		{
-			final String current = nonMandatory[ i ];
-
-			if ( current.toLowerCase().startsWith( "id" )
-					|| current.toLowerCase().startsWith( "index" ) )
-				idcol = i;
-
-			if ( current.toLowerCase().startsWith( "name" ) )
-				namecol = i;
-
-			if ( current.toLowerCase().startsWith( "q" ) )
-				qualitycol = i;
-		}
-
-		view.comboBoxIDCol.setSelectedIndex( idcol );
-		view.comboBoxQualityCol.setSelectedIndex( qualitycol );
-		view.comboBoxNameCol.setSelectedIndex( namecol );
-		try
-		{
-			in.close();
-		}
-		catch ( final IOException e )
-		{
-			error( "Problem closing the CSV file:\n" + e.getMessage() + '\n' );
-			e.printStackTrace();
 		}
 		return true;
 	}

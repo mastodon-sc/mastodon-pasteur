@@ -32,14 +32,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.Reader;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
 import org.mastodon.RefPool;
 import org.mastodon.collection.RefCollection;
 import org.mastodon.feature.Dimension;
@@ -59,6 +56,11 @@ import org.mastodon.properties.IntPropertyMap;
 import org.mastodon.tracking.mamut.detection.DetectionQualityFeature;
 import org.scijava.plugin.Plugin;
 import org.scijava.util.VersionUtils;
+
+import com.opencsv.CSVParser;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 import net.imglib2.algorithm.Algorithm;
 
@@ -137,32 +139,36 @@ public class CSVImporter implements Algorithm
 	@Override
 	public boolean checkInput()
 	{
-		final CSVFormat csvFormat = CSVFormat.EXCEL
-				.builder()
-				.setHeader()
-				.setCommentMarker( '#' )
-				.build();
-		try (Reader in = new FileReader( filePath );
-				CSVParser records = csvFormat.parse( in );)
+		if ( separator == '\0' )
 		{
-			final Map< String, Integer > headerMap = records.getHeaderMap();
-			if ( null == headerMap )
+			try
 			{
-				errorMessage = "File " + filePath + " does not have a header.\n";
-				return false;
+				separator = AutoDetectCSVSeparator.autoDetect( filePath );
 			}
+			catch ( final IOException e1 )
+			{
+				separator = ',';
+			}
+		}
 
+		final CSVParser parser =
+				new CSVParserBuilder()
+						.withSeparator( separator )
+						.withIgnoreQuotations( true )
+						.build();
+		try
+		{
+			new CSVReaderBuilder( new FileReader( filePath ) )
+					.withCSVParser( parser )
+					.build();
 		}
 		catch ( final FileNotFoundException e )
 		{
-			errorMessage = "Could not find file " + filePath + "\n" + e.getMessage();
+			errorMessage = "Could not find file: " + filePath;
+			e.printStackTrace();
 			return false;
 		}
-		catch ( final IOException e )
-		{
-			errorMessage = "Error reading file " + filePath + "\n" + e.getMessage();
-			return false;
-		}
+
 		return true;
 	}
 
@@ -185,24 +191,34 @@ public class CSVImporter implements Algorithm
 			}
 		}
 
-		final CSVFormat csvFormat = CSVFormat.EXCEL
-				.builder()
-				.setDelimiter( separator )
-				.setHeader()
-				.setCommentMarker( '#' )
-				.build();
-
-		try (Reader in = new FileReader( filePath );
-				CSVParser records = csvFormat.parse( in );)
+		final CSVParser parser =
+				new CSVParserBuilder()
+						.withSeparator( separator )
+						.withIgnoreQuotations( true )
+						.build();
+		try
 		{
+			final CSVReader reader = new CSVReaderBuilder( new FileReader( filePath ) )
+					.withCSVParser( parser )
+					.build();
+			final Iterator< String[] > it = reader.iterator();
 
-			final Map< String, Integer > uncleanHeaderMap = records.getHeaderMap();
-			final Map< String, Integer > headerMap = new HashMap<>( uncleanHeaderMap.size() );
-			for ( final String uncleanKey : uncleanHeaderMap.keySet() )
+			/*
+			 * Parse first line and reads it as the header of the file.
+			 */
+
+			if ( !it.hasNext() )
 			{
-				// Remove control and invisible chars.
-				final String cleanKey = uncleanKey.trim().replaceAll( "\\p{C}", "" );
-				headerMap.put( cleanKey, uncleanHeaderMap.get( uncleanKey ) );
+				errorMessage = "CSV file is empty.";
+				return false;
+			}
+
+			final String[] firstLine = it.next();
+			final Map< String, Integer > headerMap = new HashMap<>( firstLine.length );
+			for ( int i = 0; i < firstLine.length; i++ )
+			{
+				final String cleanKey = firstLine[ i ].trim().replaceAll( "\\p{C}", "" );
+				headerMap.put( cleanKey, Integer.valueOf( i ) );
 			}
 
 			/*
@@ -264,50 +280,55 @@ public class CSVImporter implements Algorithm
 				labelcol = headerMap.get( labelColumnName );
 
 			/*
-			 * Iterate over records.
+			 * Iterate over the rest of lines.
 			 */
 
 			final WriteLock lock = graph.getLock().writeLock();
 			lock.lock();
 			final Spot vref = graph.vertexRef();
 			final double[] pos = new double[ 3 ];
+
 			try
 			{
-				for ( final CSVRecord record : records )
+				int lineNumber = 1;
+				while ( it.hasNext() )
 				{
+					final String[] record = it.next();
+					lineNumber++;
+
 					try
 					{
-						pos[ 0 ] = Double.parseDouble( record.get( xcol ) ) + xOrigin;
-						pos[ 1 ] = Double.parseDouble( record.get( ycol ) ) + yOrigin;
-						pos[ 2 ] = Double.parseDouble( record.get( zcol ) ) + zOrigin;
-						final int t = Integer.parseInt( record.get( framecol ) );
+						pos[ 0 ] = Double.parseDouble( record[ xcol ] ) + xOrigin;
+						pos[ 1 ] = Double.parseDouble( record[ ycol ] ) + yOrigin;
+						pos[ 2 ] = Double.parseDouble( record[ zcol ] ) + zOrigin;
+						final int t = Integer.parseInt( record[ framecol ] );
 
 						final Spot spot = graph.addVertex( vref ).init( t, pos, radius );
 						if ( null != idcol )
 						{
-							final int id = Integer.parseInt( record.get( idcol ) );
+							final int id = Integer.parseInt( record[ idcol ] );
 							originalIdFeature.set( spot, id );
 							if ( null == labelcol )
 								spot.setLabel( "" + id );
 						}
+
 						if ( null != labelcol )
 						{
-							spot.setLabel( record.get( labelcol ) );
+							spot.setLabel( record[ labelcol ] );
 						}
 						double q = 1.;
 						if ( null != qualitycol )
 						{
-							q = Double.parseDouble( record.get( qualitycol ) );
+							q = Double.parseDouble( record[ qualitycol ] );
 							qualityFeature.set( spot, q );
 						}
 					}
 					catch ( final NumberFormatException nfe )
 					{
 						nfe.printStackTrace();
-						System.out.println( "Could not parse line " + record.getRecordNumber() + ". Malformed number, skipping.\n" + nfe.getMessage() );
+						System.out.println( "Could not parse line " + lineNumber + ". Malformed number, skipping.\n" + nfe.getMessage() );
 						continue;
 					}
-
 				}
 			}
 			finally
@@ -318,14 +339,8 @@ public class CSVImporter implements Algorithm
 		}
 		catch ( final FileNotFoundException e )
 		{
+			errorMessage = "Cannot find file " + filePath;
 			e.printStackTrace();
-			errorMessage = e.getMessage();
-			return false;
-		}
-		catch ( final IOException e )
-		{
-			e.printStackTrace();
-			errorMessage = e.getMessage();
 			return false;
 		}
 
