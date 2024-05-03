@@ -53,11 +53,12 @@ public class CSVImporterUITestDrive
 		Locale.setDefault( Locale.ROOT );
 		UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
 
-		final String bdvFile = "samples/200212__pos1.xml";
+//		final String bdvFile = "samples/200212__pos1.xml";
+		final String bdvFile = "../mastodon/samples/datasethdf5.xml";
 		final ProjectModel projectModel = ProjectCreator.createProjectFromBdvFile( new File( bdvFile ), new Context() );
 		new MainWindow( projectModel ).setVisible( true );
 
-		final String csvFilePath = "samples/200212__pos1.csv";
+		final String csvFilePath = "samples/MastodonTable-Spot-1lineheader.csv";
 		final ToggleCSVImporterDialogAction action = ( ToggleCSVImporterDialogAction ) projectModel
 				.getPlugins()
 				.getPluginActions()
