@@ -49,6 +49,7 @@ import org.mastodon.feature.IntScalarFeatureSerializer;
 import org.mastodon.feature.Multiplicity;
 import org.mastodon.feature.io.FeatureSerializer;
 import org.mastodon.io.FileIdToObjectMap;
+import org.mastodon.mamut.io.importer.ModelImporter;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
@@ -64,7 +65,7 @@ import com.opencsv.CSVReaderBuilder;
 
 import net.imglib2.algorithm.Algorithm;
 
-public class CSVImporter implements Algorithm
+public class CSVImporter extends ModelImporter implements Algorithm
 {
 
 	public static final String PLUGIN_VERSION = VersionUtils.getVersion( CSVImporter.class );
@@ -115,6 +116,7 @@ public class CSVImporter implements Algorithm
 			final double yOrigin,
 			final double zOrigin )
 	{
+		super( model );
 		this.model = model;
 		this.filePath = filePath;
 		this.separator = separator;
@@ -287,6 +289,7 @@ public class CSVImporter implements Algorithm
 			lock.lock();
 			final Spot vref = graph.vertexRef();
 			final double[] pos = new double[ 3 ];
+			startImport();
 
 			try
 			{
@@ -335,6 +338,7 @@ public class CSVImporter implements Algorithm
 			{
 				lock.unlock();
 				graph.releaseRef( vref );
+				finishImport();
 			}
 		}
 		catch ( final FileNotFoundException e )
