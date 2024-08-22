@@ -298,15 +298,15 @@ public class CSVImporter implements Algorithm
 
 					try
 					{
-						pos[ 0 ] = Double.parseDouble( record[ xcol ] ) + xOrigin;
-						pos[ 1 ] = Double.parseDouble( record[ ycol ] ) + yOrigin;
-						pos[ 2 ] = Double.parseDouble( record[ zcol ] ) + zOrigin;
-						final int t = Integer.parseInt( record[ framecol ] );
+						pos[ 0 ] = Double.parseDouble( record[ xcol ].trim() ) + xOrigin;
+						pos[ 1 ] = Double.parseDouble( record[ ycol ].trim() ) + yOrigin;
+						pos[ 2 ] = Double.parseDouble( record[ zcol ].trim() ) + zOrigin;
+						final int t = Integer.parseInt( record[ framecol ].trim() );
 
 						final Spot spot = graph.addVertex( vref ).init( t, pos, radius );
 						if ( null != idcol )
 						{
-							final int id = Integer.parseInt( record[ idcol ] );
+							final int id = Integer.parseInt( record[ idcol ].trim() );
 							originalIdFeature.set( spot, id );
 							if ( null == labelcol )
 								spot.setLabel( "" + id );
@@ -314,12 +314,12 @@ public class CSVImporter implements Algorithm
 
 						if ( null != labelcol )
 						{
-							spot.setLabel( record[ labelcol ] );
+							spot.setLabel( record[ labelcol ].trim() );
 						}
 						double q = 1.;
 						if ( null != qualitycol )
 						{
-							q = Double.parseDouble( record[ qualitycol ] );
+							q = Double.parseDouble( record[ qualitycol ].trim() );
 							qualityFeature.set( spot, q );
 						}
 					}
