@@ -205,11 +205,10 @@ public class CSVImporter extends ModelImporter implements Algorithm
 						.withSeparator( separator )
 						.withIgnoreQuotations( true )
 						.build();
-		try
+		try (final CSVReader reader = new CSVReaderBuilder( new FileReader( filePath ) )
+				.withCSVParser( parser )
+				.build())
 		{
-			final CSVReader reader = new CSVReaderBuilder( new FileReader( filePath ) )
-					.withCSVParser( parser )
-					.build();
 			final Iterator< String[] > it = reader.iterator();
 
 			/*
@@ -371,6 +370,12 @@ public class CSVImporter extends ModelImporter implements Algorithm
 		catch ( final FileNotFoundException e )
 		{
 			errorMessage = "Cannot find file " + filePath;
+			e.printStackTrace();
+			return false;
+		}
+		catch ( final IOException e )
+		{
+			errorMessage = "Error reading file " + filePath;
 			e.printStackTrace();
 			return false;
 		}
