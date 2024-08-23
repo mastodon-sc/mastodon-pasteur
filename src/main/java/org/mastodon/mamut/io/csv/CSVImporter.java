@@ -95,6 +95,8 @@ public class CSVImporter extends ModelImporter implements Algorithm
 
 	private final String qualityColumnName;
 
+	private final String radiusColumnName;
+
 	private final String idColumnName;
 
 	private final String motherIdColumnName;
@@ -125,6 +127,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 			final String zColumnName,
 			final String frameColumnName,
 			final String qualityColumName,
+			final String radiusColumnName,
 			final String idColumnName,
 			final String motherIdColumnName,
 			final String labelColumnName,
@@ -143,6 +146,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 		this.zColumnName = zColumnName;
 		this.frameColumnName = frameColumnName;
 		this.qualityColumnName = qualityColumName;
+		this.radiusColumnName = radiusColumnName;
 		this.idColumnName = idColumnName;
 		this.motherIdColumnName = motherIdColumnName;
 		this.labelColumnName = labelColumnName;
@@ -287,6 +291,10 @@ public class CSVImporter extends ModelImporter implements Algorithm
 					? null
 					: DetectionQualityFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 
+			Integer radiuscol = null;
+			if ( null != radiusColumnName && !radiusColumnName.isEmpty() )
+				radiuscol = headerMap.get( radiusColumnName );
+
 			Integer idcol = null;
 			if ( null != idColumnName && !idColumnName.isEmpty() )
 				idcol = headerMap.get( idColumnName );
@@ -342,7 +350,11 @@ public class CSVImporter extends ModelImporter implements Algorithm
 						pos[ 2 ] = Double.parseDouble( record[ zcol ].trim() ) + zOrigin;
 						final int t = Integer.parseInt( record[ framecol ].trim() );
 
-						final Spot spot = graph.addVertex( vref ).init( t, pos, radius );
+						double r = radius;
+						if ( null != radiuscol )
+							r = Double.parseDouble( record[ radiuscol ].trim() );
+
+						final Spot spot = graph.addVertex( vref ).init( t, pos, r );
 						if ( null != idcol )
 						{
 							final int id = Integer.parseInt( record[ idcol ].trim() );
@@ -547,6 +559,8 @@ public class CSVImporter extends ModelImporter implements Algorithm
 
 		private String qualityColumnName;
 
+		private String radiusColumnName;
+
 		private String idColumnName;
 
 		private String motherIdColumnName;
@@ -608,6 +622,12 @@ public class CSVImporter extends ModelImporter implements Algorithm
 		public Builder qualityColumnName( final String qualityColumnName )
 		{
 			this.qualityColumnName = qualityColumnName;
+			return this;
+		}
+
+		public Builder radiusColumnName( final String radiusColumnName )
+		{
+			this.radiusColumnName = radiusColumnName;
 			return this;
 		}
 
@@ -724,6 +744,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 					zColumnName,
 					frameColumnName,
 					qualityColumnName,
+					radiusColumnName,
 					idColumnName,
 					motherIdColumnName,
 					labelColumnName,

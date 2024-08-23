@@ -69,6 +69,8 @@ public class CSVImporterPanel extends JPanel
 
 	final JComboBox< String > comboBoxQualityCol;
 
+	final JComboBox< String > comboBoxRadiusCol;
+
 	final JComboBox< String > comboBoxNameCol;
 
 	final JComboBox< String > comboBoxIDCol;
@@ -307,12 +309,29 @@ public class CSVImporterPanel extends JPanel
 		gbc_comboBoxQuality.gridy = 14;
 		panelControl.add( comboBoxQualityCol, gbc_comboBoxQuality );
 
+		final JLabel lblRadiusColumn = new JLabel( "Radius column:" );
+		final GridBagConstraints gbc_lblRadiusColumn = new GridBagConstraints();
+		gbc_lblRadiusColumn.anchor = GridBagConstraints.EAST;
+		gbc_lblRadiusColumn.insets = new Insets( 5, 5, 5, 5 );
+		gbc_lblRadiusColumn.gridx = 0;
+		gbc_lblRadiusColumn.gridy = 15;
+		panelControl.add( lblRadiusColumn, gbc_lblRadiusColumn );
+
+		comboBoxRadiusCol = new JComboBox<>();
+		final GridBagConstraints gbc_comboBoxRadius = new GridBagConstraints();
+		gbc_comboBoxRadius.gridwidth = 4;
+		gbc_comboBoxRadius.insets = new Insets( 5, 5, 5, 0 );
+		gbc_comboBoxRadius.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBoxRadius.gridx = 1;
+		gbc_comboBoxRadius.gridy = 15;
+		panelControl.add( comboBoxRadiusCol, gbc_comboBoxRadius );
+
 		final JLabel lblNameColumn = new JLabel( "Name column:" );
 		final GridBagConstraints gbc_lblNameColumn = new GridBagConstraints();
 		gbc_lblNameColumn.anchor = GridBagConstraints.EAST;
 		gbc_lblNameColumn.insets = new Insets( 5, 5, 5, 5 );
 		gbc_lblNameColumn.gridx = 0;
-		gbc_lblNameColumn.gridy = 15;
+		gbc_lblNameColumn.gridy = 16;
 		panelControl.add( lblNameColumn, gbc_lblNameColumn );
 
 		comboBoxNameCol = new JComboBox<>();
@@ -321,7 +340,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_comboBoxName.insets = new Insets( 5, 5, 5, 0 );
 		gbc_comboBoxName.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBoxName.gridx = 1;
-		gbc_comboBoxName.gridy = 15;
+		gbc_comboBoxName.gridy = 16;
 		panelControl.add( comboBoxNameCol, gbc_comboBoxName );
 
 		final JLabel lblIdColumn = new JLabel( "ID column:" );
@@ -329,7 +348,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_lblIdColumn.anchor = GridBagConstraints.EAST;
 		gbc_lblIdColumn.insets = new Insets( 5, 5, 5, 5 );
 		gbc_lblIdColumn.gridx = 0;
-		gbc_lblIdColumn.gridy = 16;
+		gbc_lblIdColumn.gridy = 17;
 		panelControl.add( lblIdColumn, gbc_lblIdColumn );
 
 		comboBoxIDCol = new JComboBox<>();
@@ -338,7 +357,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_comboBoxID.gridwidth = 4;
 		gbc_comboBoxID.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBoxID.gridx = 1;
-		gbc_comboBoxID.gridy = 16;
+		gbc_comboBoxID.gridy = 17;
 		panelControl.add( comboBoxIDCol, gbc_comboBoxID );
 
 		final JLabel lblMotherIdColumn = new JLabel( "Mother ID column:" );
@@ -346,7 +365,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_lblMotherIdColumn.anchor = GridBagConstraints.EAST;
 		gbc_lblMotherIdColumn.insets = new Insets( 5, 5, 5, 5 );
 		gbc_lblMotherIdColumn.gridx = 0;
-		gbc_lblMotherIdColumn.gridy = 17;
+		gbc_lblMotherIdColumn.gridy = 18;
 		panelControl.add( lblMotherIdColumn, gbc_lblMotherIdColumn );
 
 		comboBoxMotherIdCol = new JComboBox<>();
@@ -355,7 +374,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_comboBoxMotherID.gridwidth = 4;
 		gbc_comboBoxMotherID.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBoxMotherID.gridx = 1;
-		gbc_comboBoxMotherID.gridy = 17;
+		gbc_comboBoxMotherID.gridy = 18;
 		panelControl.add( comboBoxMotherIdCol, gbc_comboBoxMotherID );
 
 		final JLabel lblTagColumn = new JLabel( "Tag column:" );
@@ -363,7 +382,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_lblTagColumn.anchor = GridBagConstraints.EAST;
 		gbc_lblTagColumn.insets = new Insets( 5, 5, 5, 5 );
 		gbc_lblTagColumn.gridx = 0;
-		gbc_lblTagColumn.gridy = 18;
+		gbc_lblTagColumn.gridy = 19;
 		panelControl.add( lblTagColumn, gbc_lblTagColumn );
 
 		comboBoxTagCol = new JComboBox<>();
@@ -372,7 +391,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_comboBoxTag.gridwidth = 4;
 		gbc_comboBoxTag.fill = GridBagConstraints.HORIZONTAL;
 		gbc_comboBoxTag.gridx = 1;
-		gbc_comboBoxTag.gridy = 18;
+		gbc_comboBoxTag.gridy = 19;
 		panelControl.add( comboBoxTagCol, gbc_comboBoxTag );
 
 		final JSeparator separatorButton = new JSeparator();
@@ -381,7 +400,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_separatorButton.gridwidth = 5;
 		gbc_separatorButton.insets = new Insets( 5, 5, 5, 5 );
 		gbc_separatorButton.gridx = 0;
-		gbc_separatorButton.gridy = 19;
+		gbc_separatorButton.gridy = 20;
 		panelControl.add( separatorButton, gbc_separatorButton );
 
 		final JPanel panelButtonExport = new JPanel();
@@ -389,7 +408,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_panelButtonExport.anchor = GridBagConstraints.EAST;
 		gbc_panelButtonExport.gridwidth = 5;
 		gbc_panelButtonExport.gridx = 0;
-		gbc_panelButtonExport.gridy = 20;
+		gbc_panelButtonExport.gridy = 21;
 		panelControl.add( panelButtonExport, gbc_panelButtonExport );
 		final FlowLayout flowLayout = ( FlowLayout ) panelButtonExport.getLayout();
 		flowLayout.setAlignment( FlowLayout.RIGHT );
