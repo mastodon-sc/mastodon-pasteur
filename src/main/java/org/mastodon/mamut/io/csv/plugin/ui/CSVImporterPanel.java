@@ -326,7 +326,7 @@ public class CSVImporterPanel extends JPanel
 		gbc_comboBoxRadius.gridy = 15;
 		panelControl.add( comboBoxRadiusCol, gbc_comboBoxRadius );
 
-		final JLabel lblNameColumn = new JLabel( "Name column:" );
+		final JLabel lblNameColumn = new JLabel( "Label column:" );
 		final GridBagConstraints gbc_lblNameColumn = new GridBagConstraints();
 		gbc_lblNameColumn.anchor = GridBagConstraints.EAST;
 		gbc_lblNameColumn.insets = new Insets( 5, 5, 5, 5 );
