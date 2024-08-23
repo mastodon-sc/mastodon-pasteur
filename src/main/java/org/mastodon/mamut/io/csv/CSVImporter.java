@@ -33,10 +33,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.mastodon.RefPool;
 import org.mastodon.collection.IntRefMap;
 import org.mastodon.collection.RefCollection;
@@ -56,8 +61,11 @@ import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.properties.IntPropertyMap;
 import org.mastodon.tracking.mamut.detection.DetectionQualityFeature;
+import org.mastodon.ui.coloring.GlasbeyLut;
+import org.mastodon.util.TagSetUtils;
 import org.scijava.plugin.Plugin;
 import org.scijava.util.VersionUtils;
 
@@ -93,6 +101,8 @@ public class CSVImporter extends ModelImporter implements Algorithm
 
 	private final String labelColumnName;
 
+	private final String tagColumnName;
+
 	private final double radius;
 
 	private final double xOrigin;
@@ -118,6 +128,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 			final String idColumnName,
 			final String motherIdColumnName,
 			final String labelColumnName,
+			final String tagColumnName,
 			final double xOrigin,
 			final double yOrigin,
 			final double zOrigin )
@@ -135,6 +146,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 		this.idColumnName = idColumnName;
 		this.motherIdColumnName = motherIdColumnName;
 		this.labelColumnName = labelColumnName;
+		this.tagColumnName = tagColumnName;
 		this.xOrigin = xOrigin;
 		this.yOrigin = yOrigin;
 		this.zOrigin = zOrigin;
@@ -291,6 +303,14 @@ public class CSVImporter extends ModelImporter implements Algorithm
 			if ( null != labelColumnName && !labelColumnName.isEmpty() )
 				labelcol = headerMap.get( labelColumnName );
 
+			Integer tagcol = null;
+			if ( null != tagColumnName && !tagColumnName.isEmpty() )
+				tagcol = headerMap.get( tagColumnName );
+
+			TagSetStructure.TagSet importedTagSet = null;
+			if ( null != tagcol )
+				importedTagSet = parseTagsFromFile( parser, tagcol );
+
 			IntRefMap< Spot > spotMap = new IntRefHashMap<>( model.getGraph().vertices().getRefPool(), -1 );
 
 			/*
@@ -304,6 +324,8 @@ public class CSVImporter extends ModelImporter implements Algorithm
 			final Link edgeRef = graph.edgeRef();
 			final double[] pos = new double[ 3 ];
 			startImport();
+			if ( null != tagcol )
+				model.getTagSetModel().pauseListeners();
 
 			try
 			{
@@ -333,8 +355,10 @@ public class CSVImporter extends ModelImporter implements Algorithm
 
 						if ( null != labelcol )
 						{
-							spot.setLabel( record[ labelcol ].trim() );
+							String label = record[ labelcol ].trim();
+							spot.setLabel( label );
 						}
+
 						double q = 1.;
 						if ( null != qualitycol )
 						{
@@ -348,6 +372,14 @@ public class CSVImporter extends ModelImporter implements Algorithm
 							final Spot mother = spotMap.get( motherId, motherVertexRef );
 							if ( mother != null )
 								model.getGraph().addEdge( mother, spot, edgeRef ).init();
+						}
+
+						if ( null != tagcol )
+						{
+							String label = record[ tagcol ].trim();
+							TagSetStructure.Tag tag = TagSetUtils.findTag( importedTagSet, label );
+							TagSetUtils.tagSpot( model, importedTagSet, tag, spot );
+							TagSetUtils.tagLinks( model, importedTagSet, tag, spot.incomingEdges() );
 						}
 					}
 					catch ( final NumberFormatException nfe )
@@ -364,6 +396,8 @@ public class CSVImporter extends ModelImporter implements Algorithm
 				graph.releaseRef( vref );
 				graph.releaseRef( motherVertexRef );
 				graph.releaseRef( edgeRef );
+				if ( null != tagcol )
+					model.getTagSetModel().resumeListeners();
 				finishImport();
 			}
 		}
@@ -385,6 +419,36 @@ public class CSVImporter extends ModelImporter implements Algorithm
 		 */
 
 		return true;
+	}
+
+	private TagSetStructure.TagSet parseTagsFromFile( final CSVParser parser, int labelcol )
+	{
+		try (final CSVReader readerTags = new CSVReaderBuilder( new FileReader( filePath ) )
+				.withCSVParser( parser )
+				.build())
+		{
+			Iterator< String[] > csvIterator = readerTags.iterator();
+
+			Set< String > tags = new HashSet<>();
+			csvIterator.next();
+			while ( csvIterator.hasNext() )
+			{
+				final String[] line = csvIterator.next();
+				String tag = line[ labelcol ].trim();
+				tags.add( tag );
+			}
+			GlasbeyLut glasbeyLut = new GlasbeyLut();
+			List< Pair< String, Integer > > tagsAndColors =
+					tags.stream().map( tag -> Pair.of( tag, glasbeyLut.next() ) ).collect( Collectors.toList() );
+
+			return TagSetUtils.addNewTagSetToModel( model, "Imported Tags", tagsAndColors );
+		}
+		catch ( final IOException e )
+		{
+			errorMessage = "Error reading file " + filePath;
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override
@@ -489,6 +553,8 @@ public class CSVImporter extends ModelImporter implements Algorithm
 
 		private String labelColumnName;
 
+		private String tagColumnName;
+
 		private double xOrigin = 0.;
 
 		private double yOrigin = 0.;
@@ -560,6 +626,12 @@ public class CSVImporter extends ModelImporter implements Algorithm
 		public Builder labelColumnName( final String labelColumnName )
 		{
 			this.labelColumnName = labelColumnName;
+			return this;
+		}
+
+		public Builder tagColumnName( final String tagColumnName )
+		{
+			this.tagColumnName = tagColumnName;
 			return this;
 		}
 
@@ -655,6 +727,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 					idColumnName,
 					motherIdColumnName,
 					labelColumnName,
+					tagColumnName,
 					xOrigin,
 					yOrigin,
 					zOrigin );

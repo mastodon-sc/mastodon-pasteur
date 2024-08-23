@@ -75,6 +75,8 @@ public class CSVImporterPanel extends JPanel
 
 	final JComboBox< String > comboBoxMotherIdCol;
 
+	final JComboBox< String > comboBoxTagCol;
+
 	final JComboBox< String > comboBoxTrackCol;
 
 	final JCheckBox chckbxImportTracks;
@@ -329,12 +331,29 @@ public class CSVImporterPanel extends JPanel
 		gbc_comboBoxMotherID.gridy = 14;
 		panelControl.add( comboBoxMotherIdCol, gbc_comboBoxMotherID );
 
+		final JLabel lblTagColumn = new JLabel( "Tag column:" );
+		final GridBagConstraints gbc_lblTagColumn = new GridBagConstraints();
+		gbc_lblTagColumn.anchor = GridBagConstraints.EAST;
+		gbc_lblTagColumn.insets = new Insets( 5, 5, 5, 5 );
+		gbc_lblTagColumn.gridx = 0;
+		gbc_lblTagColumn.gridy = 15;
+		panelControl.add( lblTagColumn, gbc_lblTagColumn );
+
+		comboBoxTagCol = new JComboBox<>();
+		final GridBagConstraints gbc_comboBoxTag = new GridBagConstraints();
+		gbc_comboBoxTag.insets = new Insets( 5, 5, 5, 0 );
+		gbc_comboBoxTag.gridwidth = 4;
+		gbc_comboBoxTag.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBoxTag.gridx = 1;
+		gbc_comboBoxTag.gridy = 15;
+		panelControl.add( comboBoxTagCol, gbc_comboBoxTag );
+
 		final JPanel panelButtonExport = new JPanel();
 		final GridBagConstraints gbc_panelButtonExport = new GridBagConstraints();
 		gbc_panelButtonExport.anchor = GridBagConstraints.EAST;
 		gbc_panelButtonExport.gridwidth = 5;
 		gbc_panelButtonExport.gridx = 0;
-		gbc_panelButtonExport.gridy = 15;
+		gbc_panelButtonExport.gridy = 16;
 		panelControl.add( panelButtonExport, gbc_panelButtonExport );
 		final FlowLayout flowLayout = ( FlowLayout ) panelButtonExport.getLayout();
 		flowLayout.setAlignment( FlowLayout.RIGHT );

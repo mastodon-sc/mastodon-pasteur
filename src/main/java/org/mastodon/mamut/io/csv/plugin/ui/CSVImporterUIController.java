@@ -115,6 +115,7 @@ public class CSVImporterUIController
 							.qualityColumnName( ( String ) view.comboBoxQualityCol.getSelectedItem() )
 							.idColumnName( ( String ) view.comboBoxIDCol.getSelectedItem() )
 							.motherIdColumnName( ( String ) view.comboBoxMotherIdCol.getSelectedItem() )
+							.tagColumnName( ( String ) view.comboBoxTagCol.getSelectedItem() )
 							.get();
 
 					if ( !importer.checkInput() || !importer.process() )
@@ -291,9 +292,11 @@ public class CSVImporterUIController
 			view.comboBoxNameCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
 			view.comboBoxIDCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
 			view.comboBoxMotherIdCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
+			view.comboBoxTagCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
 
 			int idcol = headers.indexOf( NONE_COLUMN );
 			int motheridcol = headers.indexOf( NONE_COLUMN );
+			int tagcol = headers.indexOf( NONE_COLUMN );
 			int qualitycol = headers.indexOf( NONE_COLUMN );
 			int namecol = headers.indexOf( NONE_COLUMN );
 			for ( int i = 0; i < nonMandatory.length; i++ )
@@ -312,10 +315,14 @@ public class CSVImporterUIController
 
 				if ( current.toLowerCase().startsWith( "mother" ) )
 					motheridcol = i;
+
+				if ( current.toLowerCase().startsWith( "tag" ) )
+					tagcol = i;
 			}
 
 			view.comboBoxIDCol.setSelectedIndex( idcol );
 			view.comboBoxMotherIdCol.setSelectedIndex( motheridcol );
+			view.comboBoxTagCol.setSelectedIndex( tagcol );
 			view.comboBoxQualityCol.setSelectedIndex( qualitycol );
 			view.comboBoxNameCol.setSelectedIndex( namecol );
 		}
@@ -339,6 +346,7 @@ public class CSVImporterUIController
 		comboBoxes.add( view.comboBoxNameCol );
 		comboBoxes.add( view.comboBoxIDCol );
 		comboBoxes.add( view.comboBoxMotherIdCol );
+		comboBoxes.add( view.comboBoxTagCol );
 		comboBoxes.add( view.comboBoxTrackCol );
 		for ( final JComboBox< String > cb : comboBoxes )
 			cb.setModel( new DefaultComboBoxModel<>() );
