@@ -378,14 +378,6 @@ public class CSVImporter extends ModelImporter implements Algorithm
 							qualityFeature.set( spot, q );
 						}
 
-						if ( null != parentIdcol )
-						{
-							final int parentId = Integer.parseInt( record[ parentIdcol ].trim() );
-							final Spot parent = spotMap.get( parentId, motherVertexRef );
-							if ( parent != null )
-								model.getGraph().addEdge( parent, spot, edgeRef ).init();
-						}
-
 						if ( null != tagcol )
 						{
 							String label = record[ tagcol ].trim();
@@ -401,6 +393,8 @@ public class CSVImporter extends ModelImporter implements Algorithm
 						continue;
 					}
 				}
+				if ( null != parentIdcol )
+					parseLinksFromFile( parser, spotMap, idcol, vref, parentIdcol, parentVertexRef, edgeRef );
 			}
 			finally
 			{
@@ -431,6 +425,33 @@ public class CSVImporter extends ModelImporter implements Algorithm
 		 */
 
 		return true;
+	}
+
+	private void parseLinksFromFile( final CSVParser parser, final IntRefMap< Spot > spotMap, final int idCol, final Spot spotRef,
+			final int parentIdcol, final Spot parentSpotRef, final Link edgeRef )
+	{
+		try (final CSVReader readerTags = new CSVReaderBuilder( new FileReader( filePath ) )
+				.withCSVParser( parser )
+				.build())
+		{
+			Iterator< String[] > csvIterator = readerTags.iterator();
+			csvIterator.next();
+			while ( csvIterator.hasNext() )
+			{
+				final String[] line = csvIterator.next();
+				final int spotId = Integer.parseInt( line[ idCol ].trim() );
+				final Spot spot = spotMap.get( spotId, spotRef );
+				final int parentId = Integer.parseInt( line[ parentIdcol ].trim() );
+				final Spot parent = spotMap.get( parentId, parentSpotRef );
+				if ( parent != null && spot != null )
+					model.getGraph().addEdge( parent, spot, edgeRef ).init();
+			}
+		}
+		catch ( final IOException e )
+		{
+			errorMessage = "Error reading file " + filePath;
+			e.printStackTrace();
+		}
 	}
 
 	private TagSetStructure.TagSet parseTagsFromFile( final CSVParser parser, int labelcol )
