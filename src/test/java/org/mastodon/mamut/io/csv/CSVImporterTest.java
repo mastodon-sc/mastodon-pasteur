@@ -94,7 +94,7 @@ public class CSVImporterTest
 	@Test
 	public void testImportWithRadiusTagsLinks()
 	{
-		final URL urlCSV = CSVImporterTest.class.getResource( "TestCSVImportTagMotherIdRadius.csv" );
+		final URL urlCSV = CSVImporterTest.class.getResource( "TestCSVImportTagParentIdRadius.csv" );
 		assertNotNull( urlCSV );
 
 		final Model model = new Model();
@@ -110,7 +110,7 @@ public class CSVImporterTest
 				.frameColumnName( "FRAME" )
 				.idColumnName( "ID" )
 				.tagColumnName( "TAG" )
-				.motherIdColumnName( "MOTHER_ID" )
+				.parentIdColumnName( "PARENT_ID" )
 				.radiusColumnName( "RADIUS" )
 				.get();
 		if ( !importer.checkInput() || !importer.process() )

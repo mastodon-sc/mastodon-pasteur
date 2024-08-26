@@ -99,7 +99,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 
 	private final String idColumnName;
 
-	private final String motherIdColumnName;
+	private final String parentIdColumnName;
 
 	private final String labelColumnName;
 
@@ -129,7 +129,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 			final String qualityColumName,
 			final String radiusColumnName,
 			final String idColumnName,
-			final String motherIdColumnName,
+			final String parentIdColumnName,
 			final String labelColumnName,
 			final String tagColumnName,
 			final double xOrigin,
@@ -148,7 +148,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 		this.qualityColumnName = qualityColumName;
 		this.radiusColumnName = radiusColumnName;
 		this.idColumnName = idColumnName;
-		this.motherIdColumnName = motherIdColumnName;
+		this.parentIdColumnName = parentIdColumnName;
 		this.labelColumnName = labelColumnName;
 		this.tagColumnName = tagColumnName;
 		this.xOrigin = xOrigin;
@@ -303,9 +303,9 @@ public class CSVImporter extends ModelImporter implements Algorithm
 					? null
 					: OriginalIdFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 
-			Integer motherIdcol = null;
-			if ( null != motherIdColumnName && !motherIdColumnName.isEmpty() )
-				motherIdcol = headerMap.get( motherIdColumnName );
+			Integer parentIdcol = null;
+			if ( null != parentIdColumnName && !parentIdColumnName.isEmpty() )
+				parentIdcol = headerMap.get( parentIdColumnName );
 
 			Integer labelcol = null;
 			if ( null != labelColumnName && !labelColumnName.isEmpty() )
@@ -328,7 +328,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 			final WriteLock lock = graph.getLock().writeLock();
 			lock.lock();
 			final Spot vref = graph.vertexRef();
-			final Spot motherVertexRef = graph.vertexRef();
+			final Spot parentVertexRef = graph.vertexRef();
 			final Link edgeRef = graph.edgeRef();
 			final double[] pos = new double[ 3 ];
 			startImport();
@@ -359,7 +359,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 						{
 							final int id = Integer.parseInt( record[ idcol ].trim() );
 							originalIdFeature.set( spot, id );
-							if ( null != motherIdcol )
+							if ( null != parentIdcol )
 								spotMap.put( id, spot );
 							if ( null == labelcol )
 								spot.setLabel( "" + id );
@@ -378,12 +378,12 @@ public class CSVImporter extends ModelImporter implements Algorithm
 							qualityFeature.set( spot, q );
 						}
 
-						if ( null != motherIdcol )
+						if ( null != parentIdcol )
 						{
-							final int motherId = Integer.parseInt( record[ motherIdcol ].trim() );
-							final Spot mother = spotMap.get( motherId, motherVertexRef );
-							if ( mother != null )
-								model.getGraph().addEdge( mother, spot, edgeRef ).init();
+							final int parentId = Integer.parseInt( record[ parentIdcol ].trim() );
+							final Spot parent = spotMap.get( parentId, motherVertexRef );
+							if ( parent != null )
+								model.getGraph().addEdge( parent, spot, edgeRef ).init();
 						}
 
 						if ( null != tagcol )
@@ -406,7 +406,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 			{
 				lock.unlock();
 				graph.releaseRef( vref );
-				graph.releaseRef( motherVertexRef );
+				graph.releaseRef( parentVertexRef );
 				graph.releaseRef( edgeRef );
 				if ( null != tagcol )
 					model.getTagSetModel().resumeListeners();
@@ -563,7 +563,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 
 		private String idColumnName;
 
-		private String motherIdColumnName;
+		private String parentIdColumnName;
 
 		private String labelColumnName;
 
@@ -637,9 +637,9 @@ public class CSVImporter extends ModelImporter implements Algorithm
 			return this;
 		}
 
-		public Builder motherIdColumnName( final String motherIdColumnName )
+		public Builder parentIdColumnName( final String parentIdColumnName )
 		{
-			this.motherIdColumnName = motherIdColumnName;
+			this.parentIdColumnName = parentIdColumnName;
 			return this;
 		}
 
@@ -746,7 +746,7 @@ public class CSVImporter extends ModelImporter implements Algorithm
 					qualityColumnName,
 					radiusColumnName,
 					idColumnName,
-					motherIdColumnName,
+					parentIdColumnName,
 					labelColumnName,
 					tagColumnName,
 					xOrigin,

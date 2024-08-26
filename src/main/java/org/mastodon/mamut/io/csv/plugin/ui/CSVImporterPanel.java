@@ -75,7 +75,7 @@ public class CSVImporterPanel extends JPanel
 
 	final JComboBox< String > comboBoxIDCol;
 
-	final JComboBox< String > comboBoxMotherIdCol;
+	final JComboBox< String > comboBoxParentIdCol;
 
 	final JComboBox< String > comboBoxTagCol;
 
@@ -360,22 +360,22 @@ public class CSVImporterPanel extends JPanel
 		gbc_comboBoxID.gridy = 17;
 		panelControl.add( comboBoxIDCol, gbc_comboBoxID );
 
-		final JLabel lblMotherIdColumn = new JLabel( "Mother ID column:" );
-		final GridBagConstraints gbc_lblMotherIdColumn = new GridBagConstraints();
-		gbc_lblMotherIdColumn.anchor = GridBagConstraints.EAST;
-		gbc_lblMotherIdColumn.insets = new Insets( 5, 5, 5, 5 );
-		gbc_lblMotherIdColumn.gridx = 0;
-		gbc_lblMotherIdColumn.gridy = 18;
-		panelControl.add( lblMotherIdColumn, gbc_lblMotherIdColumn );
+		final JLabel lblParentIdColumn = new JLabel( "Parent ID column:" );
+		final GridBagConstraints gbc_lblParentIdColumn = new GridBagConstraints();
+		gbc_lblParentIdColumn.anchor = GridBagConstraints.EAST;
+		gbc_lblParentIdColumn.insets = new Insets( 5, 5, 5, 5 );
+		gbc_lblParentIdColumn.gridx = 0;
+		gbc_lblParentIdColumn.gridy = 18;
+		panelControl.add( lblParentIdColumn, gbc_lblParentIdColumn );
 
-		comboBoxMotherIdCol = new JComboBox<>();
-		final GridBagConstraints gbc_comboBoxMotherID = new GridBagConstraints();
-		gbc_comboBoxMotherID.insets = new Insets( 5, 5, 5, 0 );
-		gbc_comboBoxMotherID.gridwidth = 4;
-		gbc_comboBoxMotherID.fill = GridBagConstraints.HORIZONTAL;
-		gbc_comboBoxMotherID.gridx = 1;
-		gbc_comboBoxMotherID.gridy = 18;
-		panelControl.add( comboBoxMotherIdCol, gbc_comboBoxMotherID );
+		comboBoxParentIdCol = new JComboBox<>();
+		final GridBagConstraints gbc_comboBoxParentID = new GridBagConstraints();
+		gbc_comboBoxParentID.insets = new Insets( 5, 5, 5, 0 );
+		gbc_comboBoxParentID.gridwidth = 4;
+		gbc_comboBoxParentID.fill = GridBagConstraints.HORIZONTAL;
+		gbc_comboBoxParentID.gridx = 1;
+		gbc_comboBoxParentID.gridy = 18;
+		panelControl.add( comboBoxParentIdCol, gbc_comboBoxParentID );
 
 		final JLabel lblTagColumn = new JLabel( "Tag column:" );
 		final GridBagConstraints gbc_lblTagColumn = new GridBagConstraints();
