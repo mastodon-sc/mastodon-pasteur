@@ -113,7 +113,10 @@ public class CSVImporterUIController
 							.labelColumnName( ( String ) view.comboBoxNameCol.getSelectedItem() )
 							.frameColumnName( ( String ) view.comboBoxFrameCol.getSelectedItem() )
 							.qualityColumnName( ( String ) view.comboBoxQualityCol.getSelectedItem() )
+							.radiusColumnName( ( String ) view.comboBoxRadiusCol.getSelectedItem() )
 							.idColumnName( ( String ) view.comboBoxIDCol.getSelectedItem() )
+							.parentIdColumnName( ( String ) view.comboBoxParentIdCol.getSelectedItem() )
+							.tagColumnName( ( String ) view.comboBoxTagCol.getSelectedItem() )
 							.get();
 
 					if ( !importer.checkInput() || !importer.process() )
@@ -287,11 +290,17 @@ public class CSVImporterUIController
 			headers.add( NONE_COLUMN );
 			final String[] nonMandatory = headers.toArray( new String[] {} );
 			view.comboBoxQualityCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
+			view.comboBoxRadiusCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
 			view.comboBoxNameCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
 			view.comboBoxIDCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
+			view.comboBoxParentIdCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
+			view.comboBoxTagCol.setModel( new DefaultComboBoxModel<>( nonMandatory ) );
 
 			int idcol = headers.indexOf( NONE_COLUMN );
+			int motheridcol = headers.indexOf( NONE_COLUMN );
+			int tagcol = headers.indexOf( NONE_COLUMN );
 			int qualitycol = headers.indexOf( NONE_COLUMN );
+			int radiuscol = headers.indexOf( NONE_COLUMN );
 			int namecol = headers.indexOf( NONE_COLUMN );
 			for ( int i = 0; i < nonMandatory.length; i++ )
 			{
@@ -306,10 +315,22 @@ public class CSVImporterUIController
 
 				if ( current.toLowerCase().startsWith( "q" ) )
 					qualitycol = i;
+
+				if ( current.toLowerCase().startsWith( "r" ) || current.toLowerCase().startsWith( "radius" ) )
+					radiuscol = i;
+
+				if ( current.toLowerCase().startsWith( "mother" ) )
+					motheridcol = i;
+
+				if ( current.toLowerCase().startsWith( "tag" ) )
+					tagcol = i;
 			}
 
 			view.comboBoxIDCol.setSelectedIndex( idcol );
+			view.comboBoxParentIdCol.setSelectedIndex( motheridcol );
+			view.comboBoxTagCol.setSelectedIndex( tagcol );
 			view.comboBoxQualityCol.setSelectedIndex( qualitycol );
+			view.comboBoxRadiusCol.setSelectedIndex( radiuscol );
 			view.comboBoxNameCol.setSelectedIndex( namecol );
 		}
 		catch ( final FileNotFoundException e )
@@ -329,8 +350,11 @@ public class CSVImporterUIController
 		comboBoxes.add( view.comboBoxZCol );
 		comboBoxes.add( view.comboBoxFrameCol );
 		comboBoxes.add( view.comboBoxQualityCol );
+		comboBoxes.add( view.comboBoxRadiusCol );
 		comboBoxes.add( view.comboBoxNameCol );
 		comboBoxes.add( view.comboBoxIDCol );
+		comboBoxes.add( view.comboBoxParentIdCol );
+		comboBoxes.add( view.comboBoxTagCol );
 		comboBoxes.add( view.comboBoxTrackCol );
 		for ( final JComboBox< String > cb : comboBoxes )
 			cb.setModel( new DefaultComboBoxModel<>() );

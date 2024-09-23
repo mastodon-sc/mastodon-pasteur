@@ -33,12 +33,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.mastodon.RefPool;
+import org.mastodon.collection.IntRefMap;
 import org.mastodon.collection.RefCollection;
+import org.mastodon.collection.ref.IntRefHashMap;
 import org.mastodon.feature.Dimension;
 import org.mastodon.feature.Feature;
 import org.mastodon.feature.FeatureModel;
@@ -49,11 +56,16 @@ import org.mastodon.feature.IntScalarFeatureSerializer;
 import org.mastodon.feature.Multiplicity;
 import org.mastodon.feature.io.FeatureSerializer;
 import org.mastodon.io.FileIdToObjectMap;
+import org.mastodon.mamut.io.importer.ModelImporter;
+import org.mastodon.mamut.model.Link;
 import org.mastodon.mamut.model.Model;
 import org.mastodon.mamut.model.ModelGraph;
 import org.mastodon.mamut.model.Spot;
+import org.mastodon.model.tag.TagSetStructure;
 import org.mastodon.properties.IntPropertyMap;
 import org.mastodon.tracking.mamut.detection.DetectionQualityFeature;
+import org.mastodon.ui.coloring.GlasbeyLut;
+import org.mastodon.util.TagSetUtils;
 import org.scijava.plugin.Plugin;
 import org.scijava.util.VersionUtils;
 
@@ -64,7 +76,7 @@ import com.opencsv.CSVReaderBuilder;
 
 import net.imglib2.algorithm.Algorithm;
 
-public class CSVImporter implements Algorithm
+public class CSVImporter extends ModelImporter implements Algorithm
 {
 
 	public static final String PLUGIN_VERSION = VersionUtils.getVersion( CSVImporter.class );
@@ -83,9 +95,15 @@ public class CSVImporter implements Algorithm
 
 	private final String qualityColumnName;
 
+	private final String radiusColumnName;
+
 	private final String idColumnName;
 
+	private final String parentIdColumnName;
+
 	private final String labelColumnName;
+
+	private final String tagColumnName;
 
 	private final double radius;
 
@@ -109,12 +127,16 @@ public class CSVImporter implements Algorithm
 			final String zColumnName,
 			final String frameColumnName,
 			final String qualityColumName,
+			final String radiusColumnName,
 			final String idColumnName,
+			final String parentIdColumnName,
 			final String labelColumnName,
+			final String tagColumnName,
 			final double xOrigin,
 			final double yOrigin,
 			final double zOrigin )
 	{
+		super( model );
 		this.model = model;
 		this.filePath = filePath;
 		this.separator = separator;
@@ -124,8 +146,11 @@ public class CSVImporter implements Algorithm
 		this.zColumnName = zColumnName;
 		this.frameColumnName = frameColumnName;
 		this.qualityColumnName = qualityColumName;
+		this.radiusColumnName = radiusColumnName;
 		this.idColumnName = idColumnName;
+		this.parentIdColumnName = parentIdColumnName;
 		this.labelColumnName = labelColumnName;
+		this.tagColumnName = tagColumnName;
 		this.xOrigin = xOrigin;
 		this.yOrigin = yOrigin;
 		this.zOrigin = zOrigin;
@@ -196,11 +221,10 @@ public class CSVImporter implements Algorithm
 						.withSeparator( separator )
 						.withIgnoreQuotations( true )
 						.build();
-		try
+		try (final CSVReader reader = new CSVReaderBuilder( new FileReader( filePath ) )
+				.withCSVParser( parser )
+				.build())
 		{
-			final CSVReader reader = new CSVReaderBuilder( new FileReader( filePath ) )
-					.withCSVParser( parser )
-					.build();
 			final Iterator< String[] > it = reader.iterator();
 
 			/*
@@ -267,6 +291,10 @@ public class CSVImporter implements Algorithm
 					? null
 					: DetectionQualityFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 
+			Integer radiuscol = null;
+			if ( null != radiusColumnName && !radiusColumnName.isEmpty() )
+				radiuscol = headerMap.get( radiusColumnName );
+
 			Integer idcol = null;
 			if ( null != idColumnName && !idColumnName.isEmpty() )
 				idcol = headerMap.get( idColumnName );
@@ -275,9 +303,23 @@ public class CSVImporter implements Algorithm
 					? null
 					: OriginalIdFeature.getOrRegister( model.getFeatureModel(), graph.vertices().getRefPool() );
 
+			Integer parentIdcol = null;
+			if ( null != parentIdColumnName && !parentIdColumnName.isEmpty() )
+				parentIdcol = headerMap.get( parentIdColumnName );
+
 			Integer labelcol = null;
 			if ( null != labelColumnName && !labelColumnName.isEmpty() )
 				labelcol = headerMap.get( labelColumnName );
+
+			Integer tagcol = null;
+			if ( null != tagColumnName && !tagColumnName.isEmpty() )
+				tagcol = headerMap.get( tagColumnName );
+
+			TagSetStructure.TagSet importedTagSet = null;
+			if ( null != tagcol )
+				importedTagSet = parseTagsFromFile( parser, tagcol );
+
+			IntRefMap< Spot > spotMap = new IntRefHashMap<>( model.getGraph().vertices().getRefPool(), -1 );
 
 			/*
 			 * Iterate over the rest of lines.
@@ -286,7 +328,12 @@ public class CSVImporter implements Algorithm
 			final WriteLock lock = graph.getLock().writeLock();
 			lock.lock();
 			final Spot vref = graph.vertexRef();
+			final Spot parentVertexRef = graph.vertexRef();
+			final Link edgeRef = graph.edgeRef();
 			final double[] pos = new double[ 3 ];
+			startImport();
+			if ( null != tagcol )
+				model.getTagSetModel().pauseListeners();
 
 			try
 			{
@@ -298,29 +345,45 @@ public class CSVImporter implements Algorithm
 
 					try
 					{
-						pos[ 0 ] = Double.parseDouble( record[ xcol ] ) + xOrigin;
-						pos[ 1 ] = Double.parseDouble( record[ ycol ] ) + yOrigin;
-						pos[ 2 ] = Double.parseDouble( record[ zcol ] ) + zOrigin;
-						final int t = Integer.parseInt( record[ framecol ] );
+						pos[ 0 ] = Double.parseDouble( record[ xcol ].trim() ) + xOrigin;
+						pos[ 1 ] = Double.parseDouble( record[ ycol ].trim() ) + yOrigin;
+						pos[ 2 ] = Double.parseDouble( record[ zcol ].trim() ) + zOrigin;
+						final int t = Integer.parseInt( record[ framecol ].trim() );
 
-						final Spot spot = graph.addVertex( vref ).init( t, pos, radius );
+						double r = radius;
+						if ( null != radiuscol )
+							r = Double.parseDouble( record[ radiuscol ].trim() );
+
+						final Spot spot = graph.addVertex( vref ).init( t, pos, r );
 						if ( null != idcol )
 						{
-							final int id = Integer.parseInt( record[ idcol ] );
+							final int id = Integer.parseInt( record[ idcol ].trim() );
 							originalIdFeature.set( spot, id );
+							if ( null != parentIdcol )
+								spotMap.put( id, spot );
 							if ( null == labelcol )
 								spot.setLabel( "" + id );
 						}
 
 						if ( null != labelcol )
 						{
-							spot.setLabel( record[ labelcol ] );
+							String label = record[ labelcol ].trim();
+							spot.setLabel( label );
 						}
+
 						double q = 1.;
 						if ( null != qualitycol )
 						{
-							q = Double.parseDouble( record[ qualitycol ] );
+							q = Double.parseDouble( record[ qualitycol ].trim() );
 							qualityFeature.set( spot, q );
+						}
+
+						if ( null != tagcol )
+						{
+							String label = record[ tagcol ].trim();
+							TagSetStructure.Tag tag = TagSetUtils.findTag( importedTagSet, label );
+							TagSetUtils.tagSpot( model, importedTagSet, tag, spot );
+							TagSetUtils.tagLinks( model, importedTagSet, tag, spot.incomingEdges() );
 						}
 					}
 					catch ( final NumberFormatException nfe )
@@ -330,16 +393,29 @@ public class CSVImporter implements Algorithm
 						continue;
 					}
 				}
+				if ( null != parentIdcol )
+					parseLinksFromFile( parser, spotMap, idcol, vref, parentIdcol, parentVertexRef, edgeRef );
 			}
 			finally
 			{
 				lock.unlock();
 				graph.releaseRef( vref );
+				graph.releaseRef( parentVertexRef );
+				graph.releaseRef( edgeRef );
+				if ( null != tagcol )
+					model.getTagSetModel().resumeListeners();
+				finishImport();
 			}
 		}
 		catch ( final FileNotFoundException e )
 		{
 			errorMessage = "Cannot find file " + filePath;
+			e.printStackTrace();
+			return false;
+		}
+		catch ( final IOException e )
+		{
+			errorMessage = "Error reading file " + filePath;
 			e.printStackTrace();
 			return false;
 		}
@@ -349,6 +425,63 @@ public class CSVImporter implements Algorithm
 		 */
 
 		return true;
+	}
+
+	private void parseLinksFromFile( final CSVParser parser, final IntRefMap< Spot > spotMap, final int idCol, final Spot spotRef,
+			final int parentIdcol, final Spot parentSpotRef, final Link edgeRef )
+	{
+		try (final CSVReader readerTags = new CSVReaderBuilder( new FileReader( filePath ) )
+				.withCSVParser( parser )
+				.build())
+		{
+			Iterator< String[] > csvIterator = readerTags.iterator();
+			csvIterator.next();
+			while ( csvIterator.hasNext() )
+			{
+				final String[] line = csvIterator.next();
+				final int spotId = Integer.parseInt( line[ idCol ].trim() );
+				final Spot spot = spotMap.get( spotId, spotRef );
+				final int parentId = Integer.parseInt( line[ parentIdcol ].trim() );
+				final Spot parent = spotMap.get( parentId, parentSpotRef );
+				if ( parent != null && spot != null )
+					model.getGraph().addEdge( parent, spot, edgeRef ).init();
+			}
+		}
+		catch ( final IOException e )
+		{
+			errorMessage = "Error reading file " + filePath;
+			e.printStackTrace();
+		}
+	}
+
+	private TagSetStructure.TagSet parseTagsFromFile( final CSVParser parser, int labelcol )
+	{
+		try (final CSVReader readerTags = new CSVReaderBuilder( new FileReader( filePath ) )
+				.withCSVParser( parser )
+				.build())
+		{
+			Iterator< String[] > csvIterator = readerTags.iterator();
+
+			Set< String > tags = new HashSet<>();
+			csvIterator.next();
+			while ( csvIterator.hasNext() )
+			{
+				final String[] line = csvIterator.next();
+				String tag = line[ labelcol ].trim();
+				tags.add( tag );
+			}
+			GlasbeyLut glasbeyLut = new GlasbeyLut();
+			List< Pair< String, Integer > > tagsAndColors =
+					tags.stream().map( tag -> Pair.of( tag, glasbeyLut.next() ) ).collect( Collectors.toList() );
+
+			return TagSetUtils.addNewTagSetToModel( model, "Imported Tags", tagsAndColors );
+		}
+		catch ( final IOException e )
+		{
+			errorMessage = "Error reading file " + filePath;
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override
@@ -447,9 +580,15 @@ public class CSVImporter implements Algorithm
 
 		private String qualityColumnName;
 
+		private String radiusColumnName;
+
 		private String idColumnName;
 
+		private String parentIdColumnName;
+
 		private String labelColumnName;
+
+		private String tagColumnName;
 
 		private double xOrigin = 0.;
 
@@ -507,15 +646,33 @@ public class CSVImporter implements Algorithm
 			return this;
 		}
 
+		public Builder radiusColumnName( final String radiusColumnName )
+		{
+			this.radiusColumnName = radiusColumnName;
+			return this;
+		}
+
 		public Builder idColumnName( final String idColumnName )
 		{
 			this.idColumnName = idColumnName;
 			return this;
 		}
 
+		public Builder parentIdColumnName( final String parentIdColumnName )
+		{
+			this.parentIdColumnName = parentIdColumnName;
+			return this;
+		}
+
 		public Builder labelColumnName( final String labelColumnName )
 		{
 			this.labelColumnName = labelColumnName;
+			return this;
+		}
+
+		public Builder tagColumnName( final String tagColumnName )
+		{
+			this.tagColumnName = tagColumnName;
 			return this;
 		}
 
@@ -608,8 +765,11 @@ public class CSVImporter implements Algorithm
 					zColumnName,
 					frameColumnName,
 					qualityColumnName,
+					radiusColumnName,
 					idColumnName,
+					parentIdColumnName,
 					labelColumnName,
+					tagColumnName,
 					xOrigin,
 					yOrigin,
 					zOrigin );
