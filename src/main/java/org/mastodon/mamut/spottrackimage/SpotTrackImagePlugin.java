@@ -64,7 +64,7 @@ import org.scijava.ui.behaviour.util.Actions;
 public class SpotTrackImagePlugin implements MamutPlugin
 {
 
-	public static final String[] MENU_PATH = new String[] { "Plugins" };
+	public static final String[] MENU_PATH = new String[] { "Plugins", "Image data" };
 
 	public static final String SHOW_TRACK_IMAGE_DIALOG_ACTION = "show spot track image dialog";
 
@@ -74,7 +74,7 @@ public class SpotTrackImagePlugin implements MamutPlugin
 
 	static
 	{
-		menuTexts.put( SHOW_TRACK_IMAGE_DIALOG_ACTION, "Track image" );
+		menuTexts.put( SHOW_TRACK_IMAGE_DIALOG_ACTION, "Spot trajectory image extractor" );
 	}
 
 	private final ToggleTrackImageDialogAction toggleDialog = new ToggleTrackImageDialogAction();
