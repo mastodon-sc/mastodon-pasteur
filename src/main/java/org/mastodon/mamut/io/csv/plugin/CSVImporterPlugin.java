@@ -28,11 +28,15 @@
  */
 package org.mastodon.mamut.io.csv.plugin;
 
+import static org.mastodon.app.ui.ViewMenuBuilder.item;
+import static org.mastodon.app.ui.ViewMenuBuilder.menu;
+
 import java.awt.BorderLayout;
 import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,8 +63,6 @@ import org.scijava.ui.behaviour.util.Actions;
 public class CSVImporterPlugin implements MamutPlugin
 {
 
-	public static final String[] MENU_PATH = new String[] { "Plugins", "Imports" };
-
 	public static final String SHOW_CSV_IMPORTER_DIALOG_ACTION = "show csv importer dialog";
 
 	private static final String[] ACTION_1_KEYS = new String[] { "not mapped" };
@@ -83,7 +85,8 @@ public class CSVImporterPlugin implements MamutPlugin
 	@Override
 	public List< MenuItem > getMenuItems()
 	{
-		return Arrays.asList( makeFullMenuItem( MamutMenuBuilder.item( SHOW_CSV_IMPORTER_DIALOG_ACTION ) ) );
+		return Collections.singletonList(
+				MamutMenuBuilder.fileMenu( menu( "Import", item( SHOW_CSV_IMPORTER_DIALOG_ACTION ) ) ) );
 	}
 
 	@Override
@@ -96,14 +99,6 @@ public class CSVImporterPlugin implements MamutPlugin
 	public void setAppPluginModel( final ProjectModel appModel )
 	{
 		toggleImporterDialog.setModel( appModel.getModel() );
-	}
-
-	private static final MenuItem makeFullMenuItem( final MenuItem item )
-	{
-		MenuItem menuPath = item;
-		for ( int i = MENU_PATH.length - 1; i >= 0; i-- )
-			menuPath = MamutMenuBuilder.menu( MENU_PATH[ i ], menuPath );
-		return menuPath;
 	}
 
 	/**
