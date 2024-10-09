@@ -58,7 +58,7 @@ import bdv.ui.settings.style.StyleProfileManager;
 public class NearestObjectStatPlugin implements MamutPlugin
 {
 
-	public static final String[] MENU_PATH = new String[] { "Plugins", "Compute Feature" };
+	public static final String[] MENU_PATH = new String[] { "Plugins", "Compute feature" };
 
 	public static final String SHOW_NEAREST_NEIGHBORS_STATS_DIALOG_ACTION = "generate statistics on nearest neighbors";
 

@@ -71,7 +71,7 @@ public class CSVImporterPlugin implements MamutPlugin
 
 	static
 	{
-		menuTexts.put( SHOW_CSV_IMPORTER_DIALOG_ACTION, "CSV Importer" );
+		menuTexts.put( SHOW_CSV_IMPORTER_DIALOG_ACTION, "CSV importer" );
 	}
 
 	private final ToggleCSVImporterDialogAction toggleImporterDialog = new ToggleCSVImporterDialogAction();
