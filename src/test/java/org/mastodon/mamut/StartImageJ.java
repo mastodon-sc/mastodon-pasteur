@@ -1,8 +1,8 @@
 /*-
  * #%L
- * mastodon-deep-lineage
+ * mastodon-pasteur
  * %%
- * Copyright (C) 2022 - 2024 Stefan Hahmann
+ * Copyright (C) 2019 - 2024 Tobias Pietzsch, Jean-Yves Tinevez
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
