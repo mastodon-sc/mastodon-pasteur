@@ -131,7 +131,7 @@ public class NearestObjectStatPlugin implements MamutPlugin
 		public void getCommandDescriptions( final CommandDescriptions descriptions )
 		{
 			descriptions.add( SHOW_NEAREST_NEIGHBORS_STATS_DIALOG_ACTION, ACTION_1_KEYS,
-					"Cpmpute statistics on nearest neighbors and store them as feature values." );
+					"Compute statistics on nearest neighbors and store them as feature values." );
 		}
 	}
 
