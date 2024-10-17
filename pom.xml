@@ -10,7 +10,7 @@
 	
 	<groupId>org.mastodon</groupId>
 	<artifactId>mastodon-pasteur</artifactId>
-	<version>1.0.0-beta-11-SNAPSHOT</version>
+	<version>1.0.0-beta-12-SNAPSHOT</version>
 
 	<name>Mastodon Pasteur Plugins</name>
 	<description>Mastodon plugins developed in the context of Pasteur users projects.</description>
