@@ -30,12 +30,6 @@
 	<dependencies>
 
 		<!-- Mastodon deps -->
-
-		<dependency>
-			<groupId>org.mastodon</groupId>
-			<artifactId>mastodon</artifactId>
-			<version>${mastodon.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>org.mastodon</groupId>
 			<artifactId>mastodon-tracking</artifactId>
@@ -100,8 +94,7 @@
 		<license.organizationName>Mastodon authors</license.organizationName>
 		<license.copyrightOwners>Tobias Pietzsch, Jean-Yves Tinevez</license.copyrightOwners>
 		
-		<mastodon.version>1.0.0-beta-33</mastodon.version>
-		<mastodon-tracking.version>1.0.0-beta-18</mastodon-tracking.version>
+		<mastodon-tracking.version>1.0.0-beta-19</mastodon-tracking.version>
 		
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
